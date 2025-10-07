@@ -1,0 +1,8 @@
+Multi-threading is on. Using 14 slave threads.
+Running compilation flowC:\Xilinx\2025.1\Vivado\data\..\tps\mingw\6.2.0\win64.o\nt\bin\gcc.exe  -fPIC -c -Wa,-W    -I"C:\Xilinx\2025.1\Vivado\data/xsim/include" -I"C:\Xilinx\2025.1\Vivado\data/xsim/systemc" "C:/Users/saaed/OneDrive/Desktop/Capstone/scapy/sim/dpi_sock_win.c" -o "xsim.dir/work\xsc\dpi_sock_win.win64.obj" -DXILINX_SIMULATOR -Wno-deprecated-declarations 
+Waiting for 1 sub-compilation(s) to finish...
+Done compilation
+Linking with command:
+C:\Xilinx\2025.1\Vivado\data\..\tps\mingw\6.2.0\win64.o\nt\bin\ar.exe rcs "xsim.dir/work\xsc\dpi.a" "xsim.dir/work\xsc\dpi_sock_win.win64.obj"   
+
+Done linking: "xsim.dir/work\xsc\dpi.a"

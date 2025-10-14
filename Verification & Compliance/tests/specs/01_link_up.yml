@@ -1,0 +1,10 @@
+name: link_up
+backend: sim
+test:
+  type: link_up
+  dst_mac: "02:ca:fe:00:00:01"
+  src_mac: "02:ca:fe:00:00:02"
+  dst_ip:  "192.168.100.2"
+payload: "hello10g"
+axis_width_bytes: 8
+endianness: "msb-first"

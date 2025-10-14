@@ -1,6 +1,0 @@
-Vivado Simulator v2025.1.0
-Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
-Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
-Running: C:/Xilinx/2025.1/Vivado/bin/unwrapped/win64.o/xelab.exe top_tb -sv_lib dpi -timescale 1ns/1ps -debug typical -s top_sim 
-Multi-threading is on. Using 14 slave threads.
-ERROR: [XSIM 43-3225] Cannot find design unit work.top_tb in library work located at xsim.dir/work.

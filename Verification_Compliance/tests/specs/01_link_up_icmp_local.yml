@@ -1,0 +1,10 @@
+name: link_up_local
+backend: local
+test:
+  type: link_up
+  iface: "Loopback"       # substring match; run `list-ifaces` to confirm wording
+  l3: icmp                # or "udp"
+  dst_ip: "127.0.0.1"
+  count: 3
+  timeout: 2
+payload: "hello-local"

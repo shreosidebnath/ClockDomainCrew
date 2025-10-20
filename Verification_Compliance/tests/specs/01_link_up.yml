@@ -1,0 +1,11 @@
+name: link_up
+backend: hw
+test:
+  type: link_up
+  iface: "eth10"           # change to your NIC
+  src_mac: "02:ca:fe:00:00:02"
+  dst_mac: "02:ca:fe:00:00:01"
+  src_ip:  "192.168.100.1" # (optional) only used if you want ARP/ICMP
+  dst_ip:  "192.168.100.2"
+  l3: icmp                  # or "arp" or "raw"
+payload: "hello10g"

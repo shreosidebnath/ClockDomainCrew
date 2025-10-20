@@ -1,17 +1,14 @@
-#!/usr/bin/env python
-# import argparse, sys
-# from scapy.all import (
-#     conf, get_if_hwaddr, getmacbyip,
-#     get_windows_if_list,  # Windows helper
-#     Ether, IP, ICMP, UDP, Raw,
-#     sendp, sr, sniff
-# )
 import argparse
-from scapy.all import (
-    conf, IFACES, get_if_hwaddr, getmacbyip,
-    Ether, IP, ICMP, UDP, Raw,
-    sendp, sr, sniff, show_interfaces
-)
+import socket, threading, time, yaml, os
+
+# Keep the runtime helpers here
+from scapy.all import conf, IFACES, sr, sniff
+
+# Pull protocol classes from their defining modules (Pylance-friendly)
+from scapy.layers.l2 import Ether
+from scapy.layers.inet import IP, ICMP, UDP
+from scapy.packet import Raw
+
 try:
     # Available on Windows builds, but not always re-exported via scapy.all
     from scapy.arch.windows import get_windows_if_list  # type: ignore
@@ -87,6 +84,88 @@ def selftest():
         print(f"[SELFTEST] vec {idx}: {pkt.summary()}  -> OK")
     print("[SELFTEST] PASS")
 
+def _udp_echo_server(bind_ip="127.0.0.1", port=12345, stop_after=5.0):
+    """
+    Tiny UDP echo server for local testing. Runs in a background thread.
+    Echoes any UDP datagrams it receives back to the sender.
+    """
+    def _run():
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.bind((bind_ip, port))
+        sock.settimeout(0.25)
+        t0 = time.time()
+        try:
+            while time.time() - t0 < stop_after:
+                try:
+                    data, addr = sock.recvfrom(65535)
+                    if not data:
+                        continue
+                    sock.sendto(data, addr)
+                except socket.timeout:
+                    pass
+        finally:
+            sock.close()
+    th = threading.Thread(target=_run, daemon=True)
+    th.start()
+    return th
+
+def run_linkup_from_spec(yaml_path: str):
+    """
+    Run a 'link_up' style test from a YAML spec, but in LOCAL mode.
+    Supports:
+      - l3: icmp   -> ping 127.0.0.1 (or given dst_ip)
+      - l3: udp    -> spin local UDP echo server, send UDP payload, sniff reply
+    """
+    if not os.path.exists(yaml_path):
+        raise SystemExit(f"[ERR] Spec not found: {yaml_path}")
+    doc = yaml.safe_load(open(yaml_path, "r", encoding="utf-8"))
+    name = doc.get("name", "link_up")
+    t = doc.get("test", {})
+    l3 = t.get("l3", "icmp").lower()
+    iface = t.get("iface", "Loopback")           # best-effort match by your set_iface()
+    dst_ip = t.get("dst_ip", "127.0.0.1")
+    count  = int(t.get("count", 3))
+    timeout= int(t.get("timeout", 2))
+    payload= (doc.get("payload") or "hello-local").encode() if isinstance(doc.get("payload"), str) else (doc.get("payload") or b"hello-local")
+
+    print(f"[SPEC] name={name} l3={l3} iface={iface} dst_ip={dst_ip} count={count} timeout={timeout}")
+    conf.iface = set_iface(iface)
+
+    if l3 == "icmp":
+        # Use existing ping helper
+        send_ping(iface, dst_ip, count=count, timeout=timeout)
+        # Also sniff to show packets happened (loopback)
+        sniff_packets(iface, bpf="icmp", count=count, timeout=max(5, timeout+2))
+        print("PASS (local-icmp): ICMP loopback exercised.")
+        return
+
+    if l3 == "udp":
+        # Start a local UDP echo server on dst_ip:udp_port (defaults: 127.0.0.1:12345)
+        udp_port = int(t.get("udp_port", 12345))
+        echo_thread = _udp_echo_server(bind_ip=dst_ip, port=udp_port, stop_after=5.0)
+
+        # Open a short sniff window that should catch our TX and the echo
+        print(f"[LOCAL-UDP] sniffer starting; expecting echo on {dst_ip}:{udp_port}")
+        # NOTE: On Windows loopback, BPF 'udp' is fine.
+        sniffer = threading.Thread(
+            target=lambda: sniff_packets(iface, bpf="udp", count=count*2, timeout=5),
+            daemon=True
+        )
+        sniffer.start()
+        time.sleep(0.25)
+
+        # Send UDP payloads using existing helper
+        for _ in range(count):
+            send_udp(iface, dst_ip, dport=udp_port, payload=payload, timeout=timeout)
+            time.sleep(0.05)
+
+        sniffer.join(timeout=6)
+        echo_thread.join(timeout=6)
+        print("PASS (local-udp): UDP loopback echo exercised.")
+        return
+
+    raise SystemExit(f"[ERR] Unsupported l3 in spec for local mode: {l3}")
+
 def main():
     ap = argparse.ArgumentParser(description="Scapy lab (Windows-friendly)")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -112,6 +191,10 @@ def main():
     p_sniff.add_argument("--count", type=int, default=5)
     p_sniff.add_argument("--timeout", type=int, default=5)
 
+    p_spec = sub.add_parser("run-spec", help="Run a link_up-style YAML spec in LOCAL mode")
+    p_spec.add_argument("--spec", required=True, help="Path to YAML spec")
+
+
     sub.add_parser("selftest", help="no-network unit sanity")
 
     args = ap.parse_args()
@@ -125,6 +208,8 @@ def main():
         send_udp(args.iface, args.dst_ip, args.dport, args.payload.encode(), args.timeout)
     elif args.cmd == "sniff":
         sniff_packets(args.iface, args.bpf, args.count, args.timeout)
+    elif args.cmd == "run-spec":
+        run_linkup_from_spec(args.spec)
 
 if __name__ == "__main__":
     main()

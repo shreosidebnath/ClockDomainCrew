@@ -11,19 +11,46 @@ VL_ATTR_COLD void Vaxis_loopback___024root___eval_static(Vaxis_loopback___024roo
     VL_DEBUG_IF(VL_DBG_MSGF("+    Vaxis_loopback___024root___eval_static\n"); );
 }
 
+VL_ATTR_COLD void Vaxis_loopback___024root___eval_initial__TOP(Vaxis_loopback___024root* vlSelf);
+
 VL_ATTR_COLD void Vaxis_loopback___024root___eval_initial(Vaxis_loopback___024root* vlSelf) {
     if (false && vlSelf) {}  // Prevent unused
     Vaxis_loopback__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     VL_DEBUG_IF(VL_DBG_MSGF("+    Vaxis_loopback___024root___eval_initial\n"); );
     // Body
+    Vaxis_loopback___024root___eval_initial__TOP(vlSelf);
     vlSelf->__Vtrigprevexpr___TOP__clk156__0 = vlSelf->clk156;
-    vlSelf->__Vtrigprevexpr___TOP__resetn__0 = vlSelf->resetn;
 }
+
+void Vaxis_loopback___024root____Vdpiimwrap_axis_loopback__DOT__socket_init_TOP(std::string ip, IData/*31:0*/ port);
+
+VL_ATTR_COLD void Vaxis_loopback___024root___eval_initial__TOP(Vaxis_loopback___024root* vlSelf) {
+    if (false && vlSelf) {}  // Prevent unused
+    Vaxis_loopback__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vaxis_loopback___024root___eval_initial__TOP\n"); );
+    // Body
+    Vaxis_loopback___024root____Vdpiimwrap_axis_loopback__DOT__socket_init_TOP(
+                                                                               std::string{"127.0.0.1"}, 0x2328U);
+}
+
+VL_ATTR_COLD void Vaxis_loopback___024root___eval_final__TOP(Vaxis_loopback___024root* vlSelf);
 
 VL_ATTR_COLD void Vaxis_loopback___024root___eval_final(Vaxis_loopback___024root* vlSelf) {
     if (false && vlSelf) {}  // Prevent unused
     Vaxis_loopback__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     VL_DEBUG_IF(VL_DBG_MSGF("+    Vaxis_loopback___024root___eval_final\n"); );
+    // Body
+    Vaxis_loopback___024root___eval_final__TOP(vlSelf);
+}
+
+void Vaxis_loopback___024root____Vdpiimwrap_axis_loopback__DOT__socket_close_TOP();
+
+VL_ATTR_COLD void Vaxis_loopback___024root___eval_final__TOP(Vaxis_loopback___024root* vlSelf) {
+    if (false && vlSelf) {}  // Prevent unused
+    Vaxis_loopback__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vaxis_loopback___024root___eval_final__TOP\n"); );
+    // Body
+    Vaxis_loopback___024root____Vdpiimwrap_axis_loopback__DOT__socket_close_TOP();
 }
 
 #ifdef VL_DEBUG
@@ -47,7 +74,7 @@ VL_ATTR_COLD void Vaxis_loopback___024root___eval_settle(Vaxis_loopback___024roo
 #ifdef VL_DEBUG
             Vaxis_loopback___024root___dump_triggers__stl(vlSelf);
 #endif
-            VL_FATAL_MT("../rtl/axis_loopback.v", 1, "", "Settle region did not converge.");
+            VL_FATAL_MT("../rtl/axis_loopback.sv", 1, "", "Settle region did not converge.");
         }
         __VstlIterCount = ((IData)(1U) + __VstlIterCount);
         __VstlContinue = 0U;
@@ -127,7 +154,7 @@ VL_ATTR_COLD void Vaxis_loopback___024root___dump_triggers__act(Vaxis_loopback__
         VL_DBG_MSGF("         No triggers active\n");
     }
     if ((1ULL & vlSelf->__VactTriggered.word(0U))) {
-        VL_DBG_MSGF("         'act' region trigger index 0 is active: @(posedge clk156 or negedge resetn)\n");
+        VL_DBG_MSGF("         'act' region trigger index 0 is active: @(posedge clk156)\n");
     }
 }
 #endif  // VL_DEBUG
@@ -142,7 +169,7 @@ VL_ATTR_COLD void Vaxis_loopback___024root___dump_triggers__nba(Vaxis_loopback__
         VL_DBG_MSGF("         No triggers active\n");
     }
     if ((1ULL & vlSelf->__VnbaTriggered.word(0U))) {
-        VL_DBG_MSGF("         'nba' region trigger index 0 is active: @(posedge clk156 or negedge resetn)\n");
+        VL_DBG_MSGF("         'nba' region trigger index 0 is active: @(posedge clk156)\n");
     }
 }
 #endif  // VL_DEBUG
@@ -165,5 +192,4 @@ VL_ATTR_COLD void Vaxis_loopback___024root___ctor_var_reset(Vaxis_loopback___024
     vlSelf->rx_axis_tready = VL_RAND_RESET_I(1);
     vlSelf->rx_axis_tlast = VL_RAND_RESET_I(1);
     vlSelf->__Vtrigprevexpr___TOP__clk156__0 = VL_RAND_RESET_I(1);
-    vlSelf->__Vtrigprevexpr___TOP__resetn__0 = VL_RAND_RESET_I(1);
 }

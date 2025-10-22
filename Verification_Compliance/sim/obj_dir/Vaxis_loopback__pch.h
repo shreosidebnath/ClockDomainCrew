@@ -19,6 +19,7 @@
 
 
 #include "verilated.h"
+#include "verilated_dpi.h"
 
 #include "Vaxis_loopback__Syms.h"
 #include "Vaxis_loopback.h"

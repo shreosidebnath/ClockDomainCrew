@@ -9,10 +9,10 @@
 #define VERILATED_VAXIS_LOOPBACK_H_  // guard
 
 #include "verilated.h"
+#include "svdpi.h"
 
 class Vaxis_loopback__Syms;
 class Vaxis_loopback___024root;
-class VerilatedVcdC;
 
 // This class is the main interface to the Verilated model
 class alignas(VL_CACHE_LINE_BYTES) Vaxis_loopback VL_NOT_FINAL : public VerilatedModel {
@@ -88,7 +88,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vaxis_loopback VL_NOT_FINAL : public Verilate
     /// Re-init after cloning the model at the process level (e.g. fork in Linux)
     /// Re-allocate necessary resources. Called after cloning.
     void atClone() const;
-    std::unique_ptr<VerilatedTraceConfig> traceConfig() const override final;
 };
 
 #endif  // guard

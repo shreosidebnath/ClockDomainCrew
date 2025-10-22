@@ -27,7 +27,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vaxis_loopback___024root final : public Veril
     CData/*0:0*/ __VstlFirstIteration;
     CData/*0:0*/ __VicoFirstIteration;
     CData/*0:0*/ __Vtrigprevexpr___TOP__clk156__0;
-    CData/*0:0*/ __Vtrigprevexpr___TOP__resetn__0;
     CData/*0:0*/ __VactContinue;
     IData/*31:0*/ __VactIterCount;
     VL_IN64(tx_axis_tdata,63,0);

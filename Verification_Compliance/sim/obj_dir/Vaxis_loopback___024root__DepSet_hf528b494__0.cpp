@@ -46,21 +46,38 @@ void Vaxis_loopback___024root___eval_act(Vaxis_loopback___024root* vlSelf) {
     VL_DEBUG_IF(VL_DBG_MSGF("+    Vaxis_loopback___024root___eval_act\n"); );
 }
 
+void Vaxis_loopback___024root____Vdpiimwrap_axis_loopback__DOT__socket_send_TOP(QData/*63:0*/ data, IData/*31:0*/ len);
+void Vaxis_loopback___024root____Vdpiimwrap_axis_loopback__DOT__socket_recv_TOP(QData/*63:0*/ &data, IData/*31:0*/ len, IData/*31:0*/ &socket_recv__Vfuncrtn);
+
 VL_INLINE_OPT void Vaxis_loopback___024root___nba_sequent__TOP__0(Vaxis_loopback___024root* vlSelf) {
     if (false && vlSelf) {}  // Prevent unused
     Vaxis_loopback__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     VL_DEBUG_IF(VL_DBG_MSGF("+    Vaxis_loopback___024root___nba_sequent__TOP__0\n"); );
+    // Init
+    QData/*63:0*/ axis_loopback__DOT__unnamedblk1__DOT__recv_data;
+    axis_loopback__DOT__unnamedblk1__DOT__recv_data = 0;
+    IData/*31:0*/ axis_loopback__DOT__unnamedblk1__DOT__recv_len;
+    axis_loopback__DOT__unnamedblk1__DOT__recv_len = 0;
+    IData/*31:0*/ __Vfunc_axis_loopback__DOT__socket_recv__2__Vfuncout;
+    __Vfunc_axis_loopback__DOT__socket_recv__2__Vfuncout = 0;
+    QData/*63:0*/ __Vfunc_axis_loopback__DOT__socket_recv__2__data;
+    __Vfunc_axis_loopback__DOT__socket_recv__2__data = 0;
     // Body
-    vlSelf->rx_axis_tlast = ((IData)(vlSelf->resetn) 
-                             && (IData)(vlSelf->tx_axis_tlast));
-    vlSelf->rx_axis_tvalid = ((IData)(vlSelf->resetn) 
-                              && (IData)(vlSelf->tx_axis_tvalid));
-    if (vlSelf->resetn) {
-        vlSelf->rx_axis_tkeep = vlSelf->tx_axis_tkeep;
-        vlSelf->rx_axis_tdata = vlSelf->tx_axis_tdata;
+    if (((IData)(vlSelf->tx_axis_tvalid) & (IData)(vlSelf->tx_axis_tready))) {
+        Vaxis_loopback___024root____Vdpiimwrap_axis_loopback__DOT__socket_send_TOP(vlSelf->tx_axis_tdata, 8U);
+    }
+    Vaxis_loopback___024root____Vdpiimwrap_axis_loopback__DOT__socket_recv_TOP(__Vfunc_axis_loopback__DOT__socket_recv__2__data, 8U, __Vfunc_axis_loopback__DOT__socket_recv__2__Vfuncout);
+    axis_loopback__DOT__unnamedblk1__DOT__recv_data 
+        = __Vfunc_axis_loopback__DOT__socket_recv__2__data;
+    axis_loopback__DOT__unnamedblk1__DOT__recv_len 
+        = __Vfunc_axis_loopback__DOT__socket_recv__2__Vfuncout;
+    if (VL_LTS_III(32, 0U, axis_loopback__DOT__unnamedblk1__DOT__recv_len)) {
+        vlSelf->rx_axis_tdata = axis_loopback__DOT__unnamedblk1__DOT__recv_data;
+        vlSelf->rx_axis_tvalid = 1U;
+        vlSelf->rx_axis_tkeep = 0xffU;
+        vlSelf->rx_axis_tlast = 1U;
     } else {
-        vlSelf->rx_axis_tkeep = 0U;
-        vlSelf->rx_axis_tdata = 0ULL;
+        vlSelf->rx_axis_tvalid = 0U;
     }
 }
 
@@ -137,7 +154,7 @@ void Vaxis_loopback___024root___eval(Vaxis_loopback___024root* vlSelf) {
 #ifdef VL_DEBUG
             Vaxis_loopback___024root___dump_triggers__ico(vlSelf);
 #endif
-            VL_FATAL_MT("../rtl/axis_loopback.v", 1, "", "Input combinational region did not converge.");
+            VL_FATAL_MT("../rtl/axis_loopback.sv", 1, "", "Input combinational region did not converge.");
         }
         __VicoIterCount = ((IData)(1U) + __VicoIterCount);
         __VicoContinue = 0U;
@@ -153,7 +170,7 @@ void Vaxis_loopback___024root___eval(Vaxis_loopback___024root* vlSelf) {
 #ifdef VL_DEBUG
             Vaxis_loopback___024root___dump_triggers__nba(vlSelf);
 #endif
-            VL_FATAL_MT("../rtl/axis_loopback.v", 1, "", "NBA region did not converge.");
+            VL_FATAL_MT("../rtl/axis_loopback.sv", 1, "", "NBA region did not converge.");
         }
         __VnbaIterCount = ((IData)(1U) + __VnbaIterCount);
         __VnbaContinue = 0U;
@@ -164,7 +181,7 @@ void Vaxis_loopback___024root___eval(Vaxis_loopback___024root* vlSelf) {
 #ifdef VL_DEBUG
                 Vaxis_loopback___024root___dump_triggers__act(vlSelf);
 #endif
-                VL_FATAL_MT("../rtl/axis_loopback.v", 1, "", "Active region did not converge.");
+                VL_FATAL_MT("../rtl/axis_loopback.sv", 1, "", "Active region did not converge.");
             }
             vlSelf->__VactIterCount = ((IData)(1U) 
                                        + vlSelf->__VactIterCount);

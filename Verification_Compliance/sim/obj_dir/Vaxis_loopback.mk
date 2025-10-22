@@ -4,7 +4,7 @@
 # Execute this makefile from the object directory:
 #    make -f Vaxis_loopback.mk
 
-default: Vaxis_loopback
+default: libVaxis_loopback
 
 ### Constants...
 # Perl executable (from $PERL)
@@ -35,18 +35,15 @@ VM_PREFIX = Vaxis_loopback
 VM_MODPREFIX = Vaxis_loopback
 # User CFLAGS (from -CFLAGS on Verilator command line)
 VM_USER_CFLAGS = \
-	-fPIC -shared --std=c++11 -DVL_USER_FINISH \
 
 # User LDLIBS (from -LDFLAGS on Verilator command line)
 VM_USER_LDLIBS = \
 
 # User .cpp files (from .cpp's on Verilator command line)
 VM_USER_CLASSES = \
-	pyverilator_wrapper \
 
 # User .cpp directories (from .cpp's on Verilator command line)
 VM_USER_DIR = \
-	obj_dir \
 
 
 ### Default rules...
@@ -55,15 +52,9 @@ include Vaxis_loopback_classes.mk
 # Include global rules
 include $(VERILATOR_ROOT)/include/verilated.mk
 
-### Executable rules... (from --exe)
-VPATH += $(VM_USER_DIR)
-
-pyverilator_wrapper.o: obj_dir/pyverilator_wrapper.cpp
-	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST) -c -o $@ $<
-
-### Link rules... (from --exe)
-Vaxis_loopback: $(VK_USER_OBJS) $(VK_GLOBAL_OBJS) $(VM_PREFIX)__ALL.a $(VM_HIER_LIBS)
-	$(LINK) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) $(LIBS) $(SC_LIBS) -o $@
-
+### Library rules (default lib mode)
+libVaxis_loopback.a: $(VK_OBJS) $(VK_USER_OBJS) $(VM_HIER_LIBS)
+libverilated.a: $(VK_GLOBAL_OBJS)
+libVaxis_loopback: libVaxis_loopback.a libverilated.a $(VM_PREFIX)__ALL.a
 
 # Verilated -*- Makefile -*-

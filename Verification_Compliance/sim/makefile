@@ -1,28 +1,29 @@
-# Use bash shell
-SHELL := C:/PROGRA~1/Git/bin/bash.exe
+VERILATOR = verilator
+TOP       = axis_loopback
+SRC       = ../rtl/axis_loopback.sv
+TB        = test_axis_loopback.cpp
+DPI_SRC   = dpi_socket.c
+BUILD     = obj_dir
 
-TOPLEVEL_LANG = verilog
-SIM = verilator
+all: run
 
-TOPLEVEL = axis_loopback
-MODULE = test_linkup
+# Step 1: Generate C++ model
+$(BUILD)/V$(TOP).mk: $(SRC)
+	$(VERILATOR) -Wall --Wno-UNUSEDSIGNAL --cc --sv -Mdir $(BUILD) $(SRC)
 
-VERILOG_SOURCES = ../rtl/axis_loopback.sv
+# Step 2: Build object files
+$(BUILD)/V$(TOP)__ALL.o: $(BUILD)/V$(TOP).mk
+	$(MAKE) -C $(BUILD) -f V$(TOP).mk
 
-# Optional: set wave output
-EXTRA_ARGS += --trace
+# Step 3: Link everything together into final executable
+V$(TOP): $(BUILD)/V$(TOP)__ALL.o $(TB) $(DPI_SRC)
+	g++ -o $@ $(BUILD)/V$(TOP)__ALL.o $(TB) $(DPI_SRC) \
+	    -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd \
+	    -pthread -latomic
 
-# Use Python from conda env
-PYTHON := C:/Users/saaed/anaconda3/envs/capstone-scapy/python.exe
-VERILATOR := C:/Users/saaed/OneDrive/Desktop/Capstone/verilator/install/bin/verilator.exe
+# Step 4: Run simulation
+run: V$(TOP)
+	./V$(TOP)
 
-override PYTHON_ARCH := 64bit
-override LIBPYTHON_LOC = C:/Users/saaed/anaconda3/envs/capstone-scapy/python311.dll
-
-override VLT_VERSION := 5.040
-override VLT_MIN := 4.106
-override MIN_VERSION := $(VLT_MIN)
-
-override MAKE := make
-
-include $(shell cocotb-config --makefiles)/Makefile.sim
+clean:
+	rm -rf $(BUILD) V$(TOP) wave.vcd

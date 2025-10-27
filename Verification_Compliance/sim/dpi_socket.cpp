@@ -27,6 +27,7 @@ void socket_init(const char* ip, int port) {
 }
 
 void socket_send(const svBitVecVal* data, int len) {
+    printf("[DPI] Sending %d bytes\n", len);
     send(sock, data, len, 0);
 }
 

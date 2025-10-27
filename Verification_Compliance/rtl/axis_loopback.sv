@@ -33,11 +33,14 @@ module axis_loopback #(
     bit [63:0] recv_data;
     int recv_len;
 
-    if (tx_axis_tvalid && tx_axis_tready)
-      socket_send(tx_axis_tdata, 8); // send 8 bytes
+    if (tx_axis_tvalid && tx_axis_tready) begin
+      $display("[SV] Calling socket_send with %h", tx_axis_tdata);
+      socket_send(tx_axis_tdata, 8);
+    end
 
     recv_len = socket_recv(recv_data, 8);
     if (recv_len > 0) begin
+      $display("[SV] Received echo %h", recv_data);
       rx_axis_tdata  <= recv_data;
       rx_axis_tvalid <= 1;
       rx_axis_tkeep  <= '1;

@@ -1,15 +1,33 @@
-# server.py
-import socket
-s = socket.socket()
-s.bind(('127.0.0.1', 9000))
-s.listen(1)
-print("Waiting for connection on 127.0.0.1:9000...")
-conn, addr = s.accept()
-print("Connected by", addr)
-while True:
-    data = conn.recv(1024)
-    if not data:
-        break
-    print("Received:", data)
-    conn.sendall(data)
-conn.close()
+import socket, struct
+
+HOST = "127.0.0.1"
+PORT = 9000
+
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind((HOST, PORT))
+    s.listen(1)
+    print(f"Waiting for connection on {HOST}:{PORT}...")
+    conn, addr = s.accept()
+    print("Connected by", addr)
+
+    try:
+        while True:
+            data = conn.recv(8)
+            if not data:
+                print("Connection closed by Verilog.")
+                break
+            val = int.from_bytes(data, "little")
+            print(f"Received 0x{val:016X}")
+
+            # echo back same data + 1
+            echo_val = val + 1
+            echo = echo_val.to_bytes(8, "little")
+            try:
+                conn.sendall(echo)
+            except BrokenPipeError:
+                print("Verilog closed socket, stopping.")
+                break
+
+    except KeyboardInterrupt:
+        print("Server stopped manually.")

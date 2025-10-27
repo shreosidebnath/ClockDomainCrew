@@ -1,40 +1,44 @@
 #include "Vaxis_loopback.h"
 #include "verilated.h"
-#include "verilated_vcd_c.h"
+#include <iostream>
 
-int main(int argc, char** argv) {
+vluint64_t main_time = 0;
+double sc_time_stamp() { return main_time; }
+
+int main(int argc, char **argv)
+{
     Verilated::commandArgs(argc, argv);
-    Verilated::traceEverOn(true);
+    Vaxis_loopback *top = new Vaxis_loopback;
 
-    Vaxis_loopback top;
-    VerilatedVcdC trace;
-    top.trace(&trace, 99);
-    trace.open("wave.vcd");
+    top->resetn = 1;
+    top->tx_axis_tkeep = 0xFF;
+    top->tx_axis_tlast = 0;
+    top->rx_axis_tready = 1; // ✅ ensures tx_axis_tready = 1
+    top->tx_axis_tvalid = 1; // ✅ ensures send path active
 
-    top.resetn = 0;
-    top.clk156 = 0;
+    printf("[C++] Sim start, expecting Python echo...\n");
 
-    // 10 cycles reset
-    for (int i = 0; i < 20; ++i) {
-        top.clk156 = !top.clk156;
-        top.eval();
-        trace.dump(i);
+    for (int cycle = 0; cycle < 20; cycle++)
+    {
+        // Rising edge
+        top->clk156 = 1;
+        top->tx_axis_tdata = 0x11110000AAAABBBB + cycle;
+        top->eval();
+
+        // Falling edge
+        top->clk156 = 0;
+        top->eval();
+
+        main_time++;
     }
 
-    top.resetn = 1;
-
-    // Simulate 200 cycles
-    for (int i = 0; i < 200; ++i) {
-        top.clk156 = !top.clk156;
-        top.tx_axis_tdata  = 0xABCD1234;
-        top.tx_axis_tkeep  = 0xFF;
-        top.tx_axis_tvalid = 1;
-        top.tx_axis_tlast  = 0;
-
-        top.eval();
-        trace.dump(20 + i);
+    for (int i = 0; i < 100; i++)
+    {
+        top->clk156 = !top->clk156;
+        top->eval();
     }
 
-    trace.close();
+    top->final();
+    delete top;
     return 0;
 }

@@ -59,7 +59,10 @@ VL_INLINE_OPT void Vaxis_loopback___024root___nba_sequent__TOP__0(Vaxis_loopback
     QData/*63:0*/ __Vfunc_axis_loopback__DOT__socket_recv__2__data;
     __Vfunc_axis_loopback__DOT__socket_recv__2__data = 0;
     // Body
-    if (((IData)(vlSelf->tx_axis_tvalid) & (IData)(vlSelf->tx_axis_tready))) {
+    if (VL_UNLIKELY(((IData)(vlSelf->tx_axis_tvalid) 
+                     & (IData)(vlSelf->tx_axis_tready)))) {
+        VL_WRITEF("[SV] Calling socket_send with %x\n",
+                  64,vlSelf->tx_axis_tdata);
         Vaxis_loopback___024root____Vdpiimwrap_axis_loopback__DOT__socket_send_TOP(vlSelf->tx_axis_tdata, 8U);
     }
     Vaxis_loopback___024root____Vdpiimwrap_axis_loopback__DOT__socket_recv_TOP(__Vfunc_axis_loopback__DOT__socket_recv__2__data, 8U, __Vfunc_axis_loopback__DOT__socket_recv__2__Vfuncout);
@@ -67,7 +70,8 @@ VL_INLINE_OPT void Vaxis_loopback___024root___nba_sequent__TOP__0(Vaxis_loopback
         = __Vfunc_axis_loopback__DOT__socket_recv__2__data;
     vlSelf->axis_loopback__DOT__unnamedblk1__DOT__recv_len 
         = __Vfunc_axis_loopback__DOT__socket_recv__2__Vfuncout;
-    if (VL_LTS_III(32, 0U, vlSelf->axis_loopback__DOT__unnamedblk1__DOT__recv_len)) {
+    if (VL_UNLIKELY(VL_LTS_III(32, 0U, vlSelf->axis_loopback__DOT__unnamedblk1__DOT__recv_len))) {
+        VL_WRITEF("[SV] Received echo %x\n",64,vlSelf->axis_loopback__DOT__unnamedblk1__DOT__recv_data);
         vlSelf->rx_axis_tdata = vlSelf->axis_loopback__DOT__unnamedblk1__DOT__recv_data;
         vlSelf->rx_axis_tvalid = 1U;
         vlSelf->rx_axis_tkeep = 0xffU;

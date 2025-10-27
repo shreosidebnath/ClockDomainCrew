@@ -28,9 +28,11 @@ class alignas(VL_CACHE_LINE_BYTES) Vaxis_loopback___024root final : public Veril
     CData/*0:0*/ __VicoFirstIteration;
     CData/*0:0*/ __Vtrigprevexpr___TOP__clk156__0;
     CData/*0:0*/ __VactContinue;
+    IData/*31:0*/ axis_loopback__DOT__unnamedblk1__DOT__recv_len;
     IData/*31:0*/ __VactIterCount;
     VL_IN64(tx_axis_tdata,63,0);
     VL_OUT64(rx_axis_tdata,63,0);
+    QData/*63:0*/ axis_loopback__DOT__unnamedblk1__DOT__recv_data;
     VlTriggerVec<1> __VstlTriggered;
     VlTriggerVec<1> __VicoTriggered;
     VlTriggerVec<1> __VactTriggered;

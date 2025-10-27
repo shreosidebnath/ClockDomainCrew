@@ -191,5 +191,7 @@ VL_ATTR_COLD void Vaxis_loopback___024root___ctor_var_reset(Vaxis_loopback___024
     vlSelf->rx_axis_tvalid = VL_RAND_RESET_I(1);
     vlSelf->rx_axis_tready = VL_RAND_RESET_I(1);
     vlSelf->rx_axis_tlast = VL_RAND_RESET_I(1);
+    vlSelf->axis_loopback__DOT__unnamedblk1__DOT__recv_data = 0;
+    vlSelf->axis_loopback__DOT__unnamedblk1__DOT__recv_len = 0;
     vlSelf->__Vtrigprevexpr___TOP__clk156__0 = VL_RAND_RESET_I(1);
 }

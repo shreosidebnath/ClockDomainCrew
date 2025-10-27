@@ -1,3 +1,4 @@
+extern "C" {
 #include "svdpi.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,3 +37,4 @@ int socket_recv(svBitVecVal* data, int len) {
 void socket_close() {
     if (sock >= 0) close(sock);
 }
+} // extern "C"

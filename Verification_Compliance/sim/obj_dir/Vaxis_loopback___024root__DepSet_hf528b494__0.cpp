@@ -54,10 +54,6 @@ VL_INLINE_OPT void Vaxis_loopback___024root___nba_sequent__TOP__0(Vaxis_loopback
     Vaxis_loopback__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     VL_DEBUG_IF(VL_DBG_MSGF("+    Vaxis_loopback___024root___nba_sequent__TOP__0\n"); );
     // Init
-    QData/*63:0*/ axis_loopback__DOT__unnamedblk1__DOT__recv_data;
-    axis_loopback__DOT__unnamedblk1__DOT__recv_data = 0;
-    IData/*31:0*/ axis_loopback__DOT__unnamedblk1__DOT__recv_len;
-    axis_loopback__DOT__unnamedblk1__DOT__recv_len = 0;
     IData/*31:0*/ __Vfunc_axis_loopback__DOT__socket_recv__2__Vfuncout;
     __Vfunc_axis_loopback__DOT__socket_recv__2__Vfuncout = 0;
     QData/*63:0*/ __Vfunc_axis_loopback__DOT__socket_recv__2__data;
@@ -67,12 +63,12 @@ VL_INLINE_OPT void Vaxis_loopback___024root___nba_sequent__TOP__0(Vaxis_loopback
         Vaxis_loopback___024root____Vdpiimwrap_axis_loopback__DOT__socket_send_TOP(vlSelf->tx_axis_tdata, 8U);
     }
     Vaxis_loopback___024root____Vdpiimwrap_axis_loopback__DOT__socket_recv_TOP(__Vfunc_axis_loopback__DOT__socket_recv__2__data, 8U, __Vfunc_axis_loopback__DOT__socket_recv__2__Vfuncout);
-    axis_loopback__DOT__unnamedblk1__DOT__recv_data 
+    vlSelf->axis_loopback__DOT__unnamedblk1__DOT__recv_data 
         = __Vfunc_axis_loopback__DOT__socket_recv__2__data;
-    axis_loopback__DOT__unnamedblk1__DOT__recv_len 
+    vlSelf->axis_loopback__DOT__unnamedblk1__DOT__recv_len 
         = __Vfunc_axis_loopback__DOT__socket_recv__2__Vfuncout;
-    if (VL_LTS_III(32, 0U, axis_loopback__DOT__unnamedblk1__DOT__recv_len)) {
-        vlSelf->rx_axis_tdata = axis_loopback__DOT__unnamedblk1__DOT__recv_data;
+    if (VL_LTS_III(32, 0U, vlSelf->axis_loopback__DOT__unnamedblk1__DOT__recv_len)) {
+        vlSelf->rx_axis_tdata = vlSelf->axis_loopback__DOT__unnamedblk1__DOT__recv_data;
         vlSelf->rx_axis_tvalid = 1U;
         vlSelf->rx_axis_tkeep = 0xffU;
         vlSelf->rx_axis_tlast = 1U;

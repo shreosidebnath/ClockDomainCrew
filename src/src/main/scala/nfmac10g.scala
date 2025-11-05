@@ -142,8 +142,5 @@ object NfMac10g {
 
 // Generate Verilog
 object NfMac10gVerilog extends App {
-  (new chisel3.stage.ChiselStage).emitVerilog(
-    new NfMac10g,
-    Array("--target-dir", "generated")
-  )
+  println(chisel3.getVerilogString(new NfMac10g))
 }

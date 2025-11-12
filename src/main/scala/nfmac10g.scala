@@ -1,3 +1,4 @@
+import circt.stage.ChiselStage
 import chisel3._
 import chisel3.util._
 
@@ -142,8 +143,14 @@ object NfMac10g {
 
 // Generate Verilog
 object NfMac10gVerilog extends App {
-  (new chisel3.stage.ChiselStage).emitVerilog(
+  ChiselStage.emitSystemVerilog(
     new NfMac10g,
-    Array("--target-dir", "generated")
+    firtoolOpts = Array(
+      "--lowering-options=disallowLocalVariables,disallowPackedArrays",
+      "--disable-all-randomization",
+      "--strip-debug-info",
+      "--split-verilog",
+      s"-o=generated/NfMac10g"
+    )
   )
 }

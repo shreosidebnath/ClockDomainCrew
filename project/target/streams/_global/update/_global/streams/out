@@ -1,3 +1,8 @@
-[0m[[0m[0mdebug[0m] [0m[0mnot up to date. inChanged = true, force = false[0m
-[0m[[0m[0mdebug[0m] [0m[0mUpdating ProjectRef(uri("file:/mnt/c/Users/Shreosi/Desktop/ClockDomainCrew/project/"), "clockdomaincrew-build")...[0m
-[0m[[0m[0mdebug[0m] [0m[0mDone updating ProjectRef(uri("file:/mnt/c/Users/Shreosi/Desktop/ClockDomainCrew/project/"), "clockdomaincrew-build")[0m
+[0m[[0m[33mwarn[0m] [0m[0mjline-2.14.6.jar no longer exists at /home/saaed/.cache/coursier/v1/https/repo1.maven.org/maven2/jline/jline/2.14.6/jline-2.14.6.jar[0m
+[0m[[0m[0mdebug[0m] [0m[0mnot up to date. inChanged = false, force = false[0m
+[0m[[0m[0mdebug[0m] [0m[0mUpdating ProjectRef(uri("file:/mnt/c/Users/saaed/OneDrive/Desktop/Capstone/ClockDomainCrew/project/"), "clockdomaincrew-build")...[0m
+[0m[[0m[0minfo[0m] [0m[0mUpdating clockdomaincrew-build[0m
+[0m[[0m[0minfo[0m] [0m[0mResolved clockdomaincrew-build dependencies[0m
+[0m[[0m[0minfo[0m] [0m[0mFetching artifacts of clockdomaincrew-build[0m
+[0m[[0m[0minfo[0m] [0m[0mFetched artifacts of clockdomaincrew-build[0m
+[0m[[0m[0mdebug[0m] [0m[0mDone updating ProjectRef(uri("file:/mnt/c/Users/saaed/OneDrive/Desktop/Capstone/ClockDomainCrew/project/"), "clockdomaincrew-build")[0m

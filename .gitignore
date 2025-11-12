@@ -1,0 +1,16 @@
+dynamicfifo
+dynamicfifo/*
+
+OpenSTA
+OpenSTA/*
+
+project
+project/*
+
+target
+target/*
+
+firrtl-bin-linux-x64.tar.gz
+oss-cad-suite-linux-x64-20240407.tgz
+scala-cli.deb
+firtool-1.47.0/bin/firtool

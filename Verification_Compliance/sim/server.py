@@ -10,7 +10,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     print(f"Waiting for connection on {HOST}:{PORT}...")
     conn, addr = s.accept()
     print("Connected by", addr)
-
+  
     try:
         while True:
             data = conn.recv(8)

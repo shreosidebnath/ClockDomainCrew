@@ -1,11 +1,11 @@
 name: link_up
-backend: hw
+backend: hw              # this now dispatches to local_link_up via runner.py
 test:
   type: link_up
-  iface: "eth10"           # change to your NIC
+  iface: "ens1f0"        # Intel X520-DA1 port on the lab box
   src_mac: "02:ca:fe:00:00:02"
   dst_mac: "02:ca:fe:00:00:01"
-  src_ip:  "192.168.100.1" # (optional) only used if you want ARP/ICMP
+  src_ip:  "192.168.100.1"
   dst_ip:  "192.168.100.2"
-  l3: icmp                  # or "arp" or "raw"
+  l3: icmp
 payload: "hello10g"

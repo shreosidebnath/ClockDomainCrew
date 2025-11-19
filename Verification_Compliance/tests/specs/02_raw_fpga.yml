@@ -1,0 +1,13 @@
+name: raw_fpga_test
+backend: hw
+test:
+  type: link_up
+  iface: "ens1f0"
+  l3: raw
+  # MAC addresses
+  src_mac: "b4:96:91:14:04:ec"   # X520 MAC (host)
+  dst_mac: "02:ca:fe:00:00:01"   # FPGA MAC (design side / placeholder)
+  count: 5
+  timeout: 2
+payload: "hello10g"
+

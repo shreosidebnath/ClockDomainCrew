@@ -1,186 +1,218 @@
-"""
-scapy_framework.py
-Small helper wrapper around Scapy for basic send/receive/sniff workflows.
-
-Usage examples at bottom (if __name__ == "__main__":).
-Run in a safe lab environment only.
-Requires scapy installed (e.g., pip install scapy).
-"""
+import argparse
+import socket, threading, time, yaml, os
 
 from scapy.all import (
-    IP, IPv6, ICMP, TCP, UDP,
-    send, sendp, sr1, sr, sniff, AsyncSniffer,
-    conf, wrpcap
+    conf,
+    sr,
+    sniff,
+    get_if_list,
+    get_if_addr,
+    get_if_hwaddr,
+    sendp,
 )
-import logging
-import threading
-from typing import Optional, Callable, List
-import time
 
-# Configure logging
-logger = logging.getLogger("scapy_framework")
-handler = logging.StreamHandler()
-handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s: %(message)s"))
-logger.addHandler(handler)
-logger.setLevel(logging.INFO)
+from scapy.layers.l2 import Ether
+from scapy.layers.inet import IP, ICMP, UDP
+from scapy.packet import Raw
 
-# Quiet Scapy verbosity unless explicitly requested
-conf.verb = 0
+try:
+    # Available on Windows builds, but not always re-exported via scapy.all
+    from scapy.arch.windows import get_windows_if_list  # type: ignore
+except Exception:
+    get_windows_if_list = None
 
 
-def set_iface(iface: Optional[str]):
-    """Set scapy default interface if provided."""
-    if iface:
-        conf.iface = iface
-        logger.debug(f"Using interface: {iface}")
-
-
-def send_packet(pkt, iface: Optional[str] = None, count: int = 1, interval: float = 0.0, layer2: bool = False):
-    """
-    Send a packet.
-    - layer2=False uses send() (IP-layer). For raw Ethernet frames use sendp() (layer2=True).
-    """
-    set_iface(iface)
-    logger.info(f"Sending packet: {pkt.summary()} (count={count}, iface={conf.iface})")
-    try:
-        if layer2:
-            sendp(pkt, iface=conf.iface, count=count, inter=interval, verbose=False)
-        else:
-            send(pkt, iface=conf.iface, count=count, inter=interval, verbose=False)
-    except PermissionError:
-        logger.error("Permission error: you must run as root/admin to send raw packets.")
-
-
-def send_and_receive(pkt, timeout: float = 2.0, iface: Optional[str] = None, retry: int = 0):
-    """
-    Send packet and wait for 1 response (sr1). Returns the received packet or None.
-    Useful for ICMP pings, TCP SYN->SYN/ACK responses, etc.
-    """
-    set_iface(iface)
-    for attempt in range(1 + retry):
-        logger.info(f"sr1: sending {pkt.summary()} (attempt {attempt + 1}/{1 + retry})")
+def list_ifaces():
+    print("Scapy interfaces (portable view):")
+    for name in get_if_list():
+        mac = None
+        ip = None
         try:
-            resp = sr1(pkt, timeout=timeout, iface=conf.iface, verbose=False)
-            if resp is not None:
-                logger.info(f"Received response: {resp.summary()}")
-                return resp
-            elif attempt < retry:
-                logger.debug("No response — retrying")
-        except PermissionError:
-            logger.error("Permission error: you must run as root/admin to send/receive raw packets.")
-            return None
-    logger.info("No response received.")
-    return None
+            mac = get_if_hwaddr(name)
+        except Exception:
+            pass
+        try:
+            ip = get_if_addr(name)
+        except Exception:
+            pass
+        guid = None
+        print(f"- {name} | guid={guid} | mac={mac} | ip={ip}")
+
+    if get_windows_if_list:
+        print("\nWindows raw list (from scapy.arch.windows):")
+        for i in get_windows_if_list():
+            print(f"- {i.get('name')} | guid={i.get('guid')} | desc={i.get('description')}")
 
 
-def send_and_receive_mult(pkt_list: List, timeout: float = 3.0, iface: Optional[str] = None):
-    """
-    Send multiple packets and collect responses (sr). Returns (answered, unanswered).
-    """
-    set_iface(iface)
-    logger.info(f"sr: sending {len(pkt_list)} packets")
-    try:
-        ans, unans = sr(pkt_list, timeout=timeout, iface=conf.iface, verbose=False)
-        logger.info(f"Answered: {len(ans)}, Unanswered: {len(unans)}")
-        return ans, unans
-    except PermissionError:
-        logger.error("Permission error: you must run as root/admin to send/receive raw packets.")
-        return None, None
+def set_iface(query: str) -> str:
+    """Pick interface by substring match on name (case-insensitive)."""
+    q = query.lower()
+    for name in get_if_list():
+        if q in name.lower():
+            conf.iface = name
+            return conf.iface
+    raise SystemExit(
+        f"[ERR] No interface match for: {query}\n"
+        f"Tip: run `list-ifaces` to see exact names."
+    )
+
+
+def send_ping(iface: str, dst_ip: str, count: int = 1, timeout: int = 2):
+    conf.iface = set_iface(iface)
+    pkt = IP(dst=dst_ip) / ICMP()
+    ans, unans = sr(pkt, retry=0, timeout=timeout, verbose=False)
+    if ans:
+        for snd, rcv in ans:
+            print(f"[ICMP] reply from {rcv[IP].src}, ttl={rcv[IP].ttl}")
+    else:
+        print("[ICMP] sent (no replies observed via sr); use sniff to confirm")
+
+
+def send_udp(
+    iface: str,
+    dst_ip: str,
+    dport: int = 9999,
+    payload: bytes = b"hello",
+    timeout: int = 2,
+):
+    conf.iface = set_iface(iface)
+    pkt = IP(dst=dst_ip) / UDP(dport=dport, sport=54321) / Raw(load=payload)
+    sr(pkt, timeout=timeout, verbose=False)
+    print(f"[UDP] sent to {dst_ip}:{dport} (check sniff output)")
 
 
 def sniff_packets(
-    count: int = 0,
-    timeout: Optional[float] = None,
-    iface: Optional[str] = None,
-    lfilter: Optional[Callable] = None,
-    prn: Optional[Callable] = None,
-    store: bool = False
+    iface: str,
+    bpf: str = "icmp or udp",
+    count: int = 5,
+    timeout: int = 5,
+):
+    conf.iface = set_iface(iface)
+    print(
+        f"[SNIFF] iface='{conf.iface}' filter='{bpf}' count={count} timeout={timeout}s"
+    )
+    pkts = sniff(iface=conf.iface, filter=bpf, count=count, timeout=timeout)
+    if not pkts:
+        print("[SNIFF] no packets captured")
+    for i, p in enumerate(pkts, 1):
+        print(f"[{i}] {p.summary()}")
+
+
+def selftest():
+    """No-network unit sanity: build/serialize/reparse common packets."""
+    print("[SELFTEST] start")
+    vectors = [
+        Ether(dst="ff:ff:ff:ff:ff:ff") / IP(dst="192.0.2.1") / ICMP(),
+        IP(dst="198.51.100.7")
+        / UDP(dport=9999, sport=12345)
+        / Raw(load=b"hello-udp"),
+        Ether(dst="00:11:22:33:44:55") / Raw(load=b"raw-ether"),
+    ]
+    for idx, pkt in enumerate(vectors, 1):
+        raw_bytes = bytes(pkt)  # serialize
+        pkt2 = Ether(raw_bytes) if raw_bytes[:1] != b"E" else IP(raw_bytes)
+        assert bytes(pkt2) == raw_bytes, "reparse mismatch"
+        print(f"[SELFTEST] vec {idx}: {pkt.summary()}  -> OK")
+    print("[SELFTEST] PASS")
+
+
+def _udp_echo_server(bind_ip="127.0.0.1", port=12345, stop_after=5.0):
+    """
+    Tiny UDP echo server for local testing. Runs in a background thread.
+    Echoes any UDP datagrams it receives back to the sender.
+    """
+
+    def _run():
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.bind((bind_ip, port))
+        sock.settimeout(0.25)
+        t0 = time.time()
+        try:
+            while time.time() - t0 < stop_after:
+                try:
+                    data, addr = sock.recvfrom(65535)
+                    if not data:
+                        continue
+                    sock.sendto(data, addr)
+                except socket.timeout:
+                    pass
+        finally:
+            sock.close()
+
+    th = threading.Thread(target=_run, daemon=True)
+    th.start()
+    return th
+
+
+def send_raw(
+    iface: str,
+    dst_mac: str,
+    src_mac: str | None = None,
+    payload: bytes = b"hello-raw",
 ):
     """
-    Blocking sniff. Returns list of captured packets (or a Scapy PacketList).
-    - count=0 => sniff forever until timeout
-    - lfilter is a Python function pkt -> bool applied before storing/calling prn
-    - prn is a callback called for each packet
+    Send a single raw Ethernet frame: Ether(dst, src)/Raw(payload).
+    If src_mac is None, use the NIC's hardware MAC.
     """
-    set_iface(iface)
-    logger.info(f"Sniffing on iface={conf.iface} count={count} timeout={timeout}")
-    try:
-        pkts = sniff(count=count, timeout=timeout, iface=conf.iface, lfilter=lfilter, prn=prn, store=store)
-        logger.info(f"Sniff finished, captured {len(pkts)} packets")
-        return pkts
-    except PermissionError:
-        logger.error("Permission error: you must run as root/admin to sniff packets.")
-        return None
+    conf.iface = set_iface(iface)
+    if src_mac is None:
+        try:
+            src_mac = get_if_hwaddr(conf.iface)
+        except Exception:
+            src_mac = "00:00:00:00:00:00"
+
+    frame = Ether(dst=dst_mac, src=src_mac) / Raw(load=payload)
+    sendp(frame, iface=conf.iface, verbose=False)
+    print(
+        f"[RAW] sent {len(payload)}B frame: {src_mac} -> {dst_mac} on {conf.iface}"
+    )
 
 
-class AsyncCapture:
-    """Helper to run sniff in background using AsyncSniffer (start/stop)."""
+def main():
+    ap = argparse.ArgumentParser(description="Scapy lab (Windows/Linux-friendly)")
+    sub = ap.add_subparsers(dest="cmd", required=True)
 
-    def __init__(self, iface: Optional[str] = None, filter: Optional[str] = None, prn: Optional[Callable] = None):
-        set_iface(iface)
-        self.sniffer = AsyncSniffer(iface=conf.iface, filter=filter, prn=prn, store=True)
-        logger.debug("AsyncCapture created")
+    sub.add_parser("list-ifaces", help="list interfaces")
 
-    def start(self):
-        logger.info("Starting async sniffer")
-        self.sniffer.start()
+    p_ping = sub.add_parser("ping", help="ICMP echo to an IP")
+    p_ping.add_argument("--iface", required=True)
+    p_ping.add_argument("--dst-ip", required=True)
+    p_ping.add_argument("--count", type=int, default=1)
+    p_ping.add_argument("--timeout", type=int, default=2)
 
-    def stop(self, timeout: Optional[float] = None):
-        logger.info("Stopping async sniffer")
-        self.sniffer.stop()
-        # give scapy time to flush
-        time.sleep(0.1)
-        return self.sniffer.results
+    p_udp = sub.add_parser("udp", help="send UDP payload to an IP:port")
+    p_udp.add_argument("--iface", required=True)
+    p_udp.add_argument("--dst-ip", required=True)
+    p_udp.add_argument("--dport", type=int, default=9999)
+    p_udp.add_argument("--payload", default="hello")
+    p_udp.add_argument("--timeout", type=int, default=2)
+
+    p_sniff = sub.add_parser("sniff", help="sniff with a BPF filter")
+    p_sniff.add_argument("--iface", required=True)
+    p_sniff.add_argument("--bpf", default="icmp or udp")
+    p_sniff.add_argument("--count", type=int, default=5)
+    p_sniff.add_argument("--timeout", type=int, default=5)
+
+    sub.add_parser("selftest", help="no-network unit sanity")
+
+    args = ap.parse_args()
+    if args.cmd == "list-ifaces":
+        list_ifaces()
+    elif args.cmd == "selftest":
+        selftest()
+    elif args.cmd == "ping":
+        send_ping(args.iface, args.dst_ip, args.count, args.timeout)
+    elif args.cmd == "udp":
+        send_udp(
+            args.iface,
+            args.dst_ip,
+            args.dport,
+            args.payload.encode(),
+            args.timeout,
+        )
+    elif args.cmd == "sniff":
+        sniff_packets(args.iface, args.bpf, args.count, args.timeout)
 
 
-def save_packets(pkts, filename: str):
-    """Save PacketList to pcap file."""
-    if not pkts:
-        logger.warning("No packets to save.")
-        return
-    logger.info(f"Writing {len(pkts)} packets to {filename}")
-    wrpcap(filename, pkts)
-
-
-# -------------------------
-# Example helper builders
-# -------------------------
-def build_icmp_ping(dst_ip: str, payload: bytes = b"hello", ttl: int = 64):
-    """Return a simple ICMP echo request."""
-    return IP(dst=dst_ip, ttl=ttl) / ICMP() / payload
-
-
-def build_tcp_syn(dst_ip: str, dport: int = 80, sport: int = 12345, seq: int = 1000):
-    """Return a TCP SYN packet (IP/TCP)."""
-    return IP(dst=dst_ip) / TCP(dport=dport, sport=sport, flags="S", seq=seq)
-
-
-# -------------------------
-# Example command-line style usage
-# -------------------------
 if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser(description="scapy_framework quick demo (lab only)")
-    parser.add_argument("--iface", help="Interface to use", default=None)
-    parser.add_argument("--ping", help="Send ICMP ping to target", default=None)
-    parser.add_argument("--sniff", help="Sniff for 10s", action="store_true")
-    parser.add_argument("--pcap", help="Save sniff to PCAP filename", default=None)
-    args = parser.parse_args()
-
-    if args.iface:
-        set_iface(args.iface)
-
-    if args.ping:
-        pkt = build_icmp_ping(args.ping)
-        resp = send_and_receive(pkt, timeout=2, iface=args.iface)
-        if resp:
-            resp.show()
-        else:
-            logger.info("No reply (ICMP or blocked)")
-
-    if args.sniff:
-        # simple demo: sniff 10 seconds and optionally write to pcap
-        captured = sniff_packets(timeout=10, iface=args.iface, prn=lambda p: logger.info(p.summary()), store=True)
-        if args.pcap and captured:
-            save_packets(captured, args.pcap)
+    main()

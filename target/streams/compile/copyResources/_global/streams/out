@@ -1,2 +1,9 @@
 [0m[[0m[0mdebug[0m] [0m[0mCopy resource mappings: [0m
-[0m[[0m[0mdebug[0m] [0m[0m	[0m
+[0m[[0m[0mdebug[0m] [0m[0m	(/mnt/c/Users/saaed/OneDrive/Desktop/Capstone/ClockDomainCrew/src/main/resources/axis2xgmii.v,/mnt/c/Users/saaed/OneDrive/Desktop/Capstone/ClockDomainCrew/target/scala-2.13/classes/axis2xgmii.v)[0m
+[0m[[0m[0mdebug[0m] [0m[0m	(/mnt/c/Users/saaed/OneDrive/Desktop/Capstone/ClockDomainCrew/src/main/resources/nfmac10g.v,/mnt/c/Users/saaed/OneDrive/Desktop/Capstone/ClockDomainCrew/target/scala-2.13/classes/nfmac10g.v)[0m
+[0m[[0m[0mdebug[0m] [0m[0m	(/mnt/c/Users/saaed/OneDrive/Desktop/Capstone/ClockDomainCrew/src/main/resources/padding_ctrl.v,/mnt/c/Users/saaed/OneDrive/Desktop/Capstone/ClockDomainCrew/target/scala-2.13/classes/padding_ctrl.v)[0m
+[0m[[0m[0mdebug[0m] [0m[0m	(/mnt/c/Users/saaed/OneDrive/Desktop/Capstone/ClockDomainCrew/src/main/resources/rst_mod.v,/mnt/c/Users/saaed/OneDrive/Desktop/Capstone/ClockDomainCrew/target/scala-2.13/classes/rst_mod.v)[0m
+[0m[[0m[0mdebug[0m] [0m[0m	(/mnt/c/Users/saaed/OneDrive/Desktop/Capstone/ClockDomainCrew/src/main/resources/rx.v,/mnt/c/Users/saaed/OneDrive/Desktop/Capstone/ClockDomainCrew/target/scala-2.13/classes/rx.v)[0m
+[0m[[0m[0mdebug[0m] [0m[0m	(/mnt/c/Users/saaed/OneDrive/Desktop/Capstone/ClockDomainCrew/src/main/resources/tx.v,/mnt/c/Users/saaed/OneDrive/Desktop/Capstone/ClockDomainCrew/target/scala-2.13/classes/tx.v)[0m
+[0m[[0m[0mdebug[0m] [0m[0m	(/mnt/c/Users/saaed/OneDrive/Desktop/Capstone/ClockDomainCrew/src/main/resources/xgmii2axis.v,/mnt/c/Users/saaed/OneDrive/Desktop/Capstone/ClockDomainCrew/target/scala-2.13/classes/xgmii2axis.v)[0m
+[0m[[0m[0mdebug[0m] [0m[0m	(/mnt/c/Users/saaed/OneDrive/Desktop/Capstone/ClockDomainCrew/src/main/resources/xgmii_includes.vh,/mnt/c/Users/saaed/OneDrive/Desktop/Capstone/ClockDomainCrew/target/scala-2.13/classes/xgmii_includes.vh)[0m

@@ -1,0 +1,5 @@
+/mnt/c/Users/saaed/OneDrive/Desktop/Capstone/ClockDomainCrew/test_run_dir/should_match_Chisel_vs_original_Verilog_outputs/nfmac10g.v
+/mnt/c/Users/saaed/OneDrive/Desktop/Capstone/ClockDomainCrew/test_run_dir/should_match_Chisel_vs_original_Verilog_outputs/rst_mod.v
+/mnt/c/Users/saaed/OneDrive/Desktop/Capstone/ClockDomainCrew/test_run_dir/should_match_Chisel_vs_original_Verilog_outputs/tx.v
+/mnt/c/Users/saaed/OneDrive/Desktop/Capstone/ClockDomainCrew/test_run_dir/should_match_Chisel_vs_original_Verilog_outputs/rx.v
+/mnt/c/Users/saaed/OneDrive/Desktop/Capstone/ClockDomainCrew/test_run_dir/should_match_Chisel_vs_original_Verilog_outputs/axis2xgmii.v

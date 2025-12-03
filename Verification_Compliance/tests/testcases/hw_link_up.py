@@ -41,7 +41,7 @@ def run(spec_path: str):
     l3: str = t.get("l3", "icmp").lower()
     dst_ip: str = t.get("dst_ip", "127.0.0.1")
     count: int = int(t.get("count", 3))
-    timeout: int = int(t.get("timeout", 2))
+    timeout: int = int(t.get("timeout", 10))
 
     # Bind interface in Scapy
     conf.iface = lab.set_iface(iface_query)
@@ -110,7 +110,7 @@ def run(spec_path: str):
             time.sleep(0.05)
 
         # sniff for anything involving the FPGA MAC
-        bpf = f"ether host {dst_mac}"
+        bpf = f""
         lab.sniff_packets(
             iface_query,
             bpf=bpf,

@@ -1,1 +1,7 @@
 CDC
+
+## How to run the yml file for Scapy
+Run the following command in the project's main directory.
+```bash
+sudo python3 -m tests.runner --spec tests/specs/02_raw_fpga.yml
+```

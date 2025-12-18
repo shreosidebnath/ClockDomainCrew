@@ -1,1 +1,55 @@
------ TODO
+# ClockDomainCrew
+
+Chisel-based hardware designs following chiselware standards.
+
+## Modules
+
+### nfmac10g - 10 Gigabit Ethernet MAC
+
+Located in `modules/nfmac10g/`
+
+**Components:**
+- XGMII interface
+- AXI Stream conversion
+- Transmit/Receive logic
+- Flow control (pause frames)
+
+## Building
+```bash
+# Compile all modules
+sbt compile
+
+# Compile specific module
+sbt "project nfmac10g" compile
+```
+
+## Testing
+```bash
+# Run all tests
+sbt test
+
+# Test specific module
+sbt "project nfmac10g" test
+```
+
+## Generating Verilog
+```bash
+sbt "project nfmac10g" "runMain org.chiselware.cores.o01.t001.nfmac10g.NfMac10gVerilog"
+```
+
+## Project Structure
+ClockDomainCrew/
+├── build.sbt                 # Root build configuration
+├── docs/                     # Project documentation
+├── modules/                  # Hardware modules
+│   └── nfmac10g/            # 10G MAC module
+│       ├── docs/            # Module documentation
+│       └── src/             # Module source
+│           ├── main/scala/  # Chisel sources
+│           └── test/scala/  # ChiselTest tests
+└── project/                 # SBT configuration
+
+## Documentation
+
+- Module documentation: `modules/nfmac10g/docs/user-guide/`
+- Verification: `docs/verification-compliance/`

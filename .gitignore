@@ -1,0 +1,43 @@
+*.class
+*.log
+*.jar
+*.war
+*.zip
+*.tar.gz
+
+# sbt specific
+target/
+project/target/
+project/project/
+.bsp/
+.metals/
+.bloop/
+metals.sbt
+
+# Scala-IDE specific
+.cache
+.cache-main
+.scala_dependencies
+.worksheet
+
+# IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# VS Code
+.vscode/
+
+# Mac
+.DS_Store
+
+# Generated files
+*.v
+*.fir
+*.anno.json
+test_run_dir/
+
+# Old structure (ignore if still present)
+src/src/

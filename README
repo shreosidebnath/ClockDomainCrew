@@ -19,35 +19,73 @@ Located in `modules/nfmac10g/`
 # Compile all modules
 sbt compile
 
-# Compile specific module
-sbt "project nfmac10g" compile
+# Compile only the core project
+sbt "project core" compile
 ```
 
 ## Testing
-```bash
-# Run all tests
-sbt test
 
-# Test specific module
-sbt "project nfmac10g" test
+Recommended: 
+```bash
+make test
+```
+
+This runs:
+```bash
+sbt "project core" test
+```
+
+and writes output to:
+```bash
+modules/nfmac10g/generated/test.rpt
 ```
 
 ## Generating Verilog
+
+Generate SystemVerilog and synthesis collateral:
 ```bash
-sbt "project nfmac10g" "runMain org.chiselware.cores.o01.t001.nfmac10g.NfMac10gVerilog"
+make verilog
+```
+
+This runs:
+```bash
+sbt "project core" run
+```
+
+Entrypoint:
+```bash
+org.chiselware.cores.o01.t001.nfmac10g.Main
+```
+
+If you want to generate using sbt instead of makefile:
+```bash
+sbt "project core" "runMain org.chiselware.cores.o01.t001.nfmac10g.NfMac10gVerilog"
+```
+
+## Full regression Flow
+Run everything end-to-end:
+
+```bash
+make all
 ```
 
 ## Project Structure
+```
 ClockDomainCrew/
-├── build.sbt                 # Root build configuration
-├── docs/                     # Project documentation
-├── modules/                  # Hardware modules
-│   └── nfmac10g/            # 10G MAC module
-│       ├── docs/            # Module documentation
-│       └── src/             # Module source
-│           ├── main/scala/  # Chisel sources
-│           └── test/scala/  # ChiselTest tests
-└── project/                 # SBT configuration
+├── build.sbt                 # Root sbt build (aggregator)
+├── Makefile                  # Primary build + verification entry point
+├── docs/                     # Project-level reports and documentation
+├── modules/
+│   └── nfmac10g/              # Core hardware module
+│       ├── docs/
+│       │   └── user-guide/    # LaTeX-based user guide
+│       ├── generated/         # Verilog, reports, coverage, synthesis output
+│       ├── src/
+│       │   ├── main/scala/    # Chisel sources
+│       │   └── test/scala/    # ChiselTest tests
+│       └── target/            # sbt build output
+└── project/                   # sbt plugins and build config
+```
 
 ## Documentation
 

@@ -45,27 +45,61 @@ class RstModTest extends AnyFlatSpec with Matchers with ChiselScalatestTester {
         .withAnnotations(backendAnnotations) { dut =>
           dut.clock.setTimeout(0)
           // Initialize the inputs
-          dut.io.reset.poke(0.U)
-          dut.io.dcm_locked.poke(false.B)
+          dut.io.reset.poke(1.U)
+          dut.io.dcm_locked.poke(true.B)
 
-          // Sequence: reset, loop: load, hold
-          info("Reset to zero")
-          dut.io.reset.poke(true.B)
+          info("Holding reset to 1 for 3 cycles")
           dut.clock.step()
-          dut.reset.poke(false.B)
+          dut.io.dcm_locked.poke(false.B)
+          dut.io.rst.expect(1.U)
+
+          dut.clock.step()
+          dut.io.dcm_locked.poke(true.B)
+          dut.io.rst.expect(1.U)
+
+          dut.clock.step()
+          dut.io.rst.expect(1.U)
+
+          info("Releasing reset to 0")
+          dut.io.reset.poke(0.U) 
+          dut.clock.step() // State 0 to 1
+          dut.io.rst.expect(1.U)
+
+          dut.clock.step() // State 1 to 2
+          dut.io.dcm_locked.poke(false.B)
+          dut.io.rst.expect(1.U)
+
+          dut.clock.step() // State 2 to 3
+          dut.io.dcm_locked.poke(true.B)
+          dut.io.rst.expect(1.U)
+
+          dut.clock.step() // State 3 to 4
+          dut.io.dcm_locked.poke(false.B)
+          dut.io.rst.expect(1.U)
+
+          dut.clock.step() // State stuck at 4
+          dut.io.rst.expect(1.U)
+          
+          dut.clock.step() // State stuck at 4
+          dut.io.rst.expect(1.U)
+
+          info("Releasing dcm_locked to 1")
+          dut.io.dcm_locked.poke(true.B)
+          dut.clock.step() // State 4 to 5
+          dut.io.rst.expect(1.U)
+
+          dut.io.dcm_locked.poke(false.B)
+          dut.clock.step() // State stuck at 5
           dut.io.rst.expect(0.U)
-        //   info("Test with random data")
-        //   for (i <- 1 to 10) {
-        //     val myData = BigInt(1, scala.util.Random)
-        //     dut.io.reset.poke(1.U)
-        //     dut.io.in.poke(myData)
-        //     dut.clock.step()
-        //     dut.io.out.expect(myData)
-        //     dut.io.enable.poke(0.U)
-        //     dut.clock.step()
-        //     dut.io.out.expect(myData)
-        //   }
+
+          dut.io.dcm_locked.poke(true.B)
+          dut.clock.step() // State stuck at 5
+          dut.io.rst.expect(0.U)
+
+          info("Testing reset asynchronously")
+          dut.io.reset.poke(1.U)
+          dut.io.rst.expect(1.U)
         }
-    }
+    }       
   }
 }

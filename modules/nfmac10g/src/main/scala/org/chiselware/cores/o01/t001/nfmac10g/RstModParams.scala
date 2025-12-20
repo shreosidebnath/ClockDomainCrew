@@ -32,15 +32,11 @@ case class RstModParams() {
   */
 object RstModParams {
   val simConfigMap = LinkedHashMap[String, RstModParams](
-    "config8" -> RstModParams(),
-    "config32" -> RstModParams(),
-    "config64" -> RstModParams()
+    "config" -> RstModParams()
   )
 
   val synConfigMap = LinkedHashMap[String, RstModParams](
-    "small_1" -> RstModParams(),
-    "medium_64" -> RstModParams(),
-    "large_128" -> RstModParams()
+    "small_1" -> RstModParams()
   )
 
   // Extract config names into a space-separated string

@@ -6,7 +6,7 @@ CORE_DIR := "modules/nfmac10g"
 GEN_DIR := "${CORE_DIR}/generated"
 ERROR_REP := "${GEN_DIR}/error.rpt"
 TC_DIR := "${GEN_DIR}/synTestCases"
-CORE := "rst_mod" # Change this to nfmac10g later
+CORE := "nfmac10g"
 
 # Run everything and scan for errors
 .PHONY: list
@@ -55,6 +55,7 @@ clean:
 	rm -rf ${CORE_DIR}/target 
 	rm -rf ${CORE_DIR}/project/project 
 	rm -rf ${CORE_DIR}/project/target
+	$(SBT) clean
 
 .PHONY: publish
 publish: 
@@ -67,7 +68,7 @@ publish:
 docs:
 	@echo Building API docs
 	$(SBT) "project core" doc | tee docs/doc.rpt
-	firefox --new-window ${CORE_DIR}/target/scala-2.13/api/org/chiselware/cores/o01/t001/dff/index.html 2>/dev/null &
+	firefox --new-window ${CORE_DIR}/target/scala-2.13/api/org/chiselware/cores/o01/t001/nfmac10g/index.html 2>/dev/null &
 	@echo Building User Guide
 	cd ${CORE_DIR}/docs/user-guide && pdflatex ${CORE}.tex 
 # Rerun to generate TOC

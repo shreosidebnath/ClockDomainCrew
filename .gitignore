@@ -13,6 +13,7 @@ project/*
 modules/*/generated/*
 modules/*/target/*
 target/*
+**/target/
 
 # sbt specific
 .bsp/
@@ -49,10 +50,10 @@ test_run_dir/
 # Old structure (ignore if still present)
 src/src/
 
-#*.rpt
-#generated/*.rpt
-#generated/verilogCoverage/
-#generated/synTestCases/
-#generated/scalaCoverage/
-#generated/scalaCoverage/
-#generated/scalaCoverage/scoverage-report
+*.rpt
+generated/*.rpt
+generated/verilogCoverage/
+generated/synTestCases/
+generated/scalaCoverage/
+generated/scalaCoverage/
+generated/scalaCoverage/scoverage-report

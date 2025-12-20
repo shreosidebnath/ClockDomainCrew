@@ -93,7 +93,7 @@ object RstMod {
   * part of the regression framework.
   */
 object Main extends App {
-  val mainClassName = "RstMod"
+  val mainClassName = "Nfmac10g"
   val coreDir = s"modules/${mainClassName.toLowerCase()}"
   RstModParams.synConfigMap.foreach { case (configName, configParams) =>
     println()

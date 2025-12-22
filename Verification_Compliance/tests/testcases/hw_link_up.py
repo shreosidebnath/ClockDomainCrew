@@ -1,7 +1,10 @@
 # Verification_Compliance/tests/testcases/local_link_up.py
 import threading, time, socket, sys, os
 from scapy.all import conf
+from scapy.layers.l2 import Ether
+from scapy.packet import Raw
 from tests.base import load_spec, TestSpec
+
 
 # Add repo root (Verification_Compliance) to sys.path so we can import scapy_lab_win.py
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -90,34 +93,93 @@ def run(spec_path: str):
 
     # ---- RAW ETHERNET (FPGA/NIC test) ----
     if l3 == "raw":
+        from scapy.all import AsyncSniffer  # local import to avoid affecting other modes
+
         dst_mac = t.get("dst_mac")
         src_mac = t.get("src_mac")
+        verify_loopback = bool(t.get("verify_loopback", False))
+
+        if not src_mac:
+            # default to NIC MAC if not provided
+            try:
+                src_mac = lab.get_if_hwaddr(conf.iface)
+            except Exception:
+                src_mac = None
 
         if not dst_mac:
-            return False, "raw mode requires dst_mac in spec"
+            # for NIC loopback tests, dst_mac is usually your own MAC
+            if verify_loopback and src_mac:
+                dst_mac = src_mac
+            else:
+                return False, "raw mode requires dst_mac (or set verify_loopback: true with src_mac available)"
 
-        print(f"[RAW] iface={iface_query} src_mac={src_mac} dst_mac={dst_mac} count={count}")
+        count = int(t.get("count", 5))
+        timeout = int(t.get("timeout", 3))
 
-        # send raw frames
+        print(
+            f"[RAW] iface={iface_query} src_mac={src_mac} dst_mac={dst_mac} "
+            f"count={count} verify_loopback={verify_loopback}"
+        )
+
         payload = spec.payload or b"hello-raw"
+        marker = t.get("marker", "CDCREW").encode()
+        marker_prefix = marker + b":"
+
+        # Put a marker in the payload so we can identify our own frames
+        tx_payload = marker_prefix + payload
+
+        # Tight BPF: only our test EtherType
+        bpf = "ether proto 0x9000"
+
+        # Start sniffer first to avoid race conditions
+        sniffer = AsyncSniffer(
+            iface=conf.iface,        # conf.iface already set earlier via lab.set_iface()
+            filter=bpf,
+            store=True,
+            promisc=True,
+        )
+        sniffer.start()
+
+        # Small arm delay helps on busy systems
+        time.sleep(0.2)
+
+        # Send frames
         for _ in range(count):
             lab.send_raw(
                 iface_query,
                 dst_mac=dst_mac,
                 src_mac=src_mac,
-                payload=payload,
+                payload=tx_payload,
             )
             time.sleep(0.05)
 
-        # sniff for anything involving the FPGA MAC
-        bpf = f""
-        lab.sniff_packets(
-            iface_query,
-            bpf=bpf,
-            count=count * 2,
-            timeout=max(5, timeout + 3),
-        )
+        # Stop sniffer and collect packets
+        pkts = sniffer.stop()
 
-        return True, "local RAW send + sniff ok"
+        # Count marked frames
+        captured = 0
+        for p in pkts:
+            if not p.haslayer(Raw) or not p.haslayer(Ether):
+                continue
+
+            data = bytes(p[Raw].load)
+
+            # Must contain our marker
+            if not data.startswith(marker_prefix):
+                continue
+            # FPGA loopback check:
+            # frame must come BACK to the host NIC
+            if verify_loopback:
+                if p[Ether].dst.lower() != src_mac.lower():
+                    continue
+
+            captured += 1
+
+        if verify_loopback:
+            if captured >= count:
+                return True, f"NIC RAW loopback OK (captured {captured}/{count} marked frames)"
+            return False, f"NIC RAW loopback FAIL (captured {captured}/{count} marked frames)"
+        else:
+            return True, f"RAW send + sniff completed (captured {captured} marked frames)"
 
     return False, f"unsupported l3={l3}"

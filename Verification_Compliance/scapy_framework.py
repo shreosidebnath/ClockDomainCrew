@@ -80,22 +80,30 @@ def send_udp(
     sr(pkt, timeout=timeout, verbose=False)
     print(f"[UDP] sent to {dst_ip}:{dport} (check sniff output)")
 
-
-def sniff_packets(
-    iface: str,
-    bpf: str = "icmp or udp",
-    count: int = 5,
-    timeout: int = 5,
-):
+def sniff_packets(iface: str, bpf: str = "", count: int = 5, timeout: int = 5):
     conf.iface = set_iface(iface)
-    print(
-        f"[SNIFF] iface='{conf.iface}' filter='{bpf}' count={count} timeout={timeout}s"
-    )
-    pkts = sniff(iface=conf.iface, filter=bpf, count=count, timeout=timeout)
+    conf.sniff_promisc = True
+    print(f"[SNIFF] iface='{conf.iface}' filter='{bpf}' count={count} timeout={timeout}s promisc=True")
+
+    try:
+        pkts = sniff(
+            iface=conf.iface,
+            filter=bpf if bpf else None,
+            count=count,
+            timeout=timeout,
+            store=True,
+            promisc=True,
+        )
+    except Exception as e:
+        print(f"[SNIFF] ERROR: {type(e).__name__}: {e}")
+        return []
+
     if not pkts:
         print("[SNIFF] no packets captured")
-    for i, p in enumerate(pkts, 1):
-        print(f"[{i}] {p.summary()}")
+    else:
+        for i, p in enumerate(pkts, 1):
+            print(f"[{i}] {p.summary()}")
+    return pkts
 
 
 def selftest():

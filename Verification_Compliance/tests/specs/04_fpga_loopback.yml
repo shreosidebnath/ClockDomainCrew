@@ -1,0 +1,15 @@
+name: fpga_loopback_raw
+backend: hw
+test:
+  type: link_up
+  iface: "eno2np1"
+  l3: raw
+  verify_loopback: true
+  count: 10
+  timeout: 2
+  marker: "CDCREW"
+  # Host NIC
+  src_mac: "08:8f:c3:9d:11:70"
+  # FPGA MAC (must match FPGA design)
+  dst_mac: "02:ca:fe:00:00:01"
+payload: "fpga-loopback-test"

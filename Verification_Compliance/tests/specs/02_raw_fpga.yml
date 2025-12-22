@@ -9,5 +9,5 @@ test:
   dst_mac: "02:ca:fe:00:00:01"
   count: 5
   timeout: 2
-payload: b"X" * 46
+payload: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"  # 46 X's
 

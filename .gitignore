@@ -1,0 +1,59 @@
+*.class
+*.log
+*.jar
+*.war
+*.zip
+*.tar.gz
+*.swp
+
+# Chisel
+project/*
+!/project/build.properties
+!/project/plugins.sbt
+modules/*/generated/*
+modules/*/target/*
+target/*
+**/target/
+
+# sbt specific
+.bsp/
+.metals/
+.bloop/
+metals.sbt
+.metals
+
+# Scala-IDE specific
+.cache
+.cache-main
+.scala_dependencies
+.worksheet
+
+# IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# VS Code
+.vscode/
+
+# Mac
+.DS_Store
+
+# Generated files
+*.v
+*.fir
+*.anno.json
+test_run_dir/
+
+# Old structure (ignore if still present)
+src/src/
+
+*.rpt
+generated/*.rpt
+generated/verilogCoverage/
+generated/synTestCases/
+generated/scalaCoverage/
+generated/scalaCoverage/
+generated/scalaCoverage/scoverage-report

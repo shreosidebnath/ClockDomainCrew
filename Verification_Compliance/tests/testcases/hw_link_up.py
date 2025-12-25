@@ -4,6 +4,8 @@ from scapy.all import conf
 from scapy.layers.l2 import Ether
 from scapy.packet import Raw
 from tests.base import load_spec, TestSpec
+from scapy.all import AsyncSniffer  
+import struct
 
 
 # Add repo root (Verification_Compliance) to sys.path so we can import scapy_lab_win.py
@@ -93,93 +95,125 @@ def run(spec_path: str):
 
     # ---- RAW ETHERNET (FPGA/NIC test) ----
     if l3 == "raw":
-        from scapy.all import AsyncSniffer  # local import to avoid affecting other modes
-
-        dst_mac = t.get("dst_mac")
-        src_mac = t.get("src_mac")
+        # --- read spec fields ---
+        src_mac_cfg = t.get("src_mac")
+        dst_mac_cfg = t.get("dst_mac")
         verify_loopback = bool(t.get("verify_loopback", False))
-
-        if not src_mac:
-            # default to NIC MAC if not provided
-            try:
-                src_mac = lab.get_if_hwaddr(conf.iface)
-            except Exception:
-                src_mac = None
-
-        if not dst_mac:
-            # for NIC loopback tests, dst_mac is usually your own MAC
-            if verify_loopback and src_mac:
-                dst_mac = src_mac
-            else:
-                return False, "raw mode requires dst_mac (or set verify_loopback: true with src_mac available)"
+        mode = (t.get("loopback_mode") or "").lower().strip()  # "nic" or "peer"
+        marker = (t.get("marker", "CDCREW")).encode()
 
         count = int(t.get("count", 5))
         timeout = int(t.get("timeout", 3))
+        arm_delay = float(t.get("arm_delay", 0.2))
+        inter_gap = float(t.get("inter_gap", 0.05))
+
+        # --- ground truth: host interface MAC ---
+        host_mac = lab.get_if_hwaddr(conf.iface).lower()
+
+        # --- decide loopback mode (never infer if explicitly provided) ---
+        dst_mac_l = (dst_mac_cfg.lower() if dst_mac_cfg else "")
+        if not mode:
+            # infer: if user is sending to self, treat as NIC loopback, otherwise peer
+            mode = "nic" if (dst_mac_l == host_mac or not dst_mac_l) else "peer"
+
+        # --- compute TX src/dst and expected RX src/dst ---
+        if mode == "nic":
+            # NIC self-loopback: send to self, expect src=self dst=self
+            tx_src = host_mac
+            tx_dst = host_mac
+            expected_src = host_mac
+            expected_dst = host_mac
+            label = "NIC RAW loopback"
+        else:
+            # Peer/FPGA loopback: send to peer, expect return src=peer dst=host
+            if not dst_mac_cfg:
+                return False, "peer loopback requires dst_mac (peer/FPGA MAC) in spec"
+
+            peer_mac = dst_mac_cfg.lower()
+            tx_src = host_mac if not src_mac_cfg else src_mac_cfg.lower()
+            tx_dst = peer_mac
+            expected_src = peer_mac
+            expected_dst = host_mac
+            label = "FPGA RAW loopback"
+
+        # --- payload format: marker + seq + user_payload ---
+        payload = spec.payload or b"hello-raw"
+        marker_prefix = marker + b":"
+        # we’ll include a 32-bit sequence to dedupe reliably (NIC loopback often double-captures)
+        # frame payload: b"CDCREW:" + seq(4B) + payload
+        def make_payload(seq: int) -> bytes:
+            return marker_prefix + struct.pack("!I", seq) + payload
+
+        # --- sniffer filters ---
+        # BPF narrows to our EtherType and frames destined to expected_dst (host_mac in both modes)
+        bpf = f"ether proto 0x9000 and ether dst {expected_dst}"
+
+        # lfilter ensures marker and expected src/dst match
+        def is_returned(p):
+            if not p.haslayer(Ether) or not p.haslayer(Raw):
+                return False
+            eth = p[Ether]
+            raw = bytes(p[Raw].load)
+
+            if not raw.startswith(marker_prefix):
+                return False
+
+            # strict src/dst match for the RETURNED frame
+            if eth.src.lower() != expected_src:
+                return False
+            if eth.dst.lower() != expected_dst:
+                return False
+
+            return True
 
         print(
-            f"[RAW] iface={iface_query} src_mac={src_mac} dst_mac={dst_mac} "
+            f"[RAW] iface={iface_query} mode={mode} host_mac={host_mac} "
+            f"tx={tx_src}->{tx_dst} expect={expected_src}->{expected_dst} "
             f"count={count} verify_loopback={verify_loopback}"
         )
 
-        payload = spec.payload or b"hello-raw"
-        marker = t.get("marker", "CDCREW").encode()
-        marker_prefix = marker + b":"
-
-        # Put a marker in the payload so we can identify our own frames
-        tx_payload = marker_prefix + payload
-
-        # Tight BPF: only our test EtherType
-        bpf = "ether proto 0x9000"
-
-        # Start sniffer first to avoid race conditions
+        # --- start sniffer first (race-safe) ---
         sniffer = AsyncSniffer(
-            iface=conf.iface,        # conf.iface already set earlier via lab.set_iface()
+            iface=conf.iface,
             filter=bpf,
+            lfilter=is_returned,
             store=True,
             promisc=True,
         )
         sniffer.start()
+        time.sleep(arm_delay)
 
-        # Small arm delay helps on busy systems
-        time.sleep(0.2)
-
-        # Send frames
-        for _ in range(count):
+        # --- send frames ---
+        for seq in range(count):
             lab.send_raw(
                 iface_query,
-                dst_mac=dst_mac,
-                src_mac=src_mac,
-                payload=tx_payload,
+                dst_mac=tx_dst,
+                src_mac=tx_src,
+                payload=make_payload(seq),
             )
-            time.sleep(0.05)
+            time.sleep(inter_gap)
 
-        # Stop sniffer and collect packets
+        # --- stop and collect ---
         pkts = sniffer.stop()
 
-        # Count marked frames
-        captured = 0
+        if not verify_loopback:
+            # if you ever want a "send-only" mode, this at least confirms we saw something relevant
+            return True, f"RAW send completed (sniffed {len(pkts)} matching frames)"
+
+        # --- count UNIQUE sequences returned (fixes 20/10 NIC duplicates cleanly) ---
+        seen = set()
         for p in pkts:
-            if not p.haslayer(Raw) or not p.haslayer(Ether):
-                continue
+            raw = bytes(p[Raw].load)
+            # raw is b"CDCREW:" + 4B seq + payload
+            if len(raw) >= len(marker_prefix) + 4:
+                seq = struct.unpack("!I", raw[len(marker_prefix):len(marker_prefix) + 4])[0]
+                seen.add(seq)
 
-            data = bytes(p[Raw].load)
+        captured = len(seen)
 
-            # Must contain our marker
-            if not data.startswith(marker_prefix):
-                continue
-            # FPGA loopback check:
-            # frame must come BACK to the host NIC
-            if verify_loopback:
-                if p[Ether].dst.lower() != src_mac.lower():
-                    continue
-
-            captured += 1
-
-        if verify_loopback:
-            if captured >= count:
-                return True, f"NIC RAW loopback OK (captured {captured}/{count} marked frames)"
-            return False, f"NIC RAW loopback FAIL (captured {captured}/{count} marked frames)"
+        if captured >= count:
+            return True, f"{label} OK (captured {captured}/{count} unique marked frames)"
         else:
-            return True, f"RAW send + sniff completed (captured {captured} marked frames)"
+            return False, f"{label} FAIL (captured {captured}/{count} unique marked frames)"
 
     return False, f"unsupported l3={l3}"

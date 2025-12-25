@@ -2,14 +2,12 @@ name: nic_loopback_raw
 backend: hw
 test:
   type: link_up
-  iface: "eno2np1"
+  iface: "ens6"
   l3: raw
   verify_loopback: true
-  require_inbound: true
+  loopback_mode: nic
   count: 10
   timeout: 2
   # marker is optional but useful if you run multiple tests
   marker: "CDCREW"
-  src_mac: "08:8f:c3:9d:11:70"
-  dst_mac: "08:8f:c3:9d:11:70"
 payload: "loopback-test"

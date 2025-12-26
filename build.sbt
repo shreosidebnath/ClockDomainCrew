@@ -8,10 +8,43 @@ lazy val commonSettings = Seq(
 
 lazy val root = (project in file("."))
   .settings(commonSettings)
-  .aggregate(nfmac10g)
-  .dependsOn(nfmac10g)
+  .aggregate(mac, pcs, nfmac10g)
   .settings(
     name := "ClockDomainCrew"
+  )
+
+lazy val mac = (project in file("modules/mac"))
+  .settings(commonSettings)
+  .settings(
+    name := "mac",
+    libraryDependencies ++= Seq(
+      "edu.berkeley.cs" %% "chisel3" % chiselVersion,
+      "edu.berkeley.cs" %% "chiseltest" % "0.6.0" % "test"
+    ),
+    scalacOptions ++= Seq(
+      "-language:reflectiveCalls",
+      "-deprecation",
+      "-feature",
+      "-Xcheckinit"
+    ),
+    addCompilerPlugin("edu.berkeley.cs" % "chisel3-plugin" % chiselVersion cross CrossVersion.full)
+  )
+
+lazy val pcs = (project in file("modules/pcs"))
+  .settings(commonSettings)
+  .settings(
+    name := "pcs",
+    libraryDependencies ++= Seq(
+      "edu.berkeley.cs" %% "chisel3" % chiselVersion,
+      "edu.berkeley.cs" %% "chiseltest" % "0.6.0" % "test"
+    ),
+    scalacOptions ++= Seq(
+      "-language:reflectiveCalls",
+      "-deprecation",
+      "-feature",
+      "-Xcheckinit"
+    ),
+    addCompilerPlugin("edu.berkeley.cs" % "chisel3-plugin" % chiselVersion cross CrossVersion.full)
   )
 
 lazy val nfmac10g = (project in file("modules/nfmac10g"))
@@ -26,10 +59,7 @@ lazy val nfmac10g = (project in file("modules/nfmac10g"))
       "-language:reflectiveCalls",
       "-deprecation",
       "-feature",
-      "-Xcheckinit",
-      "-Xfatal-warnings",
-      "-Ywarn-dead-code",
-      "-Ywarn-unused"
+      "-Xcheckinit"
     ),
     addCompilerPlugin("edu.berkeley.cs" % "chisel3-plugin" % chiselVersion cross CrossVersion.full)
   )

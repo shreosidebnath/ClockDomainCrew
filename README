@@ -35,6 +35,7 @@ Not following chiselware standards - do not use as template.
 # Compile all modules
 sbt compile
 
+<<<<<<< HEAD
 # Compile specific module
 sbt "project mac" compile
 sbt "project pcs" compile
@@ -42,17 +43,83 @@ sbt "project pcs" compile
 # Run tests
 sbt "project mac" test
 sbt "project pcs" test
+=======
+# Compile only the core project
+sbt "project core" compile
+```
+
+## Testing
+
+Recommended: 
+```bash
+make test
+```
+
+This runs:
+```bash
+sbt "project core" test
+```
+
+and writes output to:
+```bash
+modules/nfmac10g/generated/test.rpt
+```
+
+## Generating Verilog
+
+Generate SystemVerilog and synthesis collateral:
+```bash
+make verilog
+```
+
+This runs:
+```bash
+sbt "project core" run
+```
+
+Entrypoint:
+```bash
+org.chiselware.cores.o01.t001.nfmac10g.Main
+```
+
+If you want to generate using sbt instead of makefile:
+```bash
+sbt "project core" "runMain org.chiselware.cores.o01.t001.nfmac10g.NfMac10gVerilog"
+```
+
+## Full regression Flow
+Run everything end-to-end:
+
+```bash
+make all
+>>>>>>> a0fdaec4ef566299fef7e2f861d52ed4b6001c82
 ```
 
 ## Project Structure
 ```
 ClockDomainCrew/
+<<<<<<< HEAD
 ├── build.sbt
 ├── modules/
 │   ├── mac/              # MAC layer (standalone)
 │   ├── pcs/              # PCS layer (standalone)
 │   └── nfmac10g/         # Reference only
 └── project/
+=======
+├── build.sbt                 # Root sbt build (aggregator)
+├── Makefile                  # Primary build + verification entry point
+├── docs/                     # Project-level reports and documentation
+├── modules/
+│   └── nfmac10g/              # Core hardware module
+│       ├── docs/
+│       │   └── user-guide/    # LaTeX-based user guide
+│       ├── generated/         # Verilog, reports, coverage, synthesis output
+│       ├── src/
+│       │   ├── main/scala/    # Chisel sources
+│       │   └── test/scala/    # ChiselTest tests
+│       └── target/            # sbt build output
+└── project/                   # sbt plugins and build config
+>>>>>>> a0fdaec4ef566299fef7e2f861d52ed4b6001c82
 ```
 
 ## Development Approach

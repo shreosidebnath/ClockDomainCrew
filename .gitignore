@@ -4,15 +4,23 @@
 *.war
 *.zip
 *.tar.gz
+*.swp
+
+# Chisel
+project/*
+!/project/build.properties
+!/project/plugins.sbt
+modules/*/generated/*
+modules/*/target/*
+target/*
+**/target/
 
 # sbt specific
-target/
-project/target/
-project/project/
 .bsp/
 .metals/
 .bloop/
 metals.sbt
+.metals
 
 # Scala-IDE specific
 .cache
@@ -41,3 +49,11 @@ test_run_dir/
 
 # Old structure (ignore if still present)
 src/src/
+
+*.rpt
+generated/*.rpt
+generated/verilogCoverage/
+generated/synTestCases/
+generated/scalaCoverage/
+generated/scalaCoverage/
+generated/scalaCoverage/scoverage-report

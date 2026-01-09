@@ -2,7 +2,7 @@ name: nic_loopback_raw
 backend: hw
 test:
   type: link_up
-  iface: "ens6"
+  iface: "eno2np1"
   l3: raw
   verify_loopback: true
   loopback_mode: nic

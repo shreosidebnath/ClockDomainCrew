@@ -16,7 +16,7 @@ Run the following command
 sudo ifconfig eth0 192.168.10.10 up
 ```
 
-## Enabling internet on FPGA board and Installing Scapy dependencies(Ubuntu environment)
+## Enabling internet on FPGA board and Installing Scapy dependencies (Ubuntu environment)
 This is only for accessing internet. We used it to install scapy and pip
 
 Internet on the FPGA board can be configured by "bridging" the PC's Wi-Fi to the Ethernet port (eno2np1) so the FPGA can use the PC's internet.
@@ -67,3 +67,14 @@ sniff(iface="eth0", prn=reflect_packet, filter="ether dst 00:0a:35:24:7f:a3")
 ```
 
 Save the file and run `sudo python3 reflect.py`. Note that Scapy must be installed on Ubuntu on the FPGA side. See previous section for help
+
+## Connecting to the FPGA Linux shell (Ubuntu image)
+
+Once the FPGA is powered on, the power source is connected, the ethernet cable is connected, and the JTAG is connected to the USB port, run the following:
+
+```bash
+sudo putty /dev/ttyUSB1 -serial -sercfg 115200,8,n,1,N
+```
+
+The terminal should prompt for a login.
+Log in as `Ubuntu` and use the password `Ubuntu`.

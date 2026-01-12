@@ -5,10 +5,10 @@ import chisel3.util._
 object EthMacDefinitions {
 
  
-  val S = "hFB".U(8.W)  // Start of Frame
-  val T = "hFD".U(8.W)  // Terminate
-  val E = "hFE".U(8.W)  // Error
-  val I = "h07".U(8.W)  // Idle
+  val S = "hFB".U(8.W)  
+  val T = "hFD".U(8.W)  
+  val E = "hFE".U(8.W)  
+  val I = "h07".U(8.W)  
 
 
   val PREAMBLE_LANE0_D = Cat("hD5555555555555".U(56.W), S)
@@ -36,20 +36,17 @@ object EthMacDefinitions {
   val CRC802_3_PRESET = "hFFFFFFFF".U(32.W)
 
 
-  // Detect Start of Frame on Lane 0
   def sof_lane0(xgmii_d: UInt, xgmii_c: UInt): Bool = {
     (xgmii_d(7, 0) === S) && xgmii_c(0)
   }
 
-  // Detect Start of Frame on Lane 4
   def sof_lane4(xgmii_d: UInt, xgmii_c: UInt): Bool = {
     (xgmii_d(39, 32) === S) && xgmii_c(4)
   }
 
-  // Detect Terminate character
   def is_tchar(b: UInt): Bool = b === T
 
-  // Bit/Byte Reversal
+  
   def crc_rev(crc: UInt): UInt = Reverse(crc)
   def byte_rev(b: UInt): UInt = Reverse(b)
   
@@ -108,11 +105,10 @@ object EthMacDefinitions {
     val vector         = UInt(80.W)
     val stationMacAddr = UInt(48.W)
   }
-  */
+ 
   def crc8B(c: UInt, d: UInt): UInt = {
     val o = Wire(Vec(32, Bool()))
     
-    // bitwise XOR chains based on your provided logic
     o(0) := d(15) ^ c(12) ^ d(63) ^ d(47) ^ d(39) ^ d(5) ^ d(32) ^ c(28) ^ d(16) ^ c(21) ^ c(13) ^ c(0) ^ d(33) ^ c(29) ^ c(22) ^ d(10) ^ d(57) ^ d(34) ^ d(0) ^ d(26) ^ c(31) ^ d(18) ^ c(23) ^ c(15) ^ d(51) ^ c(2) ^ d(8) ^ d(35) ^ d(19) ^ c(16) ^ d(9) ^ d(2) ^ d(13) ^ d(53) ^ d(37) ^ d(3) ^ d(29) ^ c(26) ^ c(18) ^ d(54) ^ c(5) ^ d(38) ^ d(31)
     o(1) := c(27) ^ c(19) ^ c(12) ^ d(63) ^ c(6) ^ d(47) ^ d(39) ^ d(5) ^ c(28) ^ d(16) ^ c(21) ^ d(56) ^ d(25) ^ c(30) ^ d(17) ^ d(10) ^ c(14) ^ d(57) ^ d(50) ^ c(1) ^ d(7) ^ d(0) ^ d(26) ^ c(31) ^ c(15) ^ d(51) ^ c(2) ^ d(35) ^ d(1) ^ d(19) ^ d(12) ^ c(24) ^ d(52) ^ c(3) ^ d(36) ^ d(28) ^ d(13) ^ c(17) ^ d(3) ^ d(30) ^ d(29) ^ c(26) ^ d(14) ^ c(18) ^ d(62) ^ d(54) ^ c(5) ^ d(46) ^ d(4)
     o(2) := c(27) ^ c(19) ^ c(20) ^ c(12) ^ d(63) ^ d(55) ^ c(6) ^ d(47) ^ d(39) ^ d(5) ^ d(32) ^ d(24) ^ c(21) ^ d(56) ^ c(7) ^ c(0) ^ d(33) ^ d(6) ^ d(25) ^ d(10) ^ d(57) ^ d(50) ^ d(49) ^ d(26) ^ d(11) ^ c(23) ^ d(8) ^ d(27) ^ d(19) ^ d(12) ^ c(3) ^ d(28) ^ c(25) ^ d(61) ^ d(45) ^ c(4) ^ d(37) ^ c(26) ^ d(62) ^ d(54) ^ c(5) ^ d(46) ^ d(4) ^ d(31)
@@ -149,12 +145,10 @@ object EthMacDefinitions {
     o.asUInt
   }
 
-  /**
-   * crc7B: Calculates CRC for 7 bytes of data (56-bit)
-   */
+ 
   def crc7B(c: UInt, d: UInt): UInt = {
     val o = Wire(Vec(32, Bool()))
-    // bitwise XOR chains based on your logic
+    
     o(0) := d(23) ^ c(20) ^ d(55) ^ c(6) ^ d(39) ^ d(5) ^ d(24) ^ c(21) ^ c(13) ^ c(7) ^ c(0) ^ d(25) ^ c(30) ^ c(29) ^ d(10) ^ d(49) ^ c(8) ^ c(1) ^ d(7) ^ d(0) ^ d(26) ^ c(31) ^ d(18) ^ d(11) ^ c(23) ^ d(43) ^ c(2) ^ d(8) ^ d(1) ^ d(27) ^ c(24) ^ d(2) ^ d(21) ^ c(10) ^ c(4) ^ d(45) ^ d(30) ^ d(29) ^ c(26) ^ d(46) ^ c(5) ^ d(31)
     o(1) := c(27) ^ c(20) ^ d(55) ^ d(39) ^ d(5) ^ c(13) ^ d(48) ^ c(0) ^ d(6) ^ c(29) ^ d(17) ^ c(22) ^ c(14) ^ d(49) ^ d(42) ^ d(18) ^ d(11) ^ c(23) ^ c(9) ^ d(43) ^ d(8) ^ d(27) ^ d(20) ^ c(3) ^ d(44) ^ d(9) ^ d(2) ^ d(28) ^ d(21) ^ c(25) ^ c(10) ^ c(4) ^ d(22) ^ c(26) ^ c(11) ^ d(54) ^ d(46) ^ d(38) ^ d(31) ^ d(4)
     o(2) := d(23) ^ c(27) ^ c(20) ^ c(12) ^ d(55) ^ c(6) ^ d(47) ^ d(39) ^ d(24) ^ c(28) ^ d(16) ^ c(13) ^ c(7) ^ d(48) ^ c(0) ^ d(41) ^ d(25) ^ c(29) ^ d(17) ^ c(14) ^ d(49) ^ c(8) ^ d(42) ^ d(0) ^ c(31) ^ d(18) ^ d(11) ^ c(15) ^ c(2) ^ d(19) ^ d(20) ^ d(2) ^ d(53) ^ d(37) ^ d(3) ^ d(29) ^ c(11) ^ d(54) ^ d(46) ^ d(38) ^ d(31) ^ d(4)
@@ -191,12 +185,10 @@ object EthMacDefinitions {
     o.asUInt
   }
 
-  /**
-   * crc6B: Calculates CRC for 6 bytes of data (48-bit)
-   */
+ 
   def crc6B(c: UInt, d: UInt): UInt = {
     val o = Wire(Vec(32, Bool()))
-    // bitwise XOR chains based on your logic
+    
     o(0) := d(41) ^ d(23) ^ c(0) ^ d(15) ^ c(9) ^ c(10) ^ d(35) ^ d(17) ^ c(29) ^ c(12) ^ d(10) ^ c(14) ^ d(19) ^ d(37) ^ d(47) ^ d(3) ^ c(16) ^ d(22) ^ c(8) ^ c(18) ^ c(28) ^ d(16) ^ d(0) ^ c(21) ^ c(31) ^ d(18) ^ c(13) ^ d(2) ^ c(15) ^ d(21) ^ d(38) ^ d(13) ^ d(31)
     o(1) := d(23) ^ c(19) ^ c(12) ^ d(47) ^ d(40) ^ c(28) ^ c(21) ^ d(41) ^ c(0) ^ c(30) ^ d(10) ^ c(22) ^ c(8) ^ c(1) ^ d(34) ^ d(0) ^ c(31) ^ d(35) ^ d(1) ^ d(20) ^ d(19) ^ d(12) ^ d(9) ^ d(36) ^ d(13) ^ c(17) ^ d(3) ^ d(30) ^ d(14) ^ c(18) ^ c(11) ^ d(46) ^ d(38) ^ d(31)
     o(2) := d(23) ^ d(15) ^ c(20) ^ c(19) ^ d(47) ^ d(40) ^ d(39) ^ c(28) ^ d(16) ^ c(21) ^ d(41) ^ c(0) ^ d(33) ^ d(17) ^ d(10) ^ c(22) ^ c(14) ^ c(8) ^ c(1) ^ d(34) ^ d(11) ^ c(23) ^ c(15) ^ c(2) ^ d(8) ^ d(12) ^ c(16) ^ d(9) ^ d(21) ^ c(10) ^ d(45) ^ d(29) ^ d(3) ^ d(30) ^ d(46) ^ d(38) ^ d(31)
@@ -233,7 +225,7 @@ object EthMacDefinitions {
     o.asUInt
     def crc5B(c: UInt, d: UInt): UInt = {
     val o = Wire(Vec(32, Bool()))
-    // bitwise XOR chains based on your logic
+    
     o(0)  := c(17) ^ d(23) ^ d(33) ^ d(15) ^ c(20) ^ c(2) ^ c(29) ^ d(8) ^ d(27) ^ c(22) ^ c(4) ^ d(10) ^ c(24) ^ d(30) ^ d(29) ^ d(39) ^ c(16) ^ d(5) ^ c(26) ^ d(14) ^ c(8) ^ c(18) ^ c(1) ^ d(7) ^ c(21) ^ d(9) ^ d(2) ^ d(11) ^ c(23) ^ d(13)
     o(1)  := d(23) ^ d(33) ^ d(15) ^ d(6) ^ c(27) ^ c(9) ^ c(19) ^ c(20) ^ c(29) ^ c(30) ^ d(27) ^ d(1) ^ c(4) ^ d(12) ^ d(30) ^ d(39) ^ c(16) ^ d(22) ^ d(5) ^ c(26) ^ c(8) ^ d(32) ^ c(1) ^ d(26) ^ c(3) ^ d(2) ^ d(11) ^ c(5) ^ d(28) ^ d(38) ^ c(25) ^ d(4)
     o(2)  := d(23) ^ c(0)  ^ d(33) ^ d(15) ^ c(10) ^ c(27) ^ c(9) ^ d(25) ^ c(29) ^ c(30) ^ d(8) ^ c(22) ^ d(1) ^ d(37) ^ d(3) ^ c(24) ^ d(30) ^ c(6) ^ d(39) ^ c(16) ^ d(22) ^ c(8) ^ d(32) ^ c(18) ^ c(1) ^ c(28) ^ d(7) ^ d(0) ^ d(26) ^ d(9) ^ c(31) ^ d(2) ^ c(23) ^ c(5) ^ d(21) ^ d(38) ^ d(4) ^ d(13) ^ d(31)
@@ -309,7 +301,7 @@ object EthMacDefinitions {
     o.asUInt
   }
 
-  // CRC for 3 Bytes (24-bit data)
+
   def crc3B(c: UInt, d: UInt): UInt = {
     val o = Wire(Vec(32, Bool()))
 
@@ -351,7 +343,7 @@ object EthMacDefinitions {
   
   def crc2B(c: UInt, d: UInt): UInt = {
     val o = Wire(Vec(32, Bool()))
-    // bitwise XOR chains based on your logic
+    
     o(0) := d(9) ^ c(22) ^ d(5) ^ c(26) ^ d(15) ^ d(6) ^ d(3) ^ c(28) ^ c(25) ^ c(16)
     o(1) := c(17) ^ d(15) ^ d(6) ^ c(27) ^ c(29) ^ d(8) ^ c(22) ^ d(3) ^ c(16) ^ d(14) ^ c(28) ^ d(9) ^ c(23) ^ d(2) ^ d(4) ^ c(25)
     o(2) := c(17) ^ d(15) ^ d(6) ^ d(8) ^ c(29) ^ c(30) ^ c(22) ^ d(1) ^ c(24) ^ c(16) ^ d(14) ^ c(18) ^ d(7) ^ d(9) ^ d(2) ^ c(23) ^ c(25) ^ d(13)
@@ -389,7 +381,7 @@ object EthMacDefinitions {
   }
   def crc1B(c: UInt, d: UInt): UInt = {
     val o = Wire(Vec(32, Bool()))
-    // bitwise XOR chains based on your logic
+    
     o(0)  := d(1) ^ d(7) ^ c(24) ^ c(30)
     o(1)  := d(1) ^ c(31) ^ d(6) ^ d(7) ^ c(24) ^ c(30) ^ d(0) ^ c(25)
     o(2)  := d(1) ^ c(31) ^ d(5) ^ c(26) ^ d(6) ^ d(7) ^ c(24) ^ c(30) ^ d(0) ^ c(25)

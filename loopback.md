@@ -3,8 +3,20 @@ CDC
 ## How to run the yml file for Scapy
 Run the following command in the project's main directory.
 ```bash
-sudo python3 -m tests.runner --spec tests/specs/02_raw_fpga.yml
+sudo python3 -m tests.runner --spec tests/specs/03_nic_loopback.yml
 ```
+
+
+## Connecting to the FPGA Linux shell (Ubuntu image)
+
+Once the FPGA is powered on, the power source is connected, the ethernet cable is connected, and the JTAG is connected to the USB port, run the following:
+
+```bash
+sudo putty /dev/ttyUSB1 -serial -sercfg 115200,8,n,1,N
+```
+
+The terminal should prompt for a login.
+Log in as `ubuntu` and use the password `ubuntu`.
 
 
 ## Configuring the IP address on FPGA board
@@ -68,13 +80,12 @@ sniff(iface="eth0", prn=reflect_packet, filter="ether dst 00:0a:35:24:7f:a3")
 
 Save the file and run `sudo python3 reflect.py`. Note that Scapy must be installed on Ubuntu on the FPGA side. See previous section for help
 
-## Connecting to the FPGA Linux shell (Ubuntu image)
+Once `reflect.py` is running on the FPGA board, run `sudo python3 -m tests.runner --spec tests/specs/04_fpga_loopback.yml` command from the PC to perform loopback testing
 
-Once the FPGA is powered on, the power source is connected, the ethernet cable is connected, and the JTAG is connected to the USB port, run the following:
 
+## Performing File Transfer to FPGA board
+Run the following command in the PC terminal.
+Note that 192.168.10.10 is the configured IP address of eth0
 ```bash
-sudo putty /dev/ttyUSB1 -serial -sercfg 115200,8,n,1,N
+scp "file directory" ubuntu@192.168.10.10:/home/ubuntu/
 ```
-
-The terminal should prompt for a login.
-Log in as `Ubuntu` and use the password `Ubuntu`.

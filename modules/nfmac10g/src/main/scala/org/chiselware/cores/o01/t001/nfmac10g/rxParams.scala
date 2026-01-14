@@ -17,7 +17,7 @@ import java.io.{File, PrintWriter}
   * @see
   *   [[http://www.mycompany.com]] for more information
   */
-case class RstModParams() {
+case class RxParams() {
 }
 
 /** Define a companion object to hold a Map of the configurations and the order
@@ -30,17 +30,17 @@ case class RstModParams() {
   *  For syn, use snake_case, typical for Verilog: my_config_1
   * ```
   */
-object RstModParams {
-  val simConfigMap = LinkedHashMap[String, RstModParams](
-    "config" -> RstModParams()
+object RxParams {
+  val simConfigMap = LinkedHashMap[String, RxParams](
+    "config" -> RxParams()
   )
 
-  val synConfigMap = LinkedHashMap[String, RstModParams](
-    "small_1" -> RstModParams()
+  val synConfigMap = LinkedHashMap[String, RxParams](
+    "small_1" -> RxParams()
   )
 
   // Extract config names into a space-separated string
-  val synConfigs = RstModParams.synConfigMap
+  val synConfigs = RxParams.synConfigMap
     .map { case (configName, config) => s"$configName" }
     .mkString(" ")
 }

@@ -17,7 +17,7 @@ import java.io.{File, PrintWriter}
   * @see
   *   [[http://www.mycompany.com]] for more information
   */
-case class Xgmii2axisParams() {
+case class Xgmii2AxisParams() {
 }
 
 /** Define a companion object to hold a Map of the configurations and the order
@@ -30,9 +30,9 @@ case class Xgmii2axisParams() {
   *  For syn, use snake_case, typical for Verilog: my_config_1
   * ```
   */
-object Xgmii2axisParams {
+object Xgmii2AxisParams {
   val simConfigMap = LinkedHashMap[String, Xgmii2AxisParams](
-    "config" -> Xgmii2axisParams()
+    "config" -> Xgmii2AxisParams()
   )
 
   val synConfigMap = LinkedHashMap[String, Xgmii2AxisParams](
@@ -43,38 +43,4 @@ object Xgmii2axisParams {
   val synConfigs = Xgmii2AxisParams.synConfigMap
     .map { case (configName, config) => s"$configName" }
     .mkString(" ")
-}
-
-/** Customize this companion object with your port list and desired synthesis
-  * contraints.
-  */
-
-object sdcFile {
-  def create(sdcFilePath: String): Unit = {
-    // Default constraints, tighten or loosen as necessary
-    val period = 6.400 // ns
-    val dutyCycle = 0.50
-    val inputDelayPct = 0.2
-    val outputDelayPct = 0.2
-
-    // Calculated constraints, customize as needed in SdcFileData
-    val inputDelay = period * inputDelayPct
-    val outputDelay = period * outputDelayPct
-    val fallingEdge = period * dutyCycle
-
-    val sdcFileData = s"""
-      |create_clock -period $period -waveform {0 $fallingEdge} clock
-      |set_input_delay -clock clock $inputDelay {reset}
-      |set_input_delay -clock clock $inputDelay {dcm_locked}
-      |set_output_delay -clock clock $outputDelay {rst}
-    """.stripMargin.trim
-
-    println(s"Writing SDC file to $sdcFilePath")
-    val sdcFileDir = new File(sdcFilePath)
-    sdcFileDir.mkdirs()
-    val sdcFileName = new File(s"$sdcFilePath/RstMod.sdc")
-    val sdcFile = new PrintWriter(sdcFileName)
-    sdcFile.write(s"${sdcFileData}")
-    sdcFile.close()
-  }
 }

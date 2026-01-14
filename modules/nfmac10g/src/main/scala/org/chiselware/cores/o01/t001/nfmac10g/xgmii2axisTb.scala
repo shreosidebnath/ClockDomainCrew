@@ -13,7 +13,7 @@ import _root_.circt.stage.ChiselStage
   *   A customization of default parameters contained in xgmii2axisParams case class.
   */
 
-class Xgmii2axisTb() extends Module {
+class Xgmii2AxisTb() extends Module {
   val io = IO(new Bundle {
     // Clock and Reset (implicit in Module)
     val rst = Input(Bool())
@@ -40,23 +40,23 @@ class Xgmii2axisTb() extends Module {
     val tuser = Output(UInt(1.W))
   })
 
-  val dut = Module(new Xgmii2axis())
-    io.rst := dut.io.rst
-
-    dut.io.good_frames := io.good_frames
-    dut.io.bad_frames := io.bad_frames
-
+  val dut = Module(new Xgmii2Axis())
+    // Inputs into DUT
+    dut.io.rst                  := io.rst
     dut.io.configuration_vector := io.configuration_vector
-    dut.io.rx_statistics_vector := io.rx_statistics_vector
-    dut.io.rx_statistics_valid := io.rx_statistics_valid
+    dut.io.xgmii_d              := io.xgmii_d
+    dut.io.xgmii_c              := io.xgmii_c
+    dut.io.aresetn              := io.aresetn
 
-    dut.io.xgmii_d := io.xgmii_d    // RXD
-    dut.io.xgmii_c := io.xgmii_c    // RXC
+    // Outputs from DUT
+    io.good_frames        := dut.io.good_frames
+    io.bad_frames         := dut.io.bad_frames
+    io.rx_statistics_vector := dut.io.rx_statistics_vector
+    io.rx_statistics_valid  := dut.io.rx_statistics_valid
 
-    dut.io.aresetn := io.aresetn
-    dut.io.tdata := io.tdata
-    dut.io.tkeep := io.tkeep
-    dut.io.tvalid := io.tvalid
-    dut.io.tlast := io.tlast
-    dut.io.tuser := io.tuser     // ERROR FLAG
+    io.tdata  := dut.io.tdata
+    io.tkeep  := dut.io.tkeep
+    io.tvalid := dut.io.tvalid
+    io.tlast  := dut.io.tlast
+    io.tuser  := dut.io.tuser
 }

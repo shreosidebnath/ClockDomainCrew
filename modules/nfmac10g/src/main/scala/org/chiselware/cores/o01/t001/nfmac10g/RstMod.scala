@@ -110,8 +110,9 @@ object Main extends App {
     )
 
     // Generate synthesis files and scripts
-    sdcFile.create(
-      s"${coreDir}/generated/synTestCases/$configName"
+    SdcFile.create(
+      s"${coreDir}/generated/synTestCases/$configName",
+      "RstMod"
     )
     YosysTclFile.create(
       mainClassName,

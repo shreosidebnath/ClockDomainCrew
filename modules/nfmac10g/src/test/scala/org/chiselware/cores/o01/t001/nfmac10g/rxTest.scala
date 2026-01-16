@@ -1,6 +1,3 @@
-// (c) <year> <your name or company>
-// This code is licensed under the <name of license> (see LICENSE.MD)
-
 package org.chiselware.cores.o01.t001.nfmac10g
 
 import chisel3._
@@ -8,17 +5,24 @@ import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import firrtl2.options.TargetDirAnnotation
+
 import java.io.File
+import scala.collection.mutable.ArrayBuffer
+import scala.util.Random
 
 class RxTest extends AnyFlatSpec with Matchers with ChiselScalatestTester {
 
+  private type AxisBeat = (BigInt, Int, Boolean, BigInt)
+
+  private val idleWord = BigInt("0707070707070707", 16)
+
   // Execute the main test for each configuration
   for ((configName, config) <- RxParams.simConfigMap) {
-    main(configName, config)
+    defineTests(configName, config)
   }
 
   // Create a directory for storing the Scala coverage reports
-  new File("generated/scalaCoverage").mkdir()
+  new File("generated/scalaCoverage").mkdirs()
 
   /** Helper: drive an XGMII word */
   private def driveXgmii(dut: RxTb, d: BigInt, c: Int): Unit = {
@@ -27,7 +31,7 @@ class RxTest extends AnyFlatSpec with Matchers with ChiselScalatestTester {
   }
 
   /** Helper: step and optionally sample AXIS outputs */
-  private def stepAndCollect(dut: RxTb, n: Int, collected: scala.collection.mutable.ArrayBuffer[(BigInt, Int, Boolean, BigInt)]): Unit = {
+  private def stepAndCollect(dut: RxTb, n: Int, collected: ArrayBuffer[AxisBeat]): Unit = {
     for (_ <- 0 until n) {
       // Sample AXIS on each cycle when valid
       if (dut.io.axis_tvalid.peek().litToBoolean) {
@@ -41,10 +45,10 @@ class RxTest extends AnyFlatSpec with Matchers with ChiselScalatestTester {
     }
   }
 
-  def main(configName: String, p: RxParams): Unit = {
+  private def defineTests(configName: String, p: RxParams): Unit = {
     behavior of s"Rx directed tests (config: $configName)"
 
-    val backendAnnotations = Seq(
+    private val backendAnnotations = Seq(
       VerilatorBackendAnnotation,
       TargetDirAnnotation("modules/nfmac10g/generated")
       // Uncomment for debug:
@@ -68,7 +72,7 @@ class RxTest extends AnyFlatSpec with Matchers with ChiselScalatestTester {
         dut.io.axis_aresetn.poke(false.B)
 
         // Drive XGMII idle by default: I on all lanes, C=0xFF
-        driveXgmii(dut, BigInt("0707070707070707", 16), 0xFF)
+        driveXgmii(dut, idleWord, 0xFF)
 
         dut.clock.step(5)
 
@@ -88,35 +92,37 @@ class RxTest extends AnyFlatSpec with Matchers with ChiselScalatestTester {
         //   [b7 b6 b5 b4 b3 b2 b1 b0]
         // Here b0 is bits(7,0).
         //
-        val S = 0xFB
-        val word0 =
-          BigInt(0x11223344556677L) << 8 | BigInt(S) // payload in b7..b1, S in b0 --> switch to scala randomizers or data.
+        val start = 0xFB
+        val payload56 = BigInt(56, rng) // 7 bytes
+        val word0 = (payload56 << 8) | BigInt(start) // payload in b7..b1, S in b0
 
         // Control: only lane0 is control (bit0=1), rest are data => 0b0000_0001
         driveXgmii(dut, word0, 0x01)
         dut.clock.step(1)
 
         // Word 1: full data
-        val word1 = BigInt("0011223344556677", 16)
+        val rng = new Random(0xC0FFEE) // stable seed
+        def randWord64(): BigInt = BigInt(64, rng) // [0, 2^64)
+        val word1 = randWord64()
         driveXgmii(dut, word1, 0x00)
         dut.clock.step(1)
 
         // Word 2: terminate example (put T in lane4 and mark lanes 4..7 as control)
         // This is just one terminate pattern to exercise end-of-frame handling.
-        val T = 0xFD
+        val terminate = 0xFD
         // Put T at byte lane 0 for simplicity (you can vary later)
-        val word2 = BigInt("07070707070707", 16) << 8 | BigInt(T) // mostly idle with T in b0
+        val word2 = BigInt("07070707070707", 16) << 8 | BigInt(terminate) // mostly idle with T in b0
         // Mark lane0 as control; you can expand later to match your FSM’s terminate cases
         driveXgmii(dut, word2, 0x01)
 
         // Now return to idle
         dut.clock.step(1)
-        driveXgmii(dut, BigInt("0707070707070707", 16), 0xFF)
+        driveXgmii(dut, idleWord, 0xFF)
 
         // -----------------------
         // 3) Collect AXIS output for a few cycles
         // -----------------------
-        val collected = scala.collection.mutable.ArrayBuffer.empty[(BigInt, Int, Boolean, BigInt)]
+        val collected = ArrayBuffer.empty[AxisBeat]
         stepAndCollect(dut, 30, collected)
 
         // -----------------------

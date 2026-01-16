@@ -1,6 +1,3 @@
-// (c) <year> <your name or company>
-// This code is licensed under the <name of license> (see LICENSE.MD)
-
 package org.chiselware.cores.o01.t001.nfmac10g
 
 import chisel3._

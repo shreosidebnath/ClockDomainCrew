@@ -90,7 +90,7 @@ class RxTest extends AnyFlatSpec with Matchers with ChiselScalatestTester {
         //
         val S = 0xFB
         val word0 =
-          BigInt(0x11223344556677L) << 8 | BigInt(S) // payload in b7..b1, S in b0
+          BigInt(0x11223344556677L) << 8 | BigInt(S) // payload in b7..b1, S in b0 --> switch to scala randomizers or data.
 
         // Control: only lane0 is control (bit0=1), rest are data => 0b0000_0001
         driveXgmii(dut, word0, 0x01)

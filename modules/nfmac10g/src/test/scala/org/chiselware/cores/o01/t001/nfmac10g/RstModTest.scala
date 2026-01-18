@@ -15,20 +15,20 @@ class RstModTest extends AnyFlatSpec with Matchers with ChiselScalatestTester {
 
   // Execute the main test for each configuration
   for ((configName, config) <- RstModParams.simConfigMap) {
-    main(configName, config)
+    defineTests(configName, config)
   }
 
   // Create a directory for storing the Scala coverage reports
   val scalaCoverageDir = new File("generated/scalaCoverage")
-  scalaCoverageDir.mkdir()
+  scalaCoverageDir.mkdirs()
 
 
   /** Main test function executes one complete test for one configuration */
-  def main(configName: String, p: RstModParams): Unit = {
+  private def defineTests(configName: String, p: RstModParams): Unit = {
 
     behavior of s"RstMod directed tests (config: $configName)"
 
-    val backendAnnotations = Seq(
+    private val backendAnnotations = Seq(
       // WriteVcdAnnotation,
       // WriteFstAnnotation,
       VerilatorBackendAnnotation,

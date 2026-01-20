@@ -11,58 +11,58 @@ object EthMacDefinitions {
   val I = "h07".U(8.W)  
 
 
-  val PREAMBLE_LANE0_D = Cat("hD5555555555555".U(56.W), S)
-  val PREAMBLE_LANE0_C = "h01".U(8.W)
+  val preambleLane0D = Cat("hD5555555555555".U(56.W), S)
+  val preambleLane0C = "h01".U(8.W)
 
-  val SHORT_PREAMBLE_LANE0_D = Cat("hD55555".U(24.W), S)
+  val shortPreambleLane0D = Cat("hD55555".U(24.W), S)
 
-  val PREAMBLE_LANE4_D = Cat("h555555".U(24.W), S, Fill(4, I))
-  val PREAMBLE_LANE4_C = "h1F".U(8.W)
+  val preambleLane4D = Cat("h555555".U(24.W), S, Fill(4, I))
+  val preambleLane4C = "h1F".U(8.W)
 
-  val SHORT_PREAMBLE_LANE4_D = Cat("hD55555".U(24.W), S, Fill(4, I))
+  val shortPreambleLane4D = Cat("hD55555".U(24.W), S, Fill(4, I))
 
-  val PREAMBLE_LANE4_END_D = "hD5555555".U(32.W)
-  val PREAMBLE_LANE4_END_C = "h00".U(8.W)
+  val preambleLane4EndD = "hD5555555".U(32.W)
+  val preambleLane4EndC = "h00".U(8.W)
 
-  val QW_IDLE_D = Fill(8, I) 
-  val QW_IDLE_C = "hFF".U(8.W)
+  val qwIdleD = Fill(8, I) 
+  val qwIdleC = "hFF".U(8.W)
 
-  val XGMII_ERROR_L0_D = Cat(Fill(7, 0.U(8.W)), E)
-  val XGMII_ERROR_L0_C = "h01".U(8.W)
+  val xgmiiErrorL0D = Cat(Fill(7, 0.U(8.W)), E)
+  val xgmiiErrorL0C = "h01".U(8.W)
 
-  val XGMII_ERROR_L4_D = Cat(Fill(3, 0.U(8.W)), E, Fill(4, 0.U(8.W)))
-  val XGMII_ERROR_L4_C = "h10".U(8.W)
+  val xgmiiErrorL4D = Cat(Fill(3, 0.U(8.W)), E, Fill(4, 0.U(8.W)))
+  val xgmiiErrorL4C = "h10".U(8.W)
 
-  val CRC802_3_PRESET = "hFFFFFFFF".U(32.W)
+  val crc8023Preset = "hFFFFFFFF".U(32.W)
 
 
-  def sof_lane0(xgmii_d: UInt, xgmii_c: UInt): Bool = {
-    (xgmii_d(7, 0) === S) && xgmii_c(0)
+  def SofLane0(xgmiiD: UInt, xgmiiC: UInt): Bool = {
+    (xgmiiD(7, 0) === S) && xgmiiC(0)
   }
 
-  def sof_lane4(xgmii_d: UInt, xgmii_c: UInt): Bool = {
-    (xgmii_d(39, 32) === S) && xgmii_c(4)
+  def SofLane4(xgmiiD: UInt, xgmiiC: UInt): Bool = {
+    (xgmiiD(39, 32) === S) && xgmiiC(4)
   }
 
-  def is_tchar(b: UInt): Bool = b === T
+  def IsTchar(b: UInt): Bool = b === T
 
   
-  def crc_rev(crc: UInt): UInt = Reverse(crc)
-  def byte_rev(b: UInt): UInt = Reverse(b)
+  def CrcRev(crc: UInt): UInt = Reverse(crc)
+  def ByteRev(b: UInt): UInt = Reverse(b)
   
 }
 
   class RxStatisticsVector extends Bundle {
     
     val size2048Max    = Bool()    // bit 29
-    val size1549_2047B = Bool()    // bit 28
-    val size1523_1548B = Bool()    // bit 27
-    val size1519_1522B = Bool()    // bit 26
-    val size1024_1518B = Bool()    // bit 25
-    val size512_1023B  = Bool()    // bit 24
-    val size256_511B   = Bool()    // bit 23
-    val size128_255B   = Bool()    // bit 22
-    val size65_127B    = Bool()    // bit 21
+    val size1549to2047B = Bool()    // bit 28
+    val size1523to1548B = Bool()    // bit 27
+    val size1519to1522B = Bool()    // bit 26
+    val size1024to1518B = Bool()    // bit 25
+    val size512to1023B  = Bool()    // bit 24
+    val size256to511B   = Bool()    // bit 23
+    val size128to255B   = Bool()    // bit 22
+    val size65to127B    = Bool()    // bit 21
     val size64B        = Bool()    // bit 20
     
   
@@ -80,14 +80,14 @@ object EthMacDefinitions {
   class TxStatisticsVector extends Bundle {
     val extra          = UInt(1.W)  // bit 25
     val count2048Max   = Bool()     // bit 24
-    val count1549_2047 = Bool()     // bit 23
-    val count1523_1548 = Bool()     // bit 22
-    val count1519_1522 = Bool()     // bit 21
-    val count1024_1518 = Bool()     // bit 20
-    val count512_1023  = Bool()     // bit 19
-    val count256_511   = Bool()     // bit 18
-    val count128_255   = Bool()     // bit 17
-    val count65_127    = Bool()     // bit 16
+    val count1549to2047 = Bool()     // bit 23
+    val count1523to1548 = Bool()     // bit 22
+    val count1519to1522 = Bool()     // bit 21
+    val count1024to1518 = Bool()     // bit 20
+    val count512to1023  = Bool()     // bit 19
+    val count256to511   = Bool()     // bit 18
+    val count128to255   = Bool()     // bit 17
+    val count65to127    = Bool()     // bit 16
     val count64        = Bool()     // bit 15
     val goodFrame      = Bool()     // bit 14
     val octets         = UInt(14.W) // bits 13:0
@@ -368,14 +368,14 @@ object EthMacDefinitions {
     o(21) := d(6) ^ c(29) ^ d(10) ^ c(26) ^ d(5) ^ c(21) ^ c(5) ^ d(2) ^ c(25)
     o(22) := d(15) ^ d(6) ^ c(27) ^ c(30) ^ d(1) ^ d(3) ^ c(6) ^ c(16) ^ c(28) ^ c(25) ^ d(4)
     o(23) := c(17) ^ d(15) ^ d(6) ^ c(29) ^ c(22) ^ c(16) ^ d(14) ^ d(0) ^ d(9) ^ c(31) ^ d(2) ^ c(25) ^ c(7)
-  o(24) := d(14) ^ d(5) ^ c(26) ^ c(17) ^ d(1) ^ c(8) ^ c(23) ^ c(18) ^ d(8) ^ d(13) ^ c(30)
-  o(25) := c(31) ^ c(27) ^ c(18) ^ c(9) ^ d(7) ^ c(24) ^ d(12) ^ c(19) ^ d(13) ^ d(4) ^ d(0)
-  o(26) := d(15) ^ c(10) ^ c(20) ^ c(19) ^ c(22) ^ d(12) ^ c(16) ^ d(5) ^ c(26) ^ d(9) ^ d(11)
-  o(27) := c(17) ^ c(27) ^ c(20) ^ d(8) ^ d(10) ^ d(14) ^ c(11) ^ c(21) ^ c(23) ^ d(11) ^ d(4)
-  o(28) := c(12) ^ c[22] ^ d(10) ^ c(24) ^ d(3) ^ c(18) ^ d(7) ^ c(28) ^ c(21) ^ d(9) ^ d(13)
-  o(29) := d(6) ^ c(19) ^ d(8) ^ c(29) ^ c(22) ^ d(12) ^ c(13) ^ d(9) ^ d(2) ^ c(23) ^ c(25)
-  o(30) := d(5) ^ c(26) ^ d(1) ^ d(11) ^ c(23) ^ c(14) ^ c(20) ^ d(7) ^ c(24) ^ c(30) ^ d(8)
-  o(31) := d(10) ^ c(31) ^ c(27) ^ d(6) ^ d(7) ^ c(24) ^ c(15) ^ d(4) ^ d(0) ^ c(21) ^ c(25)
+    o(24) := d(14) ^ d(5) ^ c(26) ^ c(17) ^ d(1) ^ c(8) ^ c(23) ^ c(18) ^ d(8) ^ d(13) ^ c(30)
+    o(25) := c(31) ^ c(27) ^ c(18) ^ c(9) ^ d(7) ^ c(24) ^ d(12) ^ c(19) ^ d(13) ^ d(4) ^ d(0)
+    o(26) := d(15) ^ c(10) ^ c(20) ^ c(19) ^ c(22) ^ d(12) ^ c(16) ^ d(5) ^ c(26) ^ d(9) ^ d(11)
+    o(27) := c(17) ^ c(27) ^ c(20) ^ d(8) ^ d(10) ^ d(14) ^ c(11) ^ c(21) ^ c(23) ^ d(11) ^ d(4)
+    o(28) := c(12) ^ c[22] ^ d(10) ^ c(24) ^ d(3) ^ c(18) ^ d(7) ^ c(28) ^ c(21) ^ d(9) ^ d(13)
+    o(29) := d(6) ^ c(19) ^ d(8) ^ c(29) ^ c(22) ^ d(12) ^ c(13) ^ d(9) ^ d(2) ^ c(23) ^ c(25)
+    o(30) := d(5) ^ c(26) ^ d(1) ^ d(11) ^ c(23) ^ c(14) ^ c(20) ^ d(7) ^ c(24) ^ c(30) ^ d(8)
+    o(31) := d(10) ^ c(31) ^ c(27) ^ d(6) ^ d(7) ^ c(24) ^ c(15) ^ d(4) ^ d(0) ^ c(21) ^ c(25)
 
   o.asUInt
   }

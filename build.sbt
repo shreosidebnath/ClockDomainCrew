@@ -13,7 +13,7 @@ lazy val root = (project in file("."))
     name := "ClockDomainCrew"
   )
 
-lazy val mac = (project in file("modules/mac"))
+lazy val mac = (project in file("modules/nfmac10g/src/main/scala/org/chiselware/cores/o01/t001/nfmac10g"))
   .settings(commonSettings)
   .settings(
     name := "mac",
@@ -47,7 +47,7 @@ lazy val pcs = (project in file("modules/pcs"))
     addCompilerPlugin("edu.berkeley.cs" % "chisel3-plugin" % chiselVersion cross CrossVersion.full)
   )
 
-lazy val nfmac10g = (project in file("modules/nfmac10g"))
+lazy val nfmac10g = (project in file("modules/nfmac10g/src/main/scala/org/chiselware/cores/o01/t001/nfmac10g"))
   .settings(commonSettings)
   .settings(
     name := "nfmac10g",

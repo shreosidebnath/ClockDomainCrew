@@ -1,7 +1,22 @@
-[0m[[0m[0mdebug[0m] [0m[0mCreated transactional ClassFileManager with tempDir = C:\Users\benja\ethernet-mac-chisel\target\scala-2.13\classes.bak[0m
+[0m[[0m[0mdebug[0m] [0m[0mCreated transactional ClassFileManager with tempDir = C:\Users\benja\ethernet-mac-chisel\target\scala-2.12\classes.bak[0m
 [0m[[0m[0mdebug[0m] [0m[0mAbout to delete class files:[0m
 [0m[[0m[0mdebug[0m] [0m[0mWe backup class files:[0m
-[0m[[0m[0mdebug[0m] [0m[0mRolling back changes to class files.[0m
-[0m[[0m[0mdebug[0m] [0m[0mRemoving generated classes:[0m
-[0m[[0m[0mdebug[0m] [0m[0mRestoring class files: [0m
-[0m[[0m[0mdebug[0m] [0m[0mRemoving the temporary directory used for backing up class files: C:\Users\benja\ethernet-mac-chisel\target\scala-2.13\classes.bak[0m
+[0m[[0m[0mdebug[0m] [0m[0mCreated transactional ClassFileManager with tempDir = C:\Users\benja\ethernet-mac-chisel\target\scala-2.12\classes.bak[0m
+[0m[[0m[0mdebug[0m] [0m[0mAbout to delete class files:[0m
+[0m[[0m[0mdebug[0m] [0m[0mWe backup class files:[0m
+[0m[[0m[0mdebug[0m] [0m[0mRegistering generated classes:[0m
+[0m[[0m[0mdebug[0m] [0m[0m	EthMacDefinitions$MacConfiguration.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	CounterMain$delayedInit$body.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	Counter$$anon$1.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	EthMacDefinitions$EthConfig.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	CounterMain$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	MacMain$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	MacMain$delayedInit$body.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	EthMacDefinitions$TxStatisticsVector.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	EthMacDefinitions.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	CounterMain.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	Counter.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	EthMacDefinitions$EthernetCrc$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	MacMain.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	EthMacDefinitions$RxStatisticsVector.class[0m
+[0m[[0m[0mdebug[0m] [0m[0mRemoving the temporary directory used for backing up class files: C:\Users\benja\ethernet-mac-chisel\target\scala-2.12\classes.bak[0m

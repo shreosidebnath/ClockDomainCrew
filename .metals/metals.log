@@ -14037,3 +14037,1177 @@ WARNING: Unmatched cancel notification for request id 4820
 2026.01.19 20:47:00 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\MacDefinitions.scala. Using presentation compiler with project's scala-library version: 3.3.6
 Jan. 19, 2026 8:47:02 P.M. org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
 INFO: Unsupported notification method: $/setTrace
+2026.01.19 20:57:15 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\MacDefinitions.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.19 20:57:18 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\MacDefinitions.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.19 20:57:52 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\MacDefinitions.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.19 20:58:07 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\MacDefinitions.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.19 20:58:09 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\MacDefinitions.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.19 21:06:41 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\MacDefinitions.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.19 21:06:43 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\MacDefinitions.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 13:31:15 INFO  Started: Metals version 1.6.4 in folders 'C:\Users\benja\ethernet-mac-chisel' for client Visual Studio Code 1.106.2.
+2026.01.29 13:31:20 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.01.29 13:31:20 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\MacDefinitions.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 13:31:24 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\MacDefinitions.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 13:31:25 INFO  skipping build import with status 'Installed'
+2026.01.29 13:31:25 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\MacDefinitions.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 13:31:25 WARN  no build target for: C:\Users\benja\ethernet-mac-chisel\src\main\MacDefinitions.scala
+2026.01.29 13:31:28 INFO  time: code lens generation in 3.17s
+2026.01.29 13:31:28 INFO  time: code lens generation in 3.17s
+2026.01.29 13:31:30 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\MacDefinitions.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 13:32:11 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\MacDefinitions.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 13:32:13 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\MacDefinitions.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 13:32:17 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\MacDefinitions.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 13:32:17 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\MacDefinitions.scala. Using presentation compiler with project's scala-library version: 3.3.6
+Jan. 29, 2026 1:32:20 P.M. org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFO: Unsupported notification method: $/setTrace
+2026.01.29 13:36:48 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\MacDefinitions.scala. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 13:36:53 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 13:36:53 WARN  no build target for: C:\Users\benja\ethernet-mac-chisel\build.sbt
+2026.01.29 13:36:53 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 13:36:53 WARN  Could not find semantic tokens for: file:///C:/Users/benja/ethernet-mac-chisel/build.sbt
+2026.01.29 13:36:53 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 13:36:53 WARN  Could not find semantic tokens for: file:///C:/Users/benja/ethernet-mac-chisel/build.sbt
+2026.01.29 13:37:02 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 13:37:02 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 13:37:02 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 13:37:02 WARN  Could not find semantic tokens for: file:///C:/Users/benja/ethernet-mac-chisel/build.sbt
+2026.01.29 13:37:02 WARN  no build target for: C:\Users\benja\ethernet-mac-chisel\build.sbt
+2026.01.29 13:37:02 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 13:37:02 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 13:37:02 WARN  Could not find semantic tokens for: file:///C:/Users/benja/ethernet-mac-chisel/build.sbt
+2026.01.29 13:37:05 INFO  running 'java -jar sbt-launch.jar -Dbloop.export-jar-classifiers=sources bloopInstall'
+2026.01.29 13:37:05 ERROR Running process 'java -jar sbt-launch.jar -Dbloop.export-jar-classifiers=sources bloopInstall' failed
+java.io.IOException: Cannot run program "java -jar sbt-launch.jar" (in directory "C:\Users\benja\ethernet-mac-chisel"): CreateProcess error=2, The system cannot find the file specified
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1143)
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1073)
+	at scala.meta.internal.process.SystemProcess$.run(SystemProcess.scala:48)
+	at scala.meta.internal.builds.ShellRunner.run(ShellRunner.scala:102)
+	at scala.meta.internal.builds.BloopInstall.runArgumentsUnconditionally(BloopInstall.scala:74)
+	at scala.meta.internal.builds.BloopInstall.$anonfun$run$1(BloopInstall.scala:49)
+	at scala.meta.internal.builds.BloopInstallProvider.bloopInstall(BloopInstallProvider.scala:22)
+	at scala.meta.internal.builds.BloopInstallProvider.bloopInstall$(BloopInstallProvider.scala:17)
+	at scala.meta.internal.builds.SbtBuildTool.bloopInstall(SbtBuildTool.scala:24)
+	at scala.meta.internal.builds.BloopInstall.run(BloopInstall.scala:46)
+	at scala.meta.internal.metals.ConnectionProvider$Connect$.bloopInstallAndConnect(ConnectionProvider.scala:696)
+	at scala.meta.internal.metals.ConnectionProvider$Connect$.$anonfun$pollAndConnect$1(ConnectionProvider.scala:396)
+	at scala.meta.internal.metals.ConnectionProvider$Connect$.$anonfun$pollAndConnect$1$adapted(ConnectionProvider.scala:374)
+	at scala.Option.foreach(Option.scala:437)
+	at scala.meta.internal.metals.ConnectionProvider$Connect$.pollAndConnect(ConnectionProvider.scala:374)
+	at scala.meta.internal.metals.ConnectionProvider$Connect$.connect(ConnectionProvider.scala:332)
+	at scala.meta.internal.metals.ConnectionProvider.runInstall$1(ConnectionProvider.scala:165)
+	at scala.meta.internal.metals.ConnectionProvider.$anonfun$slowConnectToBuildServer$2(ConnectionProvider.scala:168)
+	at scala.meta.internal.builds.BloopInstall.$anonfun$runIfApproved$3(BloopInstall.scala:153)
+	at scala.concurrent.impl.Promise$Transformation.run(Promise.scala:503)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.lang.Thread.run(Thread.java:840)
+Caused by: java.io.IOException: CreateProcess error=2, The system cannot find the file specified
+	at java.lang.ProcessImpl.create(Native Method)
+	at java.lang.ProcessImpl.<init>(ProcessImpl.java:505)
+	at java.lang.ProcessImpl.start(ProcessImpl.java:158)
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1110)
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1073)
+	at scala.meta.internal.process.SystemProcess$.run(SystemProcess.scala:48)
+	at scala.meta.internal.builds.ShellRunner.run(ShellRunner.scala:102)
+	at scala.meta.internal.builds.BloopInstall.runArgumentsUnconditionally(BloopInstall.scala:74)
+	at scala.meta.internal.builds.BloopInstall.$anonfun$run$1(BloopInstall.scala:49)
+	at scala.meta.internal.builds.BloopInstallProvider.bloopInstall(BloopInstallProvider.scala:22)
+	at scala.meta.internal.builds.BloopInstallProvider.bloopInstall$(BloopInstallProvider.scala:17)
+	at scala.meta.internal.builds.SbtBuildTool.bloopInstall(SbtBuildTool.scala:24)
+	at scala.meta.internal.builds.BloopInstall.run(BloopInstall.scala:46)
+	at scala.meta.internal.metals.ConnectionProvider$Connect$.bloopInstallAndConnect(ConnectionProvider.scala:696)
+	at scala.meta.internal.metals.ConnectionProvider$Connect$.$anonfun$pollAndConnect$1(ConnectionProvider.scala:396)
+	at scala.meta.internal.metals.ConnectionProvider$Connect$.$anonfun$pollAndConnect$1$adapted(ConnectionProvider.scala:374)
+	at scala.Option.foreach(Option.scala:437)
+	at scala.meta.internal.metals.ConnectionProvider$Connect$.pollAndConnect(ConnectionProvider.scala:374)
+	at scala.meta.internal.metals.ConnectionProvider$Connect$.connect(ConnectionProvider.scala:332)
+	at scala.meta.internal.metals.ConnectionProvider.runInstall$1(ConnectionProvider.scala:165)
+	at scala.meta.internal.metals.ConnectionProvider.$anonfun$slowConnectToBuildServer$2(ConnectionProvider.scala:168)
+	at scala.meta.internal.builds.BloopInstall.$anonfun$runIfApproved$3(BloopInstall.scala:153)
+	at scala.concurrent.impl.Promise$Transformation.run(Promise.scala:503)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.lang.Thread.run(Thread.java:840)
+
+2026.01.29 13:37:05 INFO  time: ran 'sbt bloopInstall' in 21ms
+2026.01.29 13:37:05 ERROR sbt command failed: java -jar sbt-launch.jar -Dbloop.export-jar-classifiers=sources bloopInstall
+2026.01.29 13:37:25 INFO  Attempting to connect to the build server...
+2026.01.29 13:37:27 INFO  running java -jar sbt-launch.jar --client shutdown
+2026.01.29 13:37:27 ERROR Running process 'java -jar sbt-launch.jar --client shutdown' failed
+java.io.IOException: Cannot run program "java -jar sbt-launch.jar" (in directory "C:\Users\benja\ethernet-mac-chisel"): CreateProcess error=2, The system cannot find the file specified
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1143)
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1073)
+	at scala.meta.internal.process.SystemProcess$.run(SystemProcess.scala:48)
+	at scala.meta.internal.builds.ShellRunner.run(ShellRunner.scala:102)
+	at scala.meta.internal.builds.SbtBuildTool.shutdownBspServer(SbtBuildTool.scala:114)
+	at scala.meta.internal.builds.SbtBuildTool.$anonfun$ensureCorrectJavaVersion$2(SbtBuildTool.scala:279)
+	at scala.concurrent.impl.Promise$Transformation.run(Promise.scala:503)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.lang.Thread.run(Thread.java:840)
+Caused by: java.io.IOException: CreateProcess error=2, The system cannot find the file specified
+	at java.lang.ProcessImpl.create(Native Method)
+	at java.lang.ProcessImpl.<init>(ProcessImpl.java:505)
+	at java.lang.ProcessImpl.start(ProcessImpl.java:158)
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1110)
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1073)
+	at scala.meta.internal.process.SystemProcess$.run(SystemProcess.scala:48)
+	at scala.meta.internal.builds.ShellRunner.run(ShellRunner.scala:102)
+	at scala.meta.internal.builds.SbtBuildTool.shutdownBspServer(SbtBuildTool.scala:114)
+	at scala.meta.internal.builds.SbtBuildTool.$anonfun$ensureCorrectJavaVersion$2(SbtBuildTool.scala:279)
+	at scala.concurrent.impl.Promise$Transformation.run(Promise.scala:503)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.lang.Thread.run(Thread.java:840)
+
+2026.01.29 13:37:27 INFO  time: ran 'Shutting down sbt server' in 3ms
+2026.01.29 13:37:27 INFO  Running BSP server List(C:\Users\benja\AppData\Local\Programs\Eclipse Adoptium\jdk-11.0.28.6-hotspot/bin/java, -Xms100m, -Xmx100m, -classpath, C:\Program Files (x86)\sbt\\bin\sbt-launch.jar, -Dsbt.script=C:\Program Files (x86)\sbt\bin\sbt.bat, xsbt.boot.Boot, -bsp)
+2026.01.29 13:37:27 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at C:\Users\benja\ethernet-mac-chisel\.metals\bsp.trace.json or C:\Users\benja\AppData\Local\scalameta\metals\cache\bsp.trace.json
+2026.01.29 13:37:28 INFO  BSP server: [info] server was not detected. starting an instance
+2026.01.29 13:37:28 INFO  BSP server: \sbt\bin\sbt.bat was unexpected at this time.
+2026.01.29 13:37:57 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 13:37:57 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 13:37:58 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 13:37:58 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 13:37:58 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 13:37:58 WARN  no build target for: C:\Users\benja\ethernet-mac-chisel\build.sbt
+2026.01.29 13:37:58 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 13:37:59 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 13:37:59 WARN  no build target for: C:\Users\benja\ethernet-mac-chisel\build.sbt
+2026.01.29 13:37:59 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 13:38:10 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 13:38:27 ERROR Timeout waiting for 'build/initialize' response
+2026.01.29 13:38:27 WARN  Retrying connection to the build server sbt
+2026.01.29 13:38:27 INFO  Running BSP server List(C:\Users\benja\AppData\Local\Programs\Eclipse Adoptium\jdk-11.0.28.6-hotspot/bin/java, -Xms100m, -Xmx100m, -classpath, C:\Program Files (x86)\sbt\\bin\sbt-launch.jar, -Dsbt.script=C:\Program Files (x86)\sbt\bin\sbt.bat, xsbt.boot.Boot, -bsp)
+2026.01.29 13:38:27 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at C:\Users\benja\ethernet-mac-chisel\.metals\bsp.trace.json or C:\Users\benja\AppData\Local\scalameta\metals\cache\bsp.trace.json
+2026.01.29 13:38:28 INFO  BSP server: [info] server was not detected. starting an instance
+2026.01.29 13:38:28 INFO  BSP server: \sbt\bin\sbt.bat was unexpected at this time.
+2026.01.29 13:38:49 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 14:46:49 ERROR Timeout waiting for 'build/initialize' response
+2026.01.29 14:46:49 WARN  Retrying connection to the build server sbt
+2026.01.29 14:46:49 INFO  Running BSP server List(C:\Users\benja\AppData\Local\Programs\Eclipse Adoptium\jdk-11.0.28.6-hotspot/bin/java, -Xms100m, -Xmx100m, -classpath, C:\Program Files (x86)\sbt\\bin\sbt-launch.jar, -Dsbt.script=C:\Program Files (x86)\sbt\bin\sbt.bat, xsbt.boot.Boot, -bsp)
+2026.01.29 14:46:49 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at C:\Users\benja\ethernet-mac-chisel\.metals\bsp.trace.json or C:\Users\benja\AppData\Local\scalameta\metals\cache\bsp.trace.json
+2026.01.29 14:46:49 WARN  no build target for: C:\Users\benja\ethernet-mac-chisel\build.sbt
+2026.01.29 14:46:49 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 14:46:49 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 14:46:49 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 14:46:51 WARN  no build target for: C:\Users\benja\ethernet-mac-chisel\build.sbt
+2026.01.29 14:46:51 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.6
+2026.01.29 14:46:52 INFO  BSP server: [info] server was not detected. starting an instance
+2026.01.29 14:46:52 INFO  BSP server: \sbt\bin\sbt.bat was unexpected at this time.
+2026.01.29 14:47:06 INFO  Shutting down server
+2026.01.29 14:47:06 INFO  shutting down Metals
+2026.01.29 14:47:06 INFO  Exiting server
+2026.01.29 14:47:38 INFO  Started: Metals version 1.6.5 in folders 'C:\Users\benja\ethernet-mac-chisel' for client Visual Studio Code 1.108.2.
+2026.01.29 14:47:38 INFO  Memory monitor started
+2026.01.29 14:47:40 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.01.29 14:47:40 INFO  Attempting to connect to the build server...
+2026.01.29 14:47:41 WARN  no build target for: C:\Users\benja\ethernet-mac-chisel\project\metals.sbt
+2026.01.29 14:47:41 WARN  no build target for: C:\Users\benja\ethernet-mac-chisel\project\project\metals.sbt
+2026.01.29 14:47:41 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\project\project\metals.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:47:45 INFO  running java -jar sbt-launch.jar --client shutdown
+2026.01.29 14:47:45 ERROR Running process 'java -jar sbt-launch.jar --client shutdown' failed
+java.io.IOException: Cannot run program "java -jar sbt-launch.jar" (in directory "C:\Users\benja\ethernet-mac-chisel"): CreateProcess error=2, The system cannot find the file specified
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1143)
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1073)
+	at scala.meta.internal.process.SystemProcess$.run(SystemProcess.scala:48)
+	at scala.meta.internal.builds.ShellRunner.run(ShellRunner.scala:102)
+	at scala.meta.internal.builds.SbtBuildTool.shutdownBspServer(SbtBuildTool.scala:114)
+	at scala.meta.internal.builds.SbtBuildTool.$anonfun$ensureCorrectJavaVersion$2(SbtBuildTool.scala:279)
+	at scala.concurrent.impl.Promise$Transformation.run(Promise.scala:503)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.lang.Thread.run(Thread.java:840)
+Caused by: java.io.IOException: CreateProcess error=2, The system cannot find the file specified
+	at java.lang.ProcessImpl.create(Native Method)
+	at java.lang.ProcessImpl.<init>(ProcessImpl.java:505)
+	at java.lang.ProcessImpl.start(ProcessImpl.java:158)
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1110)
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1073)
+	at scala.meta.internal.process.SystemProcess$.run(SystemProcess.scala:48)
+	at scala.meta.internal.builds.ShellRunner.run(ShellRunner.scala:102)
+	at scala.meta.internal.builds.SbtBuildTool.shutdownBspServer(SbtBuildTool.scala:114)
+	at scala.meta.internal.builds.SbtBuildTool.$anonfun$ensureCorrectJavaVersion$2(SbtBuildTool.scala:279)
+	at scala.concurrent.impl.Promise$Transformation.run(Promise.scala:503)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.lang.Thread.run(Thread.java:840)
+
+2026.01.29 14:47:45 INFO  time: ran 'Shutting down sbt server' in 32ms
+2026.01.29 14:47:45 INFO  Running BSP server List(C:\Users\benja\AppData\Local\Programs\Eclipse Adoptium\jdk-11.0.28.6-hotspot/bin/java, -Xms100m, -Xmx100m, -classpath, C:\Program Files (x86)\sbt\\bin\sbt-launch.jar, -Dsbt.script=C:\Program Files (x86)\sbt\bin\sbt.bat, xsbt.boot.Boot, -bsp)
+2026.01.29 14:47:45 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at C:\Users\benja\ethernet-mac-chisel\.metals\bsp.trace.json or C:\Users\benja\AppData\Local\scalameta\metals\cache\bsp.trace.json
+2026.01.29 14:47:46 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\project\metals.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:47:47 INFO  BSP server: [info] server was not detected. starting an instance
+2026.01.29 14:47:47 INFO  BSP server: \sbt\bin\sbt.bat was unexpected at this time.
+2026.01.29 14:48:04 INFO  BSP server: [info] welcome to sbt 1.11.4 (Eclipse Adoptium Java 11.0.28)
+2026.01.29 14:48:07 INFO  BSP server: [info] loading settings for project ethernet-mac-chisel-build-build from metals.sbt...
+2026.01.29 14:48:08 INFO  BSP server: [info] loading project definition from C:\Users\benja\ethernet-mac-chisel\project\project
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / scalacOptions 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / unmanagedSources / allInputPathsAndAttributes 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server: 
+2026.01.29 14:48:08 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:48:09 INFO  BSP server: 
+2026.01.29 14:48:09 INFO  BSP server: 
+2026.01.29 14:48:09 INFO  BSP server: 
+2026.01.29 14:48:09 INFO  BSP server:   | => ethernet-mac-chisel-build-build / update 0s
+2026.01.29 14:48:09 INFO  BSP server: [info] Updating ethernet-mac-chisel-build-build
+2026.01.29 14:48:09 INFO  BSP server: 
+2026.01.29 14:48:09 INFO  BSP server: 
+2026.01.29 14:48:09 INFO  BSP server:   | => ethernet-mac-chisel-build-build / update 0s
+2026.01.29 14:48:10 INFO  BSP server: 
+2026.01.29 14:48:10 INFO  BSP server: 
+2026.01.29 14:48:10 INFO  BSP server:   | => ethernet-mac-chisel-build-build / update 1s
+2026.01.29 14:48:10 INFO  BSP server: [info] Resolved ethernet-mac-chisel-build-build dependencies
+2026.01.29 14:48:10 INFO  BSP server: 
+2026.01.29 14:48:10 INFO  BSP server:   | => ethernet-mac-chisel-build-build / update 1s
+2026.01.29 14:48:10 INFO  BSP server: 
+2026.01.29 14:48:10 INFO  BSP server:   | => ethernet-mac-chisel-build-build / update 2s
+2026.01.29 14:48:11 INFO  BSP server: [info] Fetching artifacts of ethernet-mac-chisel-build-build
+2026.01.29 14:48:11 INFO  BSP server: 
+2026.01.29 14:48:11 INFO  BSP server:   | => ethernet-mac-chisel-build-build / update 2s
+2026.01.29 14:48:11 INFO  BSP server: [info] Fetched artifacts of ethernet-mac-chisel-build-build
+2026.01.29 14:48:11 INFO  BSP server: 
+2026.01.29 14:48:11 INFO  BSP server:   | => ethernet-mac-chisel-build-build / update 2s
+2026.01.29 14:48:11 INFO  BSP server: 
+2026.01.29 14:48:11 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / compileIncremental 0s
+2026.01.29 14:48:13 INFO  BSP server: [info] loading settings for project ethernet-mac-chisel-build from metals.sbt...
+2026.01.29 14:48:13 INFO  BSP server: [info] loading project definition from C:\Users\benja\ethernet-mac-chisel\project
+2026.01.29 14:48:13 INFO  BSP server: 
+2026.01.29 14:48:13 INFO  BSP server:   | => ethernet-mac-chisel-build / update 0s
+2026.01.29 14:48:13 INFO  BSP server: [info] Updating ethernet-mac-chisel-build
+2026.01.29 14:48:13 INFO  BSP server: 
+2026.01.29 14:48:13 INFO  BSP server:   | => ethernet-mac-chisel-build / update 0s
+2026.01.29 14:48:13 INFO  BSP server: [info] Resolved ethernet-mac-chisel-build dependencies
+2026.01.29 14:48:13 INFO  BSP server: 
+2026.01.29 14:48:13 INFO  BSP server:   | => ethernet-mac-chisel-build / update 0s
+2026.01.29 14:48:14 INFO  BSP server: [info] Fetching artifacts of ethernet-mac-chisel-build
+2026.01.29 14:48:14 INFO  BSP server: 
+2026.01.29 14:48:14 INFO  BSP server:   | => ethernet-mac-chisel-build / update 0s
+2026.01.29 14:48:14 INFO  BSP server: 
+2026.01.29 14:48:14 INFO  BSP server:   | => ethernet-mac-chisel-build / update 0s
+2026.01.29 14:48:15 INFO  BSP server: 
+2026.01.29 14:48:15 INFO  BSP server:   | => ethernet-mac-chisel-build / update 1s
+2026.01.29 14:48:15 INFO  BSP server: [info] Fetched artifacts of ethernet-mac-chisel-build
+2026.01.29 14:48:15 INFO  BSP server: 
+2026.01.29 14:48:15 INFO  BSP server:   | => ethernet-mac-chisel-build / update 1s
+2026.01.29 14:48:18 INFO  BSP server: [info] loading settings for project root from build.sbt...
+2026.01.29 14:48:18 INFO  BSP server: [info] set current project to ethernet-mac-chisel (in build file:/C:/Users/benja/ethernet-mac-chisel/)
+2026.01.29 14:48:18 INFO  BSP server: [info] Executing in batch mode. For better performance use sbt's shell
+2026.01.29 14:48:18 INFO  BSP server: 
+2026.01.29 14:48:18 INFO  BSP server:   | => root / dependencyPositions 0s
+2026.01.29 14:48:18 INFO  BSP server: [info] Updating ethernet-mac-chisel_2.12
+2026.01.29 14:48:18 INFO  BSP server: 
+2026.01.29 14:48:18 INFO  BSP server:   | => root / dependencyPositions 0s
+2026.01.29 14:48:19 INFO  BSP server: [info] Resolved ethernet-mac-chisel_2.12 dependencies
+2026.01.29 14:48:19 INFO  BSP server: 
+2026.01.29 14:48:19 INFO  BSP server:   | => root / dependencyPositions 0s
+2026.01.29 14:48:19 INFO  BSP server: [warn] 
+2026.01.29 14:48:19 INFO  BSP server: 
+2026.01.29 14:48:19 INFO  BSP server:   | => root / dependencyPositions 0s
+2026.01.29 14:48:19 INFO  BSP server: [warn] 	Note: Unresolved dependencies path:
+2026.01.29 14:48:19 INFO  BSP server: 
+2026.01.29 14:48:19 INFO  BSP server:   | => root / dependencyPositions 0s
+2026.01.29 14:48:19 INFO  BSP server: [error] sbt.librarymanagement.ResolveException: Error downloading org.chipsalliance:chisel3_2.12:3.6.0
+2026.01.29 14:48:19 INFO  BSP server: [error]   Not found
+2026.01.29 14:48:19 INFO  BSP server: [error]   Not found
+2026.01.29 14:48:19 INFO  BSP server: [error]   not found: C:\Users\benja\.ivy2\localorg.chipsalliance\chisel3_2.12\3.6.0\ivys\ivy.xml
+2026.01.29 14:48:19 INFO  BSP server: [error]   not found: https://repo1.maven.org/maven2/org/chipsalliance/chisel3_2.12/3.6.0/chisel3_2.12-3.6.0.pom
+2026.01.29 14:48:19 INFO  BSP server: [error] 	at lmcoursier.CoursierDependencyResolution.unresolvedWarningOrThrow(CoursierDependencyResolution.scala:347)
+2026.01.29 14:48:19 INFO  BSP server: [error] 	at lmcoursier.CoursierDependencyResolution.$anonfun$update$39(CoursierDependencyResolution.scala:316)
+2026.01.29 14:48:19 INFO  BSP server: [error] 	at scala.util.Either$LeftProjection.map(Either.scala:573)
+2026.01.29 14:48:19 INFO  BSP server: [error] 	at lmcoursier.CoursierDependencyResolution.update(CoursierDependencyResolution.scala:316)
+2026.01.29 14:48:19 INFO  BSP server: [error] 	at sbt.librarymanagement.DependencyResolution.update(DependencyResolution.scala:60)
+2026.01.29 14:48:19 INFO  BSP server: [error] 	at sbt.internal.LibraryManagement$.resolve$1(LibraryManagement.scala:60)
+2026.01.29 14:48:19 INFO  BSP server: [error] 	at sbt.internal.LibraryManagement$.$anonfun$cachedUpdate$12(LibraryManagement.scala:142)
+2026.01.29 14:48:19 INFO  BSP server: [error] 	at sbt.util.Tracked$.$anonfun$lastOutput$1(Tracked.scala:74)
+2026.01.29 14:48:19 INFO  BSP server: [error] 	at sbt.internal.LibraryManagement$.$anonfun$cachedUpdate$11(LibraryManagement.scala:144)
+2026.01.29 14:48:19 INFO  BSP server: [error] 	at sbt.internal.LibraryManagement$.$anonfun$cachedUpdate$11$adapted(LibraryManagement.scala:131)
+2026.01.29 14:48:19 INFO  BSP server: [error] 	at sbt.util.Tracked$.$anonfun$inputChangedW$1(Tracked.scala:220)
+2026.01.29 14:48:19 INFO  BSP server: [error] 	at sbt.internal.LibraryManagement$.cachedUpdate(LibraryManagement.scala:169)
+2026.01.29 14:48:19 INFO  BSP server: [error] 	at sbt.Classpaths$.$anonfun$updateTask0$1(Defaults.scala:3975)
+2026.01.29 14:48:19 INFO  BSP server: [error] 	at scala.Function1.$anonfun$compose$1(Function1.scala:49)
+2026.01.29 14:48:19 INFO  BSP server: [error] 	at sbt.internal.util.$tilde$greater.$anonfun$$u2219$1(TypeFunctions.scala:63)
+2026.01.29 14:48:19 INFO  BSP server: [error] 	at sbt.std.Transform$$anon$4.work(Transform.scala:69)
+2026.01.29 14:48:19 INFO  BSP server: [error] 	at sbt.Execute.$anonfun$submit$2(Execute.scala:283)
+2026.01.29 14:48:19 INFO  BSP server: [error] 	at sbt.internal.util.ErrorHandling$.wideConvert(ErrorHandling.scala:24)
+2026.01.29 14:48:19 INFO  BSP server: [error] 	at sbt.Execute.work(Execute.scala:292)
+2026.01.29 14:48:19 INFO  BSP server: [error] 	at sbt.Execute.$anonfun$submit$1(Execute.scala:283)
+2026.01.29 14:48:19 INFO  BSP server: [error] 	at sbt.ConcurrentRestrictions$$anon$4.$anonfun$submitValid$1(ConcurrentRestrictions.scala:265)
+2026.01.29 14:48:19 INFO  BSP server: [error] 	at sbt.CompletionService$$anon$2.call(CompletionService.scala:65)
+2026.01.29 14:48:19 INFO  BSP server: [error] 	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+2026.01.29 14:48:19 INFO  BSP server: [error] 	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)
+2026.01.29 14:48:19 INFO  BSP server: [error] 	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+2026.01.29 14:48:19 INFO  BSP server: [error] 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+2026.01.29 14:48:19 INFO  BSP server: [error] 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+2026.01.29 14:48:19 INFO  BSP server: [error] 	at java.base/java.lang.Thread.run(Thread.java:829)
+2026.01.29 14:48:19 INFO  BSP server: [error] (update) sbt.librarymanagement.ResolveException: Error downloading org.chipsalliance:chisel3_2.12:3.6.0
+2026.01.29 14:48:19 INFO  BSP server: [error]   Not found
+2026.01.29 14:48:19 INFO  BSP server: [error]   Not found
+2026.01.29 14:48:19 INFO  BSP server: [error]   not found: C:\Users\benja\.ivy2\localorg.chipsalliance\chisel3_2.12\3.6.0\ivys\ivy.xml
+2026.01.29 14:48:19 INFO  BSP server: [error]   not found: https://repo1.maven.org/maven2/org/chipsalliance/chisel3_2.12/3.6.0/chisel3_2.12-3.6.0.pom
+2026.01.29 14:48:19 INFO  BSP server: [error] Total time: 1 s, completed Jan. 29, 2026, 2:48:19 p.m.
+2026.01.29 14:48:45 ERROR Timeout waiting for 'build/initialize' response
+2026.01.29 14:48:45 WARN  Retrying connection to the build server sbt
+2026.01.29 14:48:45 INFO  BSP server: 
+2026.01.29 14:48:45 INFO  Running BSP server List(C:\Users\benja\AppData\Local\Programs\Eclipse Adoptium\jdk-11.0.28.6-hotspot/bin/java, -Xms100m, -Xmx100m, -classpath, C:\Program Files (x86)\sbt\\bin\sbt-launch.jar, -Dsbt.script=C:\Program Files (x86)\sbt\bin\sbt.bat, xsbt.boot.Boot, -bsp)
+2026.01.29 14:48:45 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at C:\Users\benja\ethernet-mac-chisel\.metals\bsp.trace.json or C:\Users\benja\AppData\Local\scalameta\metals\cache\bsp.trace.json
+2026.01.29 14:48:51 INFO  BSP server: [info] server was not detected. starting an instance
+2026.01.29 14:48:51 INFO  BSP server: \sbt\bin\sbt.bat was unexpected at this time.
+2026.01.29 14:49:00 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:49:00 WARN  no build target for: C:\Users\benja\ethernet-mac-chisel\build.sbt
+Jan. 29, 2026 2:49:00 P.M. org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 1
+2026.01.29 14:49:00 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:49:01 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:49:02 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:49:02 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:49:28 INFO  Shutting down server
+2026.01.29 14:49:28 INFO  Memory monitor stopped
+2026.01.29 14:49:28 INFO  shutting down Metals
+2026.01.29 14:49:28 INFO  Exiting server
+2026.01.29 14:49:39 INFO  Started: Metals version 1.6.5 in folders 'C:\Users\benja\ethernet-mac-chisel' for client Visual Studio Code 1.108.2.
+2026.01.29 14:49:39 INFO  Memory monitor started
+2026.01.29 14:49:40 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.01.29 14:49:40 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:49:42 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:49:42 WARN  no build target for: C:\Users\benja\ethernet-mac-chisel\build.sbt
+2026.01.29 14:49:42 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:49:42 WARN  No build session currently active to reload. Attempting to reconnect.
+2026.01.29 14:49:42 WARN  no build target for: C:\Users\benja\ethernet-mac-chisel\build.sbt
+2026.01.29 14:49:42 INFO  Attempting to connect to the build server...
+2026.01.29 14:49:45 INFO  time: code lens generation in 3.47s
+2026.01.29 14:49:46 INFO  running java -jar sbt-launch.jar --client shutdown
+2026.01.29 14:49:46 ERROR Running process 'java -jar sbt-launch.jar --client shutdown' failed
+java.io.IOException: Cannot run program "java -jar sbt-launch.jar" (in directory "C:\Users\benja\ethernet-mac-chisel"): CreateProcess error=2, The system cannot find the file specified
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1143)
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1073)
+	at scala.meta.internal.process.SystemProcess$.run(SystemProcess.scala:48)
+	at scala.meta.internal.builds.ShellRunner.run(ShellRunner.scala:102)
+	at scala.meta.internal.builds.SbtBuildTool.shutdownBspServer(SbtBuildTool.scala:114)
+	at scala.meta.internal.builds.SbtBuildTool.$anonfun$ensureCorrectJavaVersion$2(SbtBuildTool.scala:279)
+	at scala.concurrent.impl.Promise$Transformation.run(Promise.scala:503)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.lang.Thread.run(Thread.java:840)
+Caused by: java.io.IOException: CreateProcess error=2, The system cannot find the file specified
+	at java.lang.ProcessImpl.create(Native Method)
+	at java.lang.ProcessImpl.<init>(ProcessImpl.java:505)
+	at java.lang.ProcessImpl.start(ProcessImpl.java:158)
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1110)
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1073)
+	at scala.meta.internal.process.SystemProcess$.run(SystemProcess.scala:48)
+	at scala.meta.internal.builds.ShellRunner.run(ShellRunner.scala:102)
+	at scala.meta.internal.builds.SbtBuildTool.shutdownBspServer(SbtBuildTool.scala:114)
+	at scala.meta.internal.builds.SbtBuildTool.$anonfun$ensureCorrectJavaVersion$2(SbtBuildTool.scala:279)
+	at scala.concurrent.impl.Promise$Transformation.run(Promise.scala:503)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.lang.Thread.run(Thread.java:840)
+
+2026.01.29 14:49:45 INFO  time: ran 'Shutting down sbt server' in 40ms
+2026.01.29 14:49:46 INFO  Running BSP server List(C:\Users\benja\AppData\Local\Programs\Eclipse Adoptium\jdk-11.0.28.6-hotspot/bin/java, -Xms100m, -Xmx100m, -classpath, C:\Program Files (x86)\sbt\\bin\sbt-launch.jar, -Dsbt.script=C:\Program Files (x86)\sbt\bin\sbt.bat, xsbt.boot.Boot, -bsp)
+2026.01.29 14:49:46 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at C:\Users\benja\ethernet-mac-chisel\.metals\bsp.trace.json or C:\Users\benja\AppData\Local\scalameta\metals\cache\bsp.trace.json
+2026.01.29 14:49:47 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:49:47 INFO  BSP server: [info] server was not detected. starting an instance
+2026.01.29 14:49:47 INFO  BSP server: \sbt\bin\sbt.bat was unexpected at this time.
+2026.01.29 14:50:00 INFO  BSP server: [info] welcome to sbt 1.11.4 (Eclipse Adoptium Java 11.0.28)
+2026.01.29 14:50:01 INFO  BSP server: [info] loading settings for project ethernet-mac-chisel-build-build from metals.sbt...
+2026.01.29 14:50:02 INFO  BSP server: [info] loading project definition from C:\Users\benja\ethernet-mac-chisel\project\project
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / unmanagedSources / allInputPathsAndAttributes 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / unmanagedResources / allInputPathsAndAttributes 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / unmanagedSources / allInputPathsAndAttributes 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / unmanagedSources / allInputPathsAndAttributes 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / unmanagedSources / allInputPathsAndAttributes 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / unmanagedSources / allInputPathsAndAttributes 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / unmanagedSources / allInputPathsAndAttributes 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / unmanagedSources / allInputPathsAndAttributes 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / unmanagedSources / allInputPathsAndAttributes 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / unmanagedSources / allInputPathsAndAttributes 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / unmanagedSources / allInputPathsAndAttributes 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / unmanagedSources / allInputPathsAndAttributes 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / unmanagedSources / allInputPathsAndAttributes 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / unmanagedSources / allInputPathsAndAttributes 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / unmanagedSources / allInputPathsAndAttributes 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / unmanagedSources / allInputPathsAndAttributes 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / unmanagedSources / allInputPathsAndAttributes 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / unmanagedSources / allInputPathsAndAttributes 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / unmanagedSources / allInputPathsAndAttributes 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / compile / compilerReporter 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / compile / compilerReporter 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / compile / compilerReporter 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / compile / compilerReporter 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / compile / compilerReporter 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / compile / compilerReporter 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / compile / compilerReporter 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / compile / compilerReporter 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server: 
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:50:02 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:50:03 INFO  BSP server: 
+2026.01.29 14:50:03 INFO  BSP server: 
+2026.01.29 14:50:03 INFO  BSP server: 
+2026.01.29 14:50:03 INFO  BSP server: 
+2026.01.29 14:50:03 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / compileIncremental 0s
+2026.01.29 14:50:03 INFO  BSP server: [info] loading settings for project ethernet-mac-chisel-build from metals.sbt...
+2026.01.29 14:50:03 INFO  BSP server: [info] loading project definition from C:\Users\benja\ethernet-mac-chisel\project
+2026.01.29 14:50:03 INFO  BSP server: 
+2026.01.29 14:50:03 INFO  BSP server: 
+2026.01.29 14:50:03 INFO  BSP server:   | => ethernet-mac-chisel-build / update 0s
+2026.01.29 14:50:07 INFO  BSP server: [info] loading settings for project root from build.sbt...
+2026.01.29 14:50:07 INFO  BSP server: [info] set current project to ethernet-mac-chisel (in build file:/C:/Users/benja/ethernet-mac-chisel/)
+2026.01.29 14:50:07 INFO  BSP server: [info] Executing in batch mode. For better performance use sbt's shell
+2026.01.29 14:50:08 INFO  BSP server: 
+2026.01.29 14:50:08 INFO  BSP server:   | => root / dependencyPositions 0s
+2026.01.29 14:50:08 INFO  BSP server: 
+2026.01.29 14:50:08 INFO  BSP server:   | => root / dependencyPositions 0s
+2026.01.29 14:50:08 INFO  BSP server: 
+2026.01.29 14:50:08 INFO  BSP server:   | => root / dependencyPositions 0s
+2026.01.29 14:50:08 INFO  BSP server: 
+2026.01.29 14:50:08 INFO  BSP server:   | => root / dependencyPositions 0s
+2026.01.29 14:50:08 INFO  BSP server: 
+2026.01.29 14:50:08 INFO  BSP server:   | => root / dependencyPositions 0s
+2026.01.29 14:50:08 INFO  BSP server: 
+2026.01.29 14:50:08 INFO  BSP server:   | => root / dependencyPositions 0s
+2026.01.29 14:50:08 INFO  BSP server: 
+2026.01.29 14:50:08 INFO  BSP server:   | => root / dependencyPositions 0s
+2026.01.29 14:50:08 INFO  BSP server: 
+2026.01.29 14:50:08 INFO  BSP server:   | => root / dependencyPositions 0s
+2026.01.29 14:50:08 INFO  BSP server: 
+2026.01.29 14:50:08 INFO  BSP server:   | => root / dependencyPositions 0s
+2026.01.29 14:50:08 INFO  BSP server: 
+2026.01.29 14:50:08 INFO  BSP server:   | => root / dependencyPositions 0s
+2026.01.29 14:50:08 INFO  BSP server: 
+2026.01.29 14:50:08 INFO  BSP server:   | => root / dependencyPositions 0s
+2026.01.29 14:50:08 INFO  BSP server: 
+2026.01.29 14:50:08 INFO  BSP server:   | => root / dependencyPositions 0s
+2026.01.29 14:50:08 INFO  BSP server: 
+2026.01.29 14:50:08 INFO  BSP server:   | => root / dependencyPositions 0s
+2026.01.29 14:50:08 INFO  BSP server: 
+2026.01.29 14:50:08 INFO  BSP server:   | => root / dependencyPositions 0s
+2026.01.29 14:50:08 INFO  BSP server: 
+2026.01.29 14:50:08 INFO  BSP server:   | => root / dependencyPositions 0s
+2026.01.29 14:50:08 INFO  BSP server: 
+2026.01.29 14:50:08 INFO  BSP server:   | => root / dependencyPositions 0s
+2026.01.29 14:50:08 INFO  BSP server: 
+2026.01.29 14:50:08 INFO  BSP server:   | => root / dependencyPositions 0s
+2026.01.29 14:50:08 INFO  BSP server: 
+2026.01.29 14:50:08 INFO  BSP server:   | => root / dependencyPositions 0s
+2026.01.29 14:50:08 INFO  BSP server: 
+2026.01.29 14:50:08 INFO  BSP server:   | => root / update 0s
+2026.01.29 14:50:08 INFO  BSP server: [info] Updating ethernet-mac-chisel_2.12
+2026.01.29 14:50:08 INFO  BSP server: 
+2026.01.29 14:50:08 INFO  BSP server:   | => root / update 0s
+2026.01.29 14:50:10 INFO  BSP server: 
+2026.01.29 14:50:10 INFO  BSP server:   | => root / update 1s
+2026.01.29 14:50:10 INFO  BSP server: 
+2026.01.29 14:50:10 INFO  BSP server:   | => root / update 2s
+2026.01.29 14:50:11 INFO  BSP server: [info] Resolved ethernet-mac-chisel_2.12 dependencies
+2026.01.29 14:50:11 INFO  BSP server: 
+2026.01.29 14:50:11 INFO  BSP server:   | => root / update 2s
+2026.01.29 14:50:11 INFO  BSP server: [info] Updating ethernet-mac-chisel_2.12
+2026.01.29 14:50:11 INFO  BSP server: 
+2026.01.29 14:50:11 INFO  BSP server:   | => root / update 2s
+2026.01.29 14:50:11 INFO  BSP server: [info] Resolved ethernet-mac-chisel_2.12 dependencies
+2026.01.29 14:50:11 INFO  BSP server: 
+2026.01.29 14:50:11 INFO  BSP server:   | => root / update 2s
+2026.01.29 14:50:11 INFO  BSP server: [info] Updating ethernet-mac-chisel_2.12
+2026.01.29 14:50:11 INFO  BSP server: 
+2026.01.29 14:50:11 INFO  BSP server:   | => root / update 2s
+2026.01.29 14:50:11 INFO  BSP server: 
+2026.01.29 14:50:11 INFO  BSP server:   | => root / update 3s
+2026.01.29 14:50:12 INFO  BSP server: [info] Resolved ethernet-mac-chisel_2.12 dependencies
+2026.01.29 14:50:12 INFO  BSP server: 
+2026.01.29 14:50:12 INFO  BSP server:   | => root / update 3s
+2026.01.29 14:50:12 INFO  BSP server: [warn] 
+2026.01.29 14:50:12 INFO  BSP server: 
+2026.01.29 14:50:12 INFO  BSP server:   | => root / update 3s
+2026.01.29 14:50:12 INFO  BSP server: [warn] 	Note: Unresolved dependencies path:
+2026.01.29 14:50:12 INFO  BSP server: 
+2026.01.29 14:50:12 INFO  BSP server:   | => root / update 3s
+2026.01.29 14:50:12 INFO  BSP server: [error] sbt.librarymanagement.ResolveException: Error downloading edu.berkeley.cs:chisel3-plugin_2.12.18:3.6.0
+2026.01.29 14:50:12 INFO  BSP server: [error]   Not found
+2026.01.29 14:50:12 INFO  BSP server: [error]   Not found
+2026.01.29 14:50:12 INFO  BSP server: [error]   not found: C:\Users\benja\.ivy2\localedu.berkeley.cs\chisel3-plugin_2.12.18\3.6.0\ivys\ivy.xml
+2026.01.29 14:50:12 INFO  BSP server: [error]   not found: https://repo1.maven.org/maven2/edu/berkeley/cs/chisel3-plugin_2.12.18/3.6.0/chisel3-plugin_2.12.18-3.6.0.pom
+2026.01.29 14:50:12 INFO  BSP server: [error] 	at lmcoursier.CoursierDependencyResolution.unresolvedWarningOrThrow(CoursierDependencyResolution.scala:347)
+2026.01.29 14:50:12 INFO  BSP server: [error] 	at lmcoursier.CoursierDependencyResolution.$anonfun$update$39(CoursierDependencyResolution.scala:316)
+2026.01.29 14:50:12 INFO  BSP server: [error] 	at scala.util.Either$LeftProjection.map(Either.scala:573)
+2026.01.29 14:50:12 INFO  BSP server: [error] 	at lmcoursier.CoursierDependencyResolution.update(CoursierDependencyResolution.scala:316)
+2026.01.29 14:50:12 INFO  BSP server: [error] 	at sbt.librarymanagement.DependencyResolution.update(DependencyResolution.scala:60)
+2026.01.29 14:50:12 INFO  BSP server: [error] 	at sbt.internal.LibraryManagement$.resolve$1(LibraryManagement.scala:60)
+2026.01.29 14:50:12 INFO  BSP server: [error] 	at sbt.internal.LibraryManagement$.$anonfun$cachedUpdate$12(LibraryManagement.scala:142)
+2026.01.29 14:50:12 INFO  BSP server: [error] 	at sbt.util.Tracked$.$anonfun$lastOutput$1(Tracked.scala:74)
+2026.01.29 14:50:12 INFO  BSP server: [error] 	at sbt.internal.LibraryManagement$.$anonfun$cachedUpdate$11(LibraryManagement.scala:144)
+2026.01.29 14:50:12 INFO  BSP server: [error] 	at sbt.internal.LibraryManagement$.$anonfun$cachedUpdate$11$adapted(LibraryManagement.scala:131)
+2026.01.29 14:50:12 INFO  BSP server: [error] 	at sbt.util.Tracked$.$anonfun$inputChangedW$1(Tracked.scala:220)
+2026.01.29 14:50:12 INFO  BSP server: [error] 	at sbt.internal.LibraryManagement$.cachedUpdate(LibraryManagement.scala:169)
+2026.01.29 14:50:12 INFO  BSP server: [error] 	at sbt.Classpaths$.$anonfun$updateTask0$1(Defaults.scala:3975)
+2026.01.29 14:50:12 INFO  BSP server: [error] 	at scala.Function1.$anonfun$compose$1(Function1.scala:49)
+2026.01.29 14:50:12 INFO  BSP server: [error] 	at sbt.internal.util.$tilde$greater.$anonfun$$u2219$1(TypeFunctions.scala:63)
+2026.01.29 14:50:12 INFO  BSP server: [error] 	at sbt.std.Transform$$anon$4.work(Transform.scala:69)
+2026.01.29 14:50:12 INFO  BSP server: [error] 	at sbt.Execute.$anonfun$submit$2(Execute.scala:283)
+2026.01.29 14:50:12 INFO  BSP server: [error] 	at sbt.internal.util.ErrorHandling$.wideConvert(ErrorHandling.scala:24)
+2026.01.29 14:50:12 INFO  BSP server: [error] 	at sbt.Execute.work(Execute.scala:292)
+2026.01.29 14:50:12 INFO  BSP server: [error] 	at sbt.Execute.$anonfun$submit$1(Execute.scala:283)
+2026.01.29 14:50:12 INFO  BSP server: [error] 	at sbt.ConcurrentRestrictions$$anon$4.$anonfun$submitValid$1(ConcurrentRestrictions.scala:265)
+2026.01.29 14:50:12 INFO  BSP server: [error] 	at sbt.CompletionService$$anon$2.call(CompletionService.scala:65)
+2026.01.29 14:50:12 INFO  BSP server: [error] 	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+2026.01.29 14:50:12 INFO  BSP server: [error] 	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)
+2026.01.29 14:50:12 INFO  BSP server: [error] 	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+2026.01.29 14:50:12 INFO  BSP server: [error] 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+2026.01.29 14:50:12 INFO  BSP server: [error] 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+2026.01.29 14:50:12 INFO  BSP server: [error] 	at java.base/java.lang.Thread.run(Thread.java:829)
+2026.01.29 14:50:12 INFO  BSP server: [error] (update) sbt.librarymanagement.ResolveException: Error downloading edu.berkeley.cs:chisel3-plugin_2.12.18:3.6.0
+2026.01.29 14:50:12 INFO  BSP server: [error]   Not found
+2026.01.29 14:50:12 INFO  BSP server: [error]   Not found
+2026.01.29 14:50:12 INFO  BSP server: [error]   not found: C:\Users\benja\.ivy2\localedu.berkeley.cs\chisel3-plugin_2.12.18\3.6.0\ivys\ivy.xml
+2026.01.29 14:50:12 INFO  BSP server: [error]   not found: https://repo1.maven.org/maven2/edu/berkeley/cs/chisel3-plugin_2.12.18/3.6.0/chisel3-plugin_2.12.18-3.6.0.pom
+2026.01.29 14:50:12 INFO  BSP server: [error] Total time: 4 s, completed Jan. 29, 2026, 2:50:13 p.m.
+2026.01.29 14:50:46 ERROR Timeout waiting for 'build/initialize' response
+2026.01.29 14:50:46 WARN  Retrying connection to the build server sbt
+2026.01.29 14:50:46 INFO  Running BSP server List(C:\Users\benja\AppData\Local\Programs\Eclipse Adoptium\jdk-11.0.28.6-hotspot/bin/java, -Xms100m, -Xmx100m, -classpath, C:\Program Files (x86)\sbt\\bin\sbt-launch.jar, -Dsbt.script=C:\Program Files (x86)\sbt\bin\sbt.bat, xsbt.boot.Boot, -bsp)
+2026.01.29 14:50:46 INFO  BSP server: 
+2026.01.29 14:50:46 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at C:\Users\benja\ethernet-mac-chisel\.metals\bsp.trace.json or C:\Users\benja\AppData\Local\scalameta\metals\cache\bsp.trace.json
+2026.01.29 14:50:48 INFO  BSP server: [info] server was not detected. starting an instance
+2026.01.29 14:50:48 INFO  BSP server: \sbt\bin\sbt.bat was unexpected at this time.
+2026.01.29 14:50:48 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:50:48 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:50:50 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:50:50 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:50:51 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:50:50 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:50:51 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:50:51 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:50:53 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:50:53 WARN  no build target for: C:\Users\benja\ethernet-mac-chisel\build.sbt
+2026.01.29 14:50:53 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:50:53 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:50:56 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:50:57 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:50:57 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:50:58 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:51:00 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:51:00 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:51:00 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:51:00 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:51:00 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:51:03 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:51:08 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:51:24 INFO  BSP server: [info] welcome to sbt 1.11.4 (Eclipse Adoptium Java 11.0.28)
+2026.01.29 14:51:24 INFO  BSP server: [info] loading settings for project ethernet-mac-chisel-build-build from metals.sbt...
+2026.01.29 14:51:26 INFO  BSP server: [info] loading project definition from C:\Users\benja\ethernet-mac-chisel\project\project
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / unmanagedSources / allInputPathsAndAttributes 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / compile / compilerReporter 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / compile / compilerReporter 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / compile / compilerReporter 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / compile / compilerReporter 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / compile / compilerReporter 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / compile / compilerReporter 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / compile / compilerReporter 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / compile / compilerReporter 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / compile / compilerReporter 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / compile / compilerReporter 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / compile / compilerReporter 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / compile / compilerReporter 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / compile / compilerReporter 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / compile / compilerReporter 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / compile / compilerReporter 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:26 INFO  BSP server: 
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / previousCompile 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / csrProject 0s
+2026.01.29 14:51:26 INFO  BSP server:   | => ethernet-mac-chisel-build-build / dependencyPositions 0s
+2026.01.29 14:51:27 INFO  BSP server: 
+2026.01.29 14:51:27 INFO  BSP server: 
+2026.01.29 14:51:27 INFO  BSP server: 
+2026.01.29 14:51:27 INFO  BSP server:   | => ethernet-mac-chisel-build-build / Compile / compileIncremental 0s
+2026.01.29 14:51:27 INFO  BSP server: [info] loading settings for project ethernet-mac-chisel-build from metals.sbt...
+2026.01.29 14:51:27 INFO  BSP server: [info] loading project definition from C:\Users\benja\ethernet-mac-chisel\project
+2026.01.29 14:51:27 INFO  BSP server: 
+2026.01.29 14:51:27 INFO  BSP server:   | => ethernet-mac-chisel-build / update 0s
+2026.01.29 14:51:32 INFO  BSP server: [info] loading settings for project root from build.sbt...
+2026.01.29 14:51:32 INFO  BSP server: [info] set current project to ethernet-mac-chisel (in build file:/C:/Users/benja/ethernet-mac-chisel/)
+2026.01.29 14:51:32 INFO  BSP server: [info] Executing in batch mode. For better performance use sbt's shell
+2026.01.29 14:51:32 INFO  BSP server: 
+2026.01.29 14:51:32 INFO  BSP server:   | => root / update 0s
+2026.01.29 14:51:34 INFO  BSP server: 
+2026.01.29 14:51:34 INFO  BSP server:   | => root / update 0s
+2026.01.29 14:51:34 INFO  BSP server: [info] Updating ethernet-mac-chisel_2.12
+2026.01.29 14:51:34 INFO  BSP server: 
+2026.01.29 14:51:34 INFO  BSP server:   | => root / update 0s
+2026.01.29 14:51:34 INFO  BSP server: 
+2026.01.29 14:51:34 INFO  BSP server:   | => root / update 1s
+2026.01.29 14:51:35 INFO  BSP server: [info] Resolved ethernet-mac-chisel_2.12 dependencies
+2026.01.29 14:51:35 INFO  BSP server: 
+2026.01.29 14:51:35 INFO  BSP server:   | => root / update 1s
+2026.01.29 14:51:35 INFO  BSP server: [warn] 
+2026.01.29 14:51:35 INFO  BSP server: 
+2026.01.29 14:51:35 INFO  BSP server:   | => root / update 1s
+2026.01.29 14:51:35 INFO  BSP server: [warn] 	Note: Unresolved dependencies path:
+2026.01.29 14:51:35 INFO  BSP server: 
+2026.01.29 14:51:35 INFO  BSP server:   | => root / update 1s
+2026.01.29 14:51:35 INFO  BSP server: [error] sbt.librarymanagement.ResolveException: Error downloading edu.berkeley.cs:chisel3-plugin_2.12.18:3.6.0
+2026.01.29 14:51:35 INFO  BSP server: [error]   Not found
+2026.01.29 14:51:35 INFO  BSP server: [error]   Not found
+2026.01.29 14:51:35 INFO  BSP server: [error]   not found: C:\Users\benja\.ivy2\localedu.berkeley.cs\chisel3-plugin_2.12.18\3.6.0\ivys\ivy.xml
+2026.01.29 14:51:35 INFO  BSP server: [error]   not found: https://repo1.maven.org/maven2/edu/berkeley/cs/chisel3-plugin_2.12.18/3.6.0/chisel3-plugin_2.12.18-3.6.0.pom
+2026.01.29 14:51:35 INFO  BSP server: [error] 	at lmcoursier.CoursierDependencyResolution.unresolvedWarningOrThrow(CoursierDependencyResolution.scala:347)
+2026.01.29 14:51:35 INFO  BSP server: [error] 	at lmcoursier.CoursierDependencyResolution.$anonfun$update$39(CoursierDependencyResolution.scala:316)
+2026.01.29 14:51:35 INFO  BSP server: [error] 	at scala.util.Either$LeftProjection.map(Either.scala:573)
+2026.01.29 14:51:35 INFO  BSP server: [error] 	at lmcoursier.CoursierDependencyResolution.update(CoursierDependencyResolution.scala:316)
+2026.01.29 14:51:35 INFO  BSP server: [error] 	at sbt.librarymanagement.DependencyResolution.update(DependencyResolution.scala:60)
+2026.01.29 14:51:35 INFO  BSP server: [error] 	at sbt.internal.LibraryManagement$.resolve$1(LibraryManagement.scala:60)
+2026.01.29 14:51:35 INFO  BSP server: [error] 	at sbt.internal.LibraryManagement$.$anonfun$cachedUpdate$12(LibraryManagement.scala:142)
+2026.01.29 14:51:35 INFO  BSP server: [error] 	at sbt.util.Tracked$.$anonfun$lastOutput$1(Tracked.scala:74)
+2026.01.29 14:51:35 INFO  BSP server: [error] 	at sbt.internal.LibraryManagement$.$anonfun$cachedUpdate$11(LibraryManagement.scala:144)
+2026.01.29 14:51:35 INFO  BSP server: [error] 	at sbt.internal.LibraryManagement$.$anonfun$cachedUpdate$11$adapted(LibraryManagement.scala:131)
+2026.01.29 14:51:35 INFO  BSP server: [error] 	at sbt.util.Tracked$.$anonfun$inputChangedW$1(Tracked.scala:220)
+2026.01.29 14:51:35 INFO  BSP server: [error] 	at sbt.internal.LibraryManagement$.cachedUpdate(LibraryManagement.scala:169)
+2026.01.29 14:51:35 INFO  BSP server: [error] 	at sbt.Classpaths$.$anonfun$updateTask0$1(Defaults.scala:3975)
+2026.01.29 14:51:35 INFO  BSP server: [error] 	at scala.Function1.$anonfun$compose$1(Function1.scala:49)
+2026.01.29 14:51:35 INFO  BSP server: [error] 	at sbt.internal.util.$tilde$greater.$anonfun$$u2219$1(TypeFunctions.scala:63)
+2026.01.29 14:51:35 INFO  BSP server: [error] 	at sbt.std.Transform$$anon$4.work(Transform.scala:69)
+2026.01.29 14:51:35 INFO  BSP server: [error] 	at sbt.Execute.$anonfun$submit$2(Execute.scala:283)
+2026.01.29 14:51:35 INFO  BSP server: [error] 	at sbt.internal.util.ErrorHandling$.wideConvert(ErrorHandling.scala:24)
+2026.01.29 14:51:35 INFO  BSP server: [error] 	at sbt.Execute.work(Execute.scala:292)
+2026.01.29 14:51:35 INFO  BSP server: [error] 	at sbt.Execute.$anonfun$submit$1(Execute.scala:283)
+2026.01.29 14:51:35 INFO  BSP server: [error] 	at sbt.ConcurrentRestrictions$$anon$4.$anonfun$submitValid$1(ConcurrentRestrictions.scala:265)
+2026.01.29 14:51:35 INFO  BSP server: [error] 	at sbt.CompletionService$$anon$2.call(CompletionService.scala:65)
+2026.01.29 14:51:35 INFO  BSP server: [error] 	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+2026.01.29 14:51:35 INFO  BSP server: [error] 	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)
+2026.01.29 14:51:35 INFO  BSP server: [error] 	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+2026.01.29 14:51:35 INFO  BSP server: [error] 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+2026.01.29 14:51:35 INFO  BSP server: [error] 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+2026.01.29 14:51:35 INFO  BSP server: [error] 	at java.base/java.lang.Thread.run(Thread.java:829)
+2026.01.29 14:51:35 INFO  BSP server: [error] (update) sbt.librarymanagement.ResolveException: Error downloading edu.berkeley.cs:chisel3-plugin_2.12.18:3.6.0
+2026.01.29 14:51:35 INFO  BSP server: [error]   Not found
+2026.01.29 14:51:35 INFO  BSP server: [error]   Not found
+2026.01.29 14:51:35 INFO  BSP server: [error]   not found: C:\Users\benja\.ivy2\localedu.berkeley.cs\chisel3-plugin_2.12.18\3.6.0\ivys\ivy.xml
+2026.01.29 14:51:35 INFO  BSP server: [error]   not found: https://repo1.maven.org/maven2/edu/berkeley/cs/chisel3-plugin_2.12.18/3.6.0/chisel3-plugin_2.12.18-3.6.0.pom
+2026.01.29 14:51:35 INFO  BSP server: [error] Total time: 3 s, completed Jan. 29, 2026, 2:51:35 p.m.
+2026.01.29 14:51:46 ERROR Timeout waiting for 'build/initialize' response
+2026.01.29 14:51:46 WARN  Retrying connection to the build server sbt
+2026.01.29 14:51:46 INFO  Running BSP server List(C:\Users\benja\AppData\Local\Programs\Eclipse Adoptium\jdk-11.0.28.6-hotspot/bin/java, -Xms100m, -Xmx100m, -classpath, C:\Program Files (x86)\sbt\\bin\sbt-launch.jar, -Dsbt.script=C:\Program Files (x86)\sbt\bin\sbt.bat, xsbt.boot.Boot, -bsp)
+2026.01.29 14:51:46 INFO  BSP server: 
+2026.01.29 14:51:46 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at C:\Users\benja\ethernet-mac-chisel\.metals\bsp.trace.json or C:\Users\benja\AppData\Local\scalameta\metals\cache\bsp.trace.json
+2026.01.29 14:51:47 INFO  BSP server: [info] server was not detected. starting an instance
+2026.01.29 14:51:47 INFO  BSP server: \sbt\bin\sbt.bat was unexpected at this time.
+2026.01.29 14:52:46 ERROR Timeout waiting for 'build/initialize' response
+2026.01.29 14:52:46 WARN  Retrying connection to the build server sbt
+2026.01.29 14:52:46 INFO  Running BSP server List(C:\Users\benja\AppData\Local\Programs\Eclipse Adoptium\jdk-11.0.28.6-hotspot/bin/java, -Xms100m, -Xmx100m, -classpath, C:\Program Files (x86)\sbt\\bin\sbt-launch.jar, -Dsbt.script=C:\Program Files (x86)\sbt\bin\sbt.bat, xsbt.boot.Boot, -bsp)
+2026.01.29 14:52:46 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at C:\Users\benja\ethernet-mac-chisel\.metals\bsp.trace.json or C:\Users\benja\AppData\Local\scalameta\metals\cache\bsp.trace.json
+2026.01.29 14:52:49 INFO  BSP server: [info] server was not detected. starting an instance
+2026.01.29 14:52:49 INFO  BSP server: \sbt\bin\sbt.bat was unexpected at this time.
+2026.01.29 14:52:50 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\build.sbt. Using presentation compiler with project's scala-library version: 3.3.7
+2026.01.29 14:52:52 INFO  Shutting down server
+2026.01.29 14:52:52 INFO  Memory monitor stopped
+2026.01.29 14:52:52 INFO  shutting down Metals
+2026.01.29 14:52:52 INFO  Exiting server

@@ -1,4 +1,33 @@
-[0m[[0m[0mdebug[0m] [0m[0mPackaging C:\Users\benja\ethernet-mac-chisel\target\scala-2.13\ethernet-mac_2.13-0.1.0-SNAPSHOT.jar ...[0m
+[0m[[0m[0mdebug[0m] [0m[0mPackaging C:\Users\benja\ethernet-mac-chisel\target\scala-2.12\ethernet-mac-chisel_2.12-0.1.0.jar ...[0m
 [0m[[0m[0mdebug[0m] [0m[0mInput file mappings:[0m
-[0m[[0m[0mdebug[0m] [0m[0m	[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ethernet[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  C:\Users\benja\ethernet-mac-chisel\target\scala-2.12\classes\ethernet[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ethernet\Counter$$anon$1.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  C:\Users\benja\ethernet-mac-chisel\target\scala-2.12\classes\ethernet\Counter$$anon$1.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ethernet\Counter.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  C:\Users\benja\ethernet-mac-chisel\target\scala-2.12\classes\ethernet\Counter.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ethernet\CounterMain$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  C:\Users\benja\ethernet-mac-chisel\target\scala-2.12\classes\ethernet\CounterMain$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ethernet\CounterMain$delayedInit$body.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  C:\Users\benja\ethernet-mac-chisel\target\scala-2.12\classes\ethernet\CounterMain$delayedInit$body.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ethernet\CounterMain.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  C:\Users\benja\ethernet-mac-chisel\target\scala-2.12\classes\ethernet\CounterMain.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ethernet\EthMacDefinitions$EthConfig.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  C:\Users\benja\ethernet-mac-chisel\target\scala-2.12\classes\ethernet\EthMacDefinitions$EthConfig.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ethernet\EthMacDefinitions$EthernetCrc$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  C:\Users\benja\ethernet-mac-chisel\target\scala-2.12\classes\ethernet\EthMacDefinitions$EthernetCrc$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ethernet\EthMacDefinitions$MacConfiguration.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  C:\Users\benja\ethernet-mac-chisel\target\scala-2.12\classes\ethernet\EthMacDefinitions$MacConfiguration.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ethernet\EthMacDefinitions$RxStatisticsVector.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  C:\Users\benja\ethernet-mac-chisel\target\scala-2.12\classes\ethernet\EthMacDefinitions$RxStatisticsVector.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ethernet\EthMacDefinitions$TxStatisticsVector.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  C:\Users\benja\ethernet-mac-chisel\target\scala-2.12\classes\ethernet\EthMacDefinitions$TxStatisticsVector.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ethernet\EthMacDefinitions.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  C:\Users\benja\ethernet-mac-chisel\target\scala-2.12\classes\ethernet\EthMacDefinitions.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ethernet\MacMain$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  C:\Users\benja\ethernet-mac-chisel\target\scala-2.12\classes\ethernet\MacMain$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ethernet\MacMain$delayedInit$body.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  C:\Users\benja\ethernet-mac-chisel\target\scala-2.12\classes\ethernet\MacMain$delayedInit$body.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ethernet\MacMain.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  C:\Users\benja\ethernet-mac-chisel\target\scala-2.12\classes\ethernet\MacMain.class[0m
 [0m[[0m[0mdebug[0m] [0m[0mDone packaging.[0m

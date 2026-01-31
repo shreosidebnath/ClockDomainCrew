@@ -89,3 +89,31 @@ Note that 192.168.10.10 is the configured IP address of eth0
 ```bash
 scp "file directory" ubuntu@192.168.10.10:/home/ubuntu/
 ```
+
+
+## For FWUEN mode (QSPI image upload)
+You must configure the IP address of the ethernet port connected to the FPGA board.
+```bash
+capstone2025@calgaryishfpga-07:~$ sudo ip addr flush dev eno2np1
+
+capstone2025@calgaryishfpga-07:~$ sudo ip addr add 192.168.0.10/24 dev eno2np1
+
+capstone2025@calgaryishfpga-07:~$ sudo ip link set dev eno2np1 up
+
+capstone2025@calgaryishfpga-07:~$ ip addr show dev eno2np1
+3: eno2np1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether 08:8f:c3:9d:11:70 brd ff:ff:ff:ff:ff:ff
+    altname enp90s0f1np1
+    inet 192.168.0.10/24 scope global eno2np1
+       valid_lft forever preferred_lft forever
+
+capstone2025@calgaryishfpga-07:~$ ip route get 192.168.0.111
+192.168.0.111 dev eno1np0 src 192.168.0.10 uid 1001 
+    cache 
+```
+
+If it still fails, try the following:
+
+```bash
+sudo ip route add 192.168.0.0/24 dev eno2np1
+```

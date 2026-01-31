@@ -1,8 +1,8 @@
 name: link_up
-backend: hw              # this now dispatches to local_link_up via runner.py
+backend: hw              
 test:
   type: link_up
-  iface: "ens1f0"        # Intel X520-DA1 port on the lab box
+  iface: "ens6"       
   src_mac: "02:ca:fe:00:00:02"
   dst_mac: "02:ca:fe:00:00:01"
   src_ip:  "192.168.100.1"

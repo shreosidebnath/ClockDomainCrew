@@ -60,7 +60,7 @@ Run the following command to install Scapy on the FPGA
 sudo apt install python3-scapy
 ```
 
-## Scapy Logic for echoing packets back (FPGA side)
+## Scapy Logic for echoing packets back at the application level (FPGA side)
 By default, the FPGA with Ubuntu running on it does not send packets back. It will simply receive the packets and drop it, making the fpga loopback fail.
 
 To ensure that packets are echoed back, create a python file on Ubuntu on FPGA called `reflect.py`
@@ -83,14 +83,58 @@ Save the file and run `sudo python3 reflect.py`. Note that Scapy must be install
 Once `reflect.py` is running on the FPGA board, run `sudo python3 -m tests.runner --spec tests/specs/04_fpga_loopback.yml` command from the PC to perform loopback testing
 
 
-## Performing File Transfer to FPGA board
+## Performing File Transfer to FPGA board using SSH secure copy
 Run the following command in the PC terminal.
 Note that 192.168.10.10 is the configured IP address of eth0
 ```bash
 scp "file directory" ubuntu@192.168.10.10:/home/ubuntu/
 ```
 
+## Performing Loopback with File Transfer
+The FPGANinja taxi repo only contains PL logic and no PS logic so Linux shell cannot be used. To send files, the following must be used.
 
+Have two terminals open on the PC (one for send, one for receive)
+
+Run the following command in receive terminal.
+```bash
+sudo tcpdump -i ens6 ether proto 0x88b5 -w rx.pcap
+```
+
+Run the following command in send terminal
+```bash
+sudo python3 send_file.py
+```
+
+This is the content of `send_file.py`.
+
+Note the `random.txt` file needs to be in the same directory as `send_file.py`
+```python
+from scapy.all import *
+import struct
+
+iface = "ens6"
+ethertype = 0x88B5
+chunk_size = 1400
+
+with open("random.txt", "rb") as f:
+    data = f.read()
+
+for i in range(0, len(data), chunk_size):
+    payload = struct.pack("!I", i) + data[i:i+chunk_size]
+    pkt = Ether(dst="ff:ff:ff:ff:ff:ff", type=ethertype)/Raw(load=payload)
+    sendp(pkt, iface=iface, verbose=False)
+
+print("Sent", len(data), "bytes")
+```
+Once the packet have been sent, press ctrl+C. 
+Then run the following two commands in the receive terminal.
+```bash
+tcpdump -r rx.pcap -XX | grep -oP '(?<=0x0030: ).*' | tr -d ' ' | xxd -r -p > out.bin
+```
+
+```bash
+sha256sum random.txt out.bin
+```
 ## For FWUEN mode (QSPI image upload)
 You must configure the IP address of the ethernet port connected to the FPGA board.
 ```bash

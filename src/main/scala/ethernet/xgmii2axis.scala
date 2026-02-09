@@ -114,7 +114,7 @@ def setStats(byteCount: UInt, crcOk: Bool): Unit = {
   statsVec := statsVec | (octetCount << STAT_RX_OCTETS_HIGH)
 
   // Update the statistics vector register
-  rxStatisticsVectorReg := statsVec
+  rxStatisticsVectorReg := statsVec //u
 }
   }
   

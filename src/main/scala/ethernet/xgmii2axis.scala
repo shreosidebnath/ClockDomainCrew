@@ -237,82 +237,78 @@ def crcRev(crc: UInt): UInt = macDefs.CrcRev(crc)
       }
         
    
-    tdata_i := tdata_d0
-    tvalid_i := tvalid_d0
-    rx_statistics_valid_reg := false.B
+tdataI := tdataD0
+tvalidI := tvalidD0
+rxStatisticsValidReg := false.B
+
+// FSM
+switch(fsm) {
+  is(State.SRES) {
+    goodFramesReg := 0.U
+    badFramesReg := 0.U
+    fsm := State.IDLE
+  }
+  
+  is(State.IDLE) {
+    tvalidD0 := false.B
+    tlastI := false.B
+    tuserI := 0.U
+    crc32 := CRC802_3_PRESET
+    inboundFrame := false.B
+    dReg := io.xgmii_d
+    cReg := io.xgmii_c
+    len := 0.U
+    rxStatisticsVectorReg := 0.U
     
-    // FSM
-    switch(fsm) {
-      is(State.SRES) {
-        good_frames_reg := 0.U
-        bad_frames_reg := 0.U
+    when(sof_lane0(io.xgmii_d, io.xgmii_c)) {
+      inboundFrame := true.B
+      fsm := State.ST_LANE0
+    }.elsewhen(sof_lane4(io.xgmii_d, io.xgmii_c)) {
+      inboundFrame := true.B
+      fsm := State.ST_LANE4
+    }
+  }
+  
+  is(State.ST_LANE0) {
+    tdataD0 := io.xgmii_d
+    tvalidD0 := true.B
+    tkeepI := "hFF".U(8.W)
+    tlastI := false.B
+    tuserI := 0.U
+    dReg := io.xgmii_d
+    cReg := io.xgmii_c
+    crc32 := crc8B(crc32, io.xgmii_d)
+    crc32_7B := crc7B(crc32, io.xgmii_d(55, 0))
+    crc32_6B := crc6B(crc32, io.xgmii_d(47, 0))
+    crc32_5B := crc5B(crc32, io.xgmii_d(39, 0))
+    crc32_4B := crc4B(crc32, io.xgmii_d(31, 0))
+    
+    switch(io.xgmii_c) {
+      is("h00".U(8.W)) {
+        len := len + 8.U
+      }
+      
+      is("hFF".U(8.W)) {
+        len := len  
+        tkeepI := "h0F".U(8.W)  
+        tvalidD0 := false.B
+        tlastI := true.B
+        
+        // Check CRC and termination character
+        val crcOk = (~crc_rev(crc32_4B) === dReg(63, 32)) && is_tchar(io.xgmii_d(7, 0))
+        when(crcOk) {
+          tuserI := 1.U(1.W)
+          // Update stats
+          rxStatisticsVectorReg := Cat(len, 1.U(14.W))  // Simplified
+          rxStatisticsValidReg := true.B
+        }.otherwise {
+          // Update stats differently for bad frame
+          rxStatisticsVectorReg := Cat(len, 0.U(14.W))
+          rxStatisticsValidReg := true.B
+        }
+        
         fsm := State.IDLE
       }
-      
-      is(State.IDLE) {
-        tvalid_d0 := false.B
-        tlast_i := false.B
-        tuser_i := 0.U
-        crc_32 := CRC802_3_PRESET
-        inbound_frame := false.B
-        d_reg := io.xgmii_d
-        c_reg := io.xgmii_c
-        len := 0.U
-        rx_statistics_vector_reg := 0.U
-        
-        when(sof_lane0(io.xgmii_d, io.xgmii_c)) {
-          inbound_frame := true.B
-          fsm := State.ST_LANE0
-        }.elsewhen(sof_lane4(io.xgmii_d, io.xgmii_c)) {
-          inbound_frame := true.B
-          fsm := State.ST_LANE4
-        }
-      }
-      
-      is(State.ST_LANE0) {
-        tdata_d0 := io.xgmii_d
-        tvalid_d0 := true.B
-        tkeep_i := "hFF".U(8.W)
-        tlast_i := false.B
-        tuser_i := 0.U
-        d_reg := io.xgmii_d
-        c_reg := io.xgmii_c
-        crc_32 := crc8B(crc_32, io.xgmii_d)
-        crc_32_7B := crc7B(crc_32, io.xgmii_d(55, 0))
-        crc_32_6B := crc6B(crc_32, io.xgmii_d(47, 0))
-        crc_32_5B := crc5B(crc_32, io.xgmii_d(39, 0))
-        crc_32_4B := crc4B(crc_32, io.xgmii_d(31, 0))
-        
-        
-        switch(io.xgmii_c) {
-         
-          is("h00".U(8.W)) {
-            len := len + 8.U
-           
-          }
-          
-          //Still updating 
-          is("hFF".U(8.W)) {
-            len := len  
-            tkeep_i := "h0F".U(8.W)  
-            tvalid_d0 := false.B
-            tlast_i := true.B
-            
-            // Check CRC and termination character
-            val crc_ok = (~crc_rev(crc_32_4B) === d_reg(63, 32)) && is_tchar(io.xgmii_d(7, 0))
-            when(crc_ok) {
-              tuser_i := 1.U(1.W)
-              // Update stats
-              rx_statistics_vector_reg := Cat(len, 1.U(14.W))  // Simplified
-              rx_statistics_valid_reg := true.B
-            }.otherwise {
-              // Update stats differently for bad frame
-              rx_statistics_vector_reg := Cat(len, 0.U(14.W))
-              rx_statistics_valid_reg := true.B
-            }
-            
-            fsm := State.IDLE
-          }
           
           // Termination in lane 1 (byte 1) - T in lane 1
           is("hFE".U(8.W)) {

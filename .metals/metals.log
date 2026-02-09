@@ -1107,3 +1107,46 @@ INFO: Unsupported notification method: $/setTrace
 2026.02.09 07:38:57 WARN  no build target for: C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala
 2026.02.09 07:38:57 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
 2026.02.09 07:38:57 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+Feb. 09, 2026 7:38:58 A.M. org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 985
+2026.02.09 07:39:51 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:39:52 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:39:52 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:39:54 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:39:54 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:39:56 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:39:56 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:40:13 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:40:37 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:40:38 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:40:38 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:40:40 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:40:42 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:40:43 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:40:45 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:40:45 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:40:45 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:40:48 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:40:49 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:40:49 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:40:49 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:40:49 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:40:52 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:40:53 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:40:53 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:40:53 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:40:57 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:40:59 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:41:01 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:41:01 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:41:02 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:41:11 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:41:11 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:41:11 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:41:12 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:41:17 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:41:18 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:41:18 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:41:24 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 07:41:31 WARN  no build target for: C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala
+2026.02.09 07:41:32 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7

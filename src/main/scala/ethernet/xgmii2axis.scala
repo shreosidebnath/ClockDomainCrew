@@ -5,138 +5,116 @@ import chisel3.experimental.ChiselEnum
 import ethernet.MacDefinitions._
 
 class XGMII2AXIS extends Module {
+  val io = IO(new Bundle {
+  val clk   = Input(Clock())
+  val rst   = Input(Bool())
+  val aresetn = Input(Bool())
+
+  val xgmiiD = Input(UInt(64.W))
+  val xgmiiC = Input(UInt(8.W))
+
+  val configurationVector = Input(UInt(80.W))
+
+  val tdata  = Output(UInt(64.W))
+  val tkeep  = Output(UInt(8.W))
+  val tvalid = Output(Bool())
+  val tlast  = Output(Bool())
+  val tuser  = Output(UInt(1.W))
+
+  val goodFrames = Output(UInt(32.W))
+  val badFrames  = Output(UInt(32.W))
+
+  val rxStatisticsVector = Output(UInt(30.W))
+  val rxStatisticsValid  = Output(Bool())
+})
+
+  val macDefs = Module(new EthMacDefinitions)
+    val xgmiiStart = macDefs.S  
+    val xgmiiTerm = macDefs.T   
+    val xgmiiError = macDefs.E  
+    val xgmiiIdle = macDefs.I   
+
+  def sofLane0(d: UInt, c: UInt): Bool = macDefs.SofLane0(d, c)
+  def sofLane4(d: UInt, c: UInt): Bool = macDefs.SofLane4(d, c)
+  def isTchar(data: UInt): Bool = macDefs.IsTchar(data)
+  def crc8B(crc: UInt, data: UInt): UInt = macDefs.EthernetCrc.crc8B(crc, data)
+  def crc7B(crc: UInt, data: UInt): UInt = macDefs.EthernetCrc.crc7B(crc, data)
+  def crc6B(crc: UInt, data: UInt): UInt = macDefs.EthernetCrc.crc6B(crc, data)
+  def crc5B(crc: UInt, data: UInt): UInt = macDefs.EthernetCrc.crc5B(crc, data)
+  def crc4B(crc: UInt, data: UInt): UInt = macDefs.EthernetCrc.crc4B(crc, data)
+  def crc3B(crc: UInt, data: UInt): UInt = macDefs.EthernetCrc.crc3B(crc, data)
+  def crc2B(crc: UInt, data: UInt): UInt = macDefs.EthernetCrc.crc2B(crc, data)
+  def crc1B(crc: UInt, data: UInt): UInt = macDefs.EthernetCrc.crc1B(crc, data)
+
+  def crcRev(crc: UInt): UInt = macDefs.CrcRev(crc)
+
     
- val clk = Input(Clock())  
-val rst = Input(Bool())
-val macDefs = Module(new EthMacDefinitions)
-val xgmiiStart = macDefs.S  
-val xgmiiTerm = macDefs.T   
-val xgmiiError = macDefs.E  
-val xgmiiIdle = macDefs.I   
-val crc8023Preset = macDefs.crc8023Preset
-
-def sofLane0(d: UInt, c: UInt): Bool = macDefs.SofLane0(d, c)
-def sofLane4(d: UInt, c: UInt): Bool = macDefs.SofLane4(d, c)
-def isTchar(data: UInt): Bool = macDefs.IsTchar(data)
-def crc8B(crc: UInt, data: UInt): UInt = macDefs.EthernetCrc.crc8B(crc, data)
-def crc7B(crc: UInt, data: UInt): UInt = macDefs.EthernetCrc.crc7B(crc, data)
-def crc6B(crc: UInt, data: UInt): UInt = macDefs.EthernetCrc.crc6B(crc, data)
-def crc5B(crc: UInt, data: UInt): UInt = macDefs.EthernetCrc.crc5B(crc, data)
-def crc4B(crc: UInt, data: UInt): UInt = macDefs.EthernetCrc.crc4B(crc, data)
-def crc3B(crc: UInt, data: UInt): UInt = macDefs.EthernetCrc.crc3B(crc, data)
-def crc2B(crc: UInt, data: UInt): UInt = macDefs.EthernetCrc.crc2B(crc, data)
-def crc1B(crc: UInt, data: UInt): UInt = macDefs.EthernetCrc.crc1B(crc, data)
-
-def crcRev(crc: UInt): UInt = macDefs.CrcRev(crc)
-
-    val goodFrames = Output(UInt(32.W))
-    val badFrames = Output(UInt(32.W))
-
-    val configurationVector = Input(UInt(80.W))
-    val rxStatisticsVector = Output(UInt(30.W))
-    val rxStatisticsValid = Output(Bool())
-
-    val xgmiiD = Input(UInt(64.W))
-    val xgmiiC = Input(UInt(8.W))
-
-    val aresetn = Input(Bool())
-    val tdata = Output(UInt(64.W))
-    val tkeep = Output(UInt(8.W))
-    val tvalid = Output(Bool())
-    val tlast = Output(Bool())
-    val tuser = Output(UInt(1.W))
   
-  
-  val CRC802_3_PRESET = "hFFFFFFFF".U(32.W)
-  
+ 
 
-  def crc_rev(crc: UInt): UInt = {
-    // Reverse CRC bytes (for Ethernet CRC)
-    Cat(
-      crc(7, 0), crc(15, 8), crc(23, 16), crc(31, 24)
-    )
-  }
-  
-  def set_stats(length: UInt, good: Bool): Unit = {
-   def set_stats(bcount: UInt, crc_ok: Bool): Unit = {
+
+def setStats(byteCount: UInt, crcOk: Bool): Unit = {
   // Set statistics valid flag
-  rx_statistics_valid_reg := true.B
-  
+  rxStatisticsValidReg := true.B
+
   // Initialize statistics vector to all zeros
-  val stats_vec = WireInit(0.U(30.W))
-  
-  // Calculate which size bin the frame belongs to
-  val size_bin = Wire(UInt(5.W))
-  
+  val statsVec = WireInit(0.U(30.W))
+
   // Determine frame size category (per IEEE 802.3 statistics)
-  when(bcount < 64.U) {
+  when(byteCount < 64.U) {
     // Small frame (< 64 bytes)
-    stats_vec := stats_vec | (1.U << STAT_RX_SMALL)
-    when(crc_ok) {
+    statsVec := statsVec | (1.U << STAT_RX_SMALL)
+    when(crcOk) {
       // Good small frame = undersize
-      stats_vec := stats_vec | (1.U << STAT_RX_UNDERSIZE)
+      statsVec := statsVec | (1.U << STAT_RX_UNDERSIZE)
     }.otherwise {
       // Bad small frame = fragment
-      stats_vec := stats_vec | (1.U << STAT_RX_FRAGMENT)
+      statsVec := statsVec | (1.U << STAT_RX_FRAGMENT)
     }
-  }.elsewhen(bcount === 64.U) {
-    // Exactly 64 bytes
-    stats_vec := stats_vec | (1.U << STAT_RX_64B)
-  }.elsewhen(bcount > 64.U && bcount <= 127.U) {
-    // 65-127 bytes
-    stats_vec := stats_vec | (1.U << STAT_RX_65_127B)
-  }.elsewhen(bcount > 127.U && bcount <= 255.U) {
-    // 128-255 bytes
-    stats_vec := stats_vec | (1.U << STAT_RX_128_255B)
-  }.elsewhen(bcount > 255.U && bcount <= 511.U) {
-    // 256-511 bytes
-    stats_vec := stats_vec | (1.U << STAT_RX_256_511B)
-  }.elsewhen(bcount > 511.U && bcount <= 1023.U) {
-    // 512-1023 bytes
-    stats_vec := stats_vec | (1.U << STAT_RX_512_1023B)
-  }.elsewhen(bcount > 1023.U && bcount <= 1518.U) {
-    // 1024-1518 bytes
-    stats_vec := stats_vec | (1.U << STAT_RX_1024_1518B)
-  }.elsewhen(bcount > 1518.U && bcount <= 1522.U) {
-    // 1519-1522 bytes (VLAN tagged max)
-    stats_vec := stats_vec | (1.U << STAT_RX_1519_1522B)
-  }.elsewhen(bcount > 1522.U && bcount <= 1548.U) {
-    // 1523-1548 bytes
-    stats_vec := stats_vec | (1.U << STAT_RX_1523_1548B)
-  }.elsewhen(bcount > 1548.U && bcount <= 2047.U) {
-    // 1549-2047 bytes
-    stats_vec := stats_vec | (1.U << STAT_RX_1549_2047B)
-  }.elsewhen(bcount > 2047.U) {
-    // 2048+ bytes (jumbo frames up to MTU)
-    // RX_MTU should be defined in MACDefinitions
-    when(bcount <= RX_MTU) {
-      stats_vec := stats_vec | (1.U << STAT_RX_2048_MAX)
+    }.elsewhen(byteCount === 64.U) {
+      statsVec := statsVec | (1.U << STAT_RX_64B)
+    }.elsewhen(byteCount <= 127.U) {
+      statsVec := statsVec | (1.U << STAT_RX_65_127B)
+    }.elsewhen(byteCount <= 255.U) {
+      statsVec := statsVec | (1.U << STAT_RX_128_255B)
+    }.elsewhen(byteCount <= 511.U) {
+      statsVec := statsVec | (1.U << STAT_RX_256_511B)
+    }.elsewhen(byteCount <= 1023.U) {
+      statsVec := statsVec | (1.U << STAT_RX_512_1023B)
+    }.elsewhen(byteCount <= 1518.U) {
+      statsVec := statsVec | (1.U << STAT_RX_1024_1518B)
+    }.elsewhen(byteCount <= 1522.U) {
+      statsVec := statsVec | (1.U << STAT_RX_1519_1522B)
+    }.elsewhen(byteCount <= 1548.U) {
+      statsVec := statsVec | (1.U << STAT_RX_1523_1548B)
+    }.elsewhen(byteCount <= 2047.U) {
+      statsVec := statsVec | (1.U << STAT_RX_1549_2047B)
+    }.elsewhen(byteCount > 2047.U) {
+      when(byteCount <= RX_MTU) {
+        statsVec := statsVec | (1.U << STAT_RX_2048_MAX)
+      }
     }
+
+  // Set good packet flag if CRC is OK
+  when(crcOk) {
+    statsVec := statsVec | (1.U << STAT_RX_GOOD_PKT)
   }
-  
-  // Set good packet flag if CRC is OK (regardless of size)
-  when(crc_ok) {
-    stats_vec := stats_vec | (1.U << STAT_RX_GOOD_PKT)
-  }
-  
-  // Handle oversize/jabber classification for frames > 1518 bytes
-  when(bcount > 1518.U) {
-    when(crc_ok) {
-      // Good oversize frame
-      stats_vec := stats_vec | (1.U << STAT_RX_OVERSIZE)
+
+  // Handle oversize/jabber classification
+  when(byteCount > 1518.U) {
+    when(crcOk) {
+      statsVec := statsVec | (1.U << STAT_RX_OVERSIZE)
     }.otherwise {
-      // Bad oversize frame = jabber
-      stats_vec := stats_vec | (1.U << STAT_RX_JABBER)
+      statsVec := statsVec | (1.U << STAT_RX_JABBER)
     }
   }
-  
+
   // Store octet count in bits [29:16] of statistics vector
-  // bcount is 16 bits, but we only store lower 14 bits (max 16383)
-  val octet_count = bcount(13, 0)  // Take lower 14 bits
-  stats_vec := stats_vec | (octet_count << STAT_RX_OCTETS_HIGH)
-  
+  val octetCount = byteCount(13, 0)
+  statsVec := statsVec | (octetCount << STAT_RX_OCTETS_HIGH)
+
   // Update the statistics vector register
-  rx_statistics_vector_reg := stats_vec
+  rxStatisticsVectorReg := statsVec
 }
   }
   
@@ -153,7 +131,7 @@ def crcRev(crc: UInt): UInt = macDefs.CrcRev(crc)
     val rxStatisticsVectorReg = RegInit(0.U(30.W))
     val rxStatisticsValidReg = RegInit(false.B)
 
-    val fsm = RegInit(State.SRES)
+    val stateReg = RegInit(State.SRES) //fsn is stateReg
     val tvalidI = RegInit(false.B)
     val tdataI = RegInit(0.U(64.W))
     val tkeepI = RegInit(0.U(8.W))
@@ -176,7 +154,7 @@ def crcRev(crc: UInt): UInt = macDefs.CrcRev(crc)
     val crc32_3B = RegInit(0.U(32.W))
     val crc32_2B = RegInit(0.U(32.W))
     val crc32_1B = RegInit(0.U(32.W))
-    val rcvedCrc = RegInit(0.U(32.W))
+    val receivedCrc = RegInit(0.U(32.W))
     val calctedCrc = RegInit(0.U(32.W))
 
     val invAresetn = !io.aresetn
@@ -200,7 +178,7 @@ def crcRev(crc: UInt): UInt = macDefs.CrcRev(crc)
     when(io.rst) {
      
       tvalidI := false.B
-      fsm := State.SRES
+      stateReg := State.SRES
       rxStatisticsValidReg := false.B
       rxStatisticsVectorReg := 0.U
       
@@ -219,7 +197,7 @@ def crcRev(crc: UInt): UInt = macDefs.CrcRev(crc)
       inboundFrame := false.B
       lastTkeepI := 0.U
       len := 0.U
-      rcvedCrc := 0.U
+      receivedCrc := 0.U
       tdataD0 := 0.U
       tdataI := 0.U
       tkeepI := 0.U
@@ -241,12 +219,12 @@ tdataI := tdataD0
 tvalidI := tvalidD0
 rxStatisticsValidReg := false.B
 
-// FSM
-switch(fsm) {
+// FSM is stateReg
+switch(stateReg) {
   is(State.SRES) {
     goodFramesReg := 0.U
     badFramesReg := 0.U
-    fsm := State.IDLE
+    stateReg := State.IDLE
   }
   
   is(State.IDLE) {
@@ -262,10 +240,10 @@ switch(fsm) {
     
     when(sof_lane0(io.xgmii_d, io.xgmii_c)) {
       inboundFrame := true.B
-      fsm := State.ST_LANE0
+      stateReg := State.ST_LANE0
     }.elsewhen(sof_lane4(io.xgmii_d, io.xgmii_c)) {
       inboundFrame := true.B
-      fsm := State.ST_LANE4
+      stateReg := State.ST_LANE4
     }
   }
   
@@ -307,128 +285,126 @@ switch(fsm) {
           rxStatisticsValidReg := true.B
         }
         
-        fsm := State.IDLE
+        stateReg := State.IDLE
       }
           
           // Termination in lane 1 (byte 1) - T in lane 1
           is("hFE".U(8.W)) {
             len := len + 1.U
-            tkeep_i := "h1F".U(8.W)  // First 5 bytes valid
-            tvalid_d0 := false.B
-            tlast_i := true.B
+            tkeepI := "h1F".U(8.W)  // First 5 bytes valid
+            tvalidPipe0 := false.B
+            tlastNext := true.B
             
-            val crc_ok = (~crc_rev(crc_32_5B) === Cat(io.xgmii_d(7, 0), d_reg(63, 40))) && 
+            val crcOk = (~crc_rev(crc_32_5B) === Cat(io.xgmii_d(7, 0), dataReg(63, 40))) && 
                          is_tchar(io.xgmii_d(15, 8))
-            when(crc_ok) {
-              tuser_i := 1.U(1.W)
-              rx_statistics_vector_reg := Cat(len, 1.U(14.W))
+            when(crcOk) {
+              tuserNext:= 1.U(1.W)
+              rxStatisticsVectorReg := Cat(len, 1.U(14.W))
             }.otherwise {
-              rx_statistics_vector_reg := Cat(len, 0.U(14.W))
+              rxStatisticsVectorReg := Cat(len, 0.U(14.W))
             }
-            rx_statistics_valid_reg := true.B
+            rxStatisticsValidReg := true.B
             
-            fsm := State.IDLE
+            stateReg := State.IDLE
           }
           
           // Termination in lane 2 (byte 2) - T in lane 2
           is("hFC".U(8.W)) {
             len := len + 2.U
-            tkeep_i := "h3F".U(8.W)  // First 6 bytes valid
-            tvalid_d0 := false.B
-            tlast_i := true.B
+            tkeepI := "h3F".U(8.W)  // First 6 bytes valid
+            tvalidPipe0 := false.B
+            tlastNext := true.B
             
-            val crc_ok = (~crc_rev(crc_32_6B) === Cat(io.xgmii_d(15, 0), d_reg(63, 48))) && 
+            val crcOk = (~crc_rev(crc_32_6B) === Cat(io.xgmii_d(15, 0), d_reg(63, 48))) && 
                          is_tchar(io.xgmii_d(23, 16))
-            when(crc_ok) {
-              tuser_i := 1.U(1.W)
-              rx_statistics_vector_reg := Cat(len, 1.U(14.W))
+            when(crcOk) {
+              tuserNext:= 1.U(1.W)
+              rxStatisticsVectorReg := Cat(len, 1.U(14.W))
             }.otherwise {
-              rx_statistics_vector_reg := Cat(len, 0.U(14.W))
+              rxStatisticsVectorReg := Cat(len, 0.U(14.W))
             }
-            rx_statistics_valid_reg := true.B
+            rxStatisticsValidReg := true.B
             
-            fsm := State.IDLE
+            stateReg := State.IDLE
           }
           
           // Termination in lane 3 (byte 3) - T in lane 3
           is("hF8".U(8.W)) {
             len := len + 3.U
-            tkeep_i := "h7F".U(8.W)  // First 7 bytes valid
-            tvalid_d0 := false.B
-            tlast_i := true.B
+            tkeepI:= "h7F".U(8.W)  // First 7 bytes valid
+            tvalidPipe0 := false.B
+            tlastNext := true.B
             
-            val crc_ok = (~crc_rev(crc_32_7B) === Cat(io.xgmii_d(23, 0), d_reg(63, 56))) && 
+            val crcOk = (~crc_rev(crc_32_7B) === Cat(io.xgmii_d(23, 0), d_reg(63, 56))) && 
                          is_tchar(io.xgmii_d(31, 24))
-            when(crc_ok) {
-              tuser_i := 1.U(1.W)
-              rx_statistics_vector_reg := Cat(len, 1.U(14.W))
+            when(crcOk) {
+              tuserNext:= 1.U(1.W)
+              rxStatisticsVectorReg := Cat(len, 1.U(14.W))
             }.otherwise {
-              rx_statistics_vector_reg := Cat(len, 0.U(14.W))
+              rxStatisticsVectorReg := Cat(len, 0.U(14.W))
             }
-            rx_statistics_valid_reg := true.B
+            rxStatisticsValidReg := true.B
             
-            fsm := State.IDLE
+            stateReg := State.IDLE
           }
           
           // Termination in lane 4 (byte 4) - T in lane 4
           is("hF0".U(8.W)) {
             len := len + 4.U
-            tkeep_i := "hFF".U(8.W)  // All 8 bytes valid
-            tvalid_d0 := false.B
-            tlast_i := true.B
+            tkeepI:= "hFF".U(8.W)  // All 8 bytes valid
+            tvalidPipe0 := false.B
+            tlastNext := true.B
             
-            val crc_ok = (~crc_rev(crc_32) === io.xgmii_d(31, 0)) && 
+            val crcOk = (~crc_rev(crc_32) === io.xgmii_d(31, 0)) && 
                          is_tchar(io.xgmii_d(39, 32))
-            when(crc_ok) {
-              tuser_i := 1.U(1.W)
-              rx_statistics_vector_reg := Cat(len, 1.U(14.W))
+            when(crcOk) {
+              tuserNext:= 1.U(1.W)
+              rxStatisticsVectorReg := Cat(len, 1.U(14.W))
             }.otherwise {
-              rx_statistics_vector_reg := Cat(len, 0.U(14.W))
+              rxStatisticsVectorReg := Cat(len, 0.U(14.W))
             }
-            rx_statistics_valid_reg := true.B
+            rxStatisticsValidReg := true.B
             
-            fsm := State.IDLE
+            stateReg := State.IDLE
           }
           
           // Termination in lane 5 (byte 5) - T in lane 5
           is("hE0".U(8.W)) {
             len := len + 5.U
-            last_tkeep_i := "h01".U(8.W)  // Only byte 0 valid in next cycle?
-            rcved_crc := io.xgmii_d(39, 8)
-            calcted_crc := crc1B(crc_32, io.xgmii_d(7, 0))
-            chk_tchar := is_tchar(io.xgmii_d(47, 40))
-            fsm := State.FIN
+            lastTkeepI := "h01".U(8.W)  // Only byte 0 valid in next cycle?
+            receivedCrc := io.xgmii_d(39, 8)
+            calculatedCrc := crc1B(crc_32, io.xgmii_d(7, 0))
+            termCharValid := is_tchar(io.xgmii_d(47, 40))
+            stateReg := State.FIN
           }
           
           // Termination in lane 6 (byte 6) - T in lane 6
           is("hC0".U(8.W)) {
             len := len + 6.U
-            last_tkeep_i := "h03".U(8.W)  // First 2 bytes valid
-            rcved_crc := io.xgmii_d(47, 16)
-            calcted_crc := crc2B(crc_32, io.xgmii_d(15, 0))
-            chk_tchar := is_tchar(io.xgmii_d(55, 48))
-            fsm := State.FIN
+            lastTkeepI := "h03".U(8.W)  // First 2 bytes valid
+            receivedCrc := io.xgmii_d(47, 16)
+            calculatedCrc := crc2B(crc_32, io.xgmii_d(15, 0))
+            termCharValid := is_tchar(io.xgmii_d(55, 48))
+            stateReg := State.FIN
           }
           
           // Termination in lane 7 (byte 7) - T in lane 7
           is("h80".U(8.W)) {
-            len := len + 7.U
-            last_tkeep_i := "h07".U(8.W)  // First 3 bytes valid
-            rcved_crc := io.xgmii_d(55, 24)
-            calcted_crc := crc3B(crc_32, io.xgmii_d(23, 0))
-            chk_tchar := is_tchar(io.xgmii_d(63, 56))
-            fsm := State.FIN
+            receivedCrc    := io.xgmiiD(55, 24)
+            calculatedCrc  := crc3B(crc32, io.xgmiiD(23, 0))
+            termCharValid  := isTChar(io.xgmiiD(63, 56))
+            stateReg       := State.FIN
           }
           
           // Default case (error or unexpected control pattern)
           default {
-            tlast_i := true.B
-            tvalid_d0 := false.B
+            tlastNext := true.B
+            tvalidPipe0:= false.B
             tvalid_i := true.B
-            fsm := State.IDLE
+            stateReg := State.IDLE
             // Update stats with current tuser value
-            rx_statistics_vector_reg := Cat(len, tuser_i(0))
-            rx_statistics_valid_reg := true.B
+            rxStatisticsVectorReg := Cat(len, tuserNext(0))
+            rxStatisticsValidReg := true.B
           }
         }
       }
@@ -436,23 +412,8 @@ switch(fsm) {
       // Note: Other states (ST_LANE4, FIN, etc.) would be implemented similarly
       // For brevity, showing only the states from the provided code
       
-      is(State.FIN) {
-        // FIN state implementation would go here
-        // Check CRC and update statistics
-        val crc_ok = (rcved_crc === calcted_crc) && chk_tchar
-        when(crc_ok) {
-          tuser_i := 1.U(1.W)
-        }
-        tlast_i := true.B
-        tkeep_i := last_tkeep_i
-        tvalid_d0 := false.B
-        // Update statistics
-        rx_statistics_vector_reg := Cat(len, crc_ok.asUInt, 0.U(13.W))
-        rx_statistics_valid_reg := true.B
-        fsm := State.IDLE
-      }
-      
-      // Other states would be defined here...
+  
+      // need to add the remaining sates here 
     }
   }
   
@@ -460,80 +421,37 @@ switch(fsm) {
   // Output connections
   ////////////////////////////////////////////////
   
-  io.good_frames := good_frames_reg
-  io.bad_frames := bad_frames_reg
-  io.rx_statistics_vector := rx_statistics_vector_reg
-  io.rx_statistics_valid := rx_statistics_valid_reg
-  io.tdata := tdata_reg
-  io.tkeep := tkeep_reg
-  io.tvalid := tvalid_reg
-  io.tlast := tlast_reg
-  io.tuser := tuser_reg
-  // Add to the existing FSM switch statement
-switch(fsm) {
-  // ... existing states (SRES, IDLE, ST_LANE0) ...
-  
-  is(State.FIN) {
-    tkeep_i := last_tkeep_i
-    tlast_i := true.B
-    tvalid_d0 := false.B
-    crc_32 := CRC802_3_PRESET
-    
-    // Check CRC and termination character
-    val crc_ok = (~crc_rev(calcted_crc) === rcved_crc) && chk_tchar
-    when(crc_ok) {
-      tuser_i := 1.U(1.W)
-      set_stats(len, true.B)
-    }.otherwise {
-      set_stats(len, false.B)
-    }
-    
-    // Check for next frame start
-    when(sof_lane4(io.xgmii_d, io.xgmii_c)) {
-      fsm := State.ST_LANE4
-    }.otherwise {
-      fsm := State.IDLE
-    }
-  }
-  
-  is(State.ST_LANE4) {
-    // Frame starts at lane 4 (4-byte shifted)
-    len := 4.U
-    tlast_i := false.B
-    tuser_i := 0.U
-    
-    // Process the first 4 bytes from lanes 4-7
-    crc_32 := crc4B(crc_32, io.xgmii_d(63, 32))
-    aux_dw := io.xgmii_d(63, 32)
-    
-    // Check if there are more bytes to process
-    when(io.xgmii_c === 0.U) {
-      // No control characters, continue processing
-      fsm := State.D_LANE4
-    }.otherwise {
-      fsm := State.IDLE
-    }
-  }
+  io.goodFrames          := goodFramesReg
+  io.badFrames           := badFramesReg
+  io.rxStatisticsVector  := rxStatisticsVectorReg
+  io.rxStatisticsValid   := rxStatisticsValidReg
+  io.tdata               := tdataReg
+  io.tkeep               := tkeepReg
+  io.tvalid              := tvalidReg
+  io.tlast               := tlastReg
+  io.tuser               := tuserReg
+
+
   
   is(State.D_LANE4) {
     // Process data for lane 4 start frames
     // Realign data: take current lower 4 bytes and previous upper 4 bytes
-    tdata_d0 := Cat(io.xgmii_d(31, 0), aux_dw)
-    tvalid_d0 := true.B
-    tkeep_i := "hFF".U(8.W)
-    aux_dw := io.xgmii_d(63, 32)
-    d_reg := io.xgmii_d
-    c_reg := io.xgmii_c
+    tdata_d0 := Cat(io.xgmiiD(31, 0), auxDw)
+    tvalidPipe0 := true.B
+    tkeepI := "hFF".U(8.W)
+    auxDw := io.xgmii_d(63, 32)
+    dataReg := io.xgmiiD
+    ctrlReg := io.xgmiiC
     
     // Update CRC with full 64-bit word
-    crc_32 := crc8B(crc_32, io.xgmii_d)
-    crc_32_4B := crc4B(crc_32, io.xgmii_d(31, 0))
-    crc_32_5B := crc5B(crc_32, io.xgmii_d(39, 0))
-    crc_32_6B := crc6B(crc_32, io.xgmii_d(47, 0))
-    crc_32_7B := crc7B(crc_32, io.xgmii_d(55, 0))
+    crc32 := crc8B(crc32, io.xgmiiD)
+    crc32_4B := crc4B(crc32, io.xgmiiD(31, 0))
+    crc32_5B := crc5B(crc32, io.xgmiiD(39, 0))
+    crc32_6B := crc6B(crc32, io.xgmiiD(47, 0))
+    crc32_7B := crc7B(crc32, io.xgmiiD(55, 0))
     
     // Handle termination based on control character pattern
-    switch(io.xgmii_c) {
+    switch(io.xgmiiC) {
       // No termination - full 8 bytes of data
       is("h00".U(8.W)) {
         len := len + 8.U
@@ -543,220 +461,203 @@ switch(fsm) {
       // Termination in lane 0 (byte 0) - T in lane 0
       is("hFF".U(8.W)) {
         len := len  // No increment for termination byte
-        tvalid_d0 := false.B
-        tlast_i := true.B
+        tvalidPipe0 := false.B
+        tlastNext := true.B
         
         // Check CRC and termination character
-        val crc_ok = (~crc_rev(crc_32_4B) === d_reg(63, 32)) && is_tchar(io.xgmii_d(7, 0))
-        when(crc_ok) {
-          tuser_i := 1.U(1.W)
-          set_stats(len, true.B)
+        val crcOk = (~crc_rev(crc32_4B) === dataReg(63, 32)) && is_tchar(io.xgmiiD(7, 0))
+        when(crcOk) {
+          tuserNext:= 1.U(1.W)
+          setStats(len, true.B)
         }.otherwise {
-          set_stats(len, false.B)
+          setStats(len, false.B)
         }
         
-        fsm := State.IDLE
+        stateReg := State.IDLE
       }
       
       // Termination in lane 1 (byte 1) - T in lane 1
       is("hFE".U(8.W)) {
         len := len + 1.U
-        last_tkeep_i := "h01".U(8.W)
-        rcved_crc := Cat(io.xgmii_d(7, 0), aux_dw(31, 8))
-        calcted_crc := crc_32_5B
-        chk_tchar := is_tchar(io.xgmii_d(15, 8))
-        fsm := State.FINL4
+        lastTkeepI := "h01".U(8.W)
+        receivedCrc := Cat(io.xgmiiD(7, 0), auxDw(31, 8))
+        calculatedCrc := crc32_5B
+        termCharValid := isTchar(io.xgmiiD(15, 8))
+        stateReg := State.FINL4
       }
       
       // Termination in lane 2 (byte 2) - T in lane 2
       is("hFC".U(8.W)) {
         len := len + 2.U
-        last_tkeep_i := "h03".U(8.W)
-        rcved_crc := Cat(io.xgmii_d(15, 0), aux_dw(31, 16))
-        calcted_crc := crc_32_6B
-        chk_tchar := is_tchar(io.xgmii_d(23, 16))
-        fsm := State.FINL4
+        lastTkeepI := "h03".U(8.W)
+        receivedCrc := Cat(io.xgmiiD(15, 0), auxDw(31, 16))
+        calculatedCrc := crc32_6B
+        termCharValid := is_tchar(io.xgmiiD(23, 16))
+        stateReg := State.FINL4
       }
       
       // Termination in lane 3 (byte 3) - T in lane 3
       is("hF8".U(8.W)) {
         len := len + 3.U
-        last_tkeep_i := "h07".U(8.W)
-        rcved_crc := Cat(io.xgmii_d(23, 0), aux_dw(31, 24))
-        calcted_crc := crc_32_7B
-        chk_tchar := is_tchar(io.xgmii_d(31, 24))
-        fsm := State.FINL4
+        lastTkeepI := "h07".U(8.W)
+        receivedCrc := Cat(io.xgmiiD(23, 0), auxDw(31, 24))
+        calculatedCrc := crc32_7B
+        termCharValid := is_tchar(io.xgmiiD(31, 24))
+        stateReg := State.FINL4
       }
       
       // Termination in lane 4 (byte 4) - T in lane 4
       is("hF0".U(8.W)) {
         len := len + 4.U
-        last_tkeep_i := "h0F".U(8.W)
-        rcved_crc := io.xgmii_d(31, 0)
-        calcted_crc := crc_32
-        chk_tchar := is_tchar(io.xgmii_d(39, 32))
-        fsm := State.FIN
+        lastTkeepI := "h0F".U(8.W)
+        receivedCrc := io.xgmiiD(31, 0)
+        calculatedCrc := crc32
+        termCharValid := is_tchar(io.xgmiiD(39, 32))
+        stateReg := State.FIN
       }
       
       // Termination in lane 5 (byte 5) - T in lane 5
       is("hE0".U(8.W)) {
         len := len + 5.U
-        last_tkeep_i := "h1F".U(8.W)
-        rcved_crc := io.xgmii_d(39, 8)
-        calcted_crc := crc1B(crc_32, io.xgmii_d(7, 0))
-        chk_tchar := is_tchar(io.xgmii_d(47, 40))
-        fsm := State.FIN
+        lastTkeepI := "h1F".U(8.W)
+        receivedCrc := io.xgmiiD(39, 8)
+        calculatedCrc := crc1B(crc32, io.xgmiiD(7, 0))
+        termCharValid := is_tchar(io.xgmiiD(47, 40))
+        stateReg := State.FIN
       }
       
       // Termination in lane 6 (byte 6) - T in lane 6
       is("hC0".U(8.W)) {
         len := len + 6.U
-        last_tkeep_i := "h3F".U(8.W)
-        rcved_crc := io.xgmii_d(47, 16)
-        calcted_crc := crc2B(crc_32, io.xgmii_d(15, 0))
-        chk_tchar := is_tchar(io.xgmii_d(55, 48))
-        fsm := State.FIN
+        lastTkeepI := "h3F".U(8.W)
+        receivedCrc := io.xgmiiD(47, 16)
+        calculatedCrc := crc2B(crc32, io.xgmiiD(15, 0))
+        termCharValid := is_tchar(io.xgmiiD(55, 48))
+        stateReg := State.FIN
       }
       
       // Termination in lane 7 (byte 7) - T in lane 7
       is("h80".U(8.W)) {
-        len := len + 7.U
-        last_tkeep_i := "h7F".U(8.W)
-        rcved_crc := io.xgmii_d(55, 24)
-        calcted_crc := crc3B(crc_32, io.xgmii_d(23, 0))
-        chk_tchar := is_tchar(io.xgmii_d(63, 56))
-        fsm := State.FIN
+        receivedCrc    := io.xgmiiD(55, 24)
+        calculatedCrc  := crc3B(crc32, io.xgmiiD(23, 0))
+        termCharValid  := isTChar(io.xgmiiD(63, 56))
+        stateReg       := State.FIN
       }
       
       // Default case (error or unexpected control pattern)
       default {
-        tlast_i := true.B
-        tvalid_d0 := false.B
+        tlastNext := true.B
+        tvalidPipe0 := false.B
         tvalid_i := true.B
-        fsm := State.IDLE
-        set_stats(len, tuser_i(0).asBool)
+        stateReg := State.IDLE
+        setStats(len, tuserNext(0).asBool)
       }
     }
   }
   
-  is(State.FINL4) {
-    len := 0.U
-    tkeep_i := last_tkeep_i
-    tlast_i := true.B
-    tvalid_d0 := false.B
-    crc_32 := CRC802_3_PRESET
-    
-    // Check CRC and termination character for lane 4 start frames
-    val crc_ok = (~crc_rev(calcted_crc) === rcved_crc) && chk_tchar
-    when(crc_ok) {
-      tuser_i := 1.U(1.W)
-      set_stats(len, true.B)
-    }.otherwise {
-      set_stats(len, false.B)
-    }
-    
-    // Check for next frame start
-    when(sof_lane0(io.xgmii_d, io.xgmii_c)) {
-      fsm := State.ST_LANE0
-    }.elsewhen(sof_lane4(io.xgmii_d, io.xgmii_c)) {
-      fsm := State.ST_LANE4
-    }.otherwise {
-      fsm := State.IDLE
-    }
-  }
+
   
   // Default case for unexpected state
   is(State.s7) {
-    fsm := State.IDLE
+    stateReg := State.IDLE
   }
   
   // Add default case for completeness
   default {
-    fsm := State.IDLE
+    stateReg := State.IDLE
   }
 }
 
-// Implement the set_stats function as a method
-def set_stats(bcount: UInt, crc_ok: Bool): Unit = {
-  rx_statistics_valid_reg := true.B
-  
-  // Define statistics bit positions (from xgmii_includes.vh)
-  // These would typically be in a companion object or separate file
-  val STAT_RX_SMALL = 0
-  val STAT_RX_UNDERSIZE = 1
-  val STAT_RX_FRAGMENT = 2
-  val STAT_RX_64B = 3
-  val STAT_RX_65_127B = 4
-  val STAT_RX_128_255B = 5
-  val STAT_RX_256_511B = 6
-  val STAT_RX_512_1023B = 7
-  val STAT_RX_1024_1518B = 8
-  val STAT_RX_1519_1522B = 9
-  val STAT_RX_1523_1548B = 10
-  val STAT_RX_1549_2047B = 11
-  val STAT_RX_2048_MAX = 12
-  val STAT_RX_GOOD_PKT = 13
-  val STAT_RX_OVERSIZE = 14
-  val STAT_RX_JABBER = 15
-  val STAT_RX_OCTETS_HIGH = 16
-  val STAT_RX_OCTETS_LOW = 30  // Actually bits 16:29 for octet count
-  
-  // Clear the vector first
-  val new_stats_vec = WireInit(0.U(30.W))
-  
-  // Set statistics based on byte count
+
+def setStats(bcount: UInt, crcOk: Bool): Unit = {
+ // Register indicating RX statistics are valid
+  rxStatisticsValidReg := true.B
+
+  // RX statistics bit positions
+  val StatRxSmall        = 0
+  val StatRxUndersize    = 1
+  val StatRxFragment     = 2
+  val StatRx64B          = 3
+  val StatRx65to127B     = 4
+  val StatRx128to255B    = 5
+  val StatRx256to511B    = 6
+  val StatRx512to1023B   = 7
+  val StatRx1024to1518B  = 8
+  val StatRx1519to1522B  = 9
+  val StatRx1523to1548B  = 10
+  val StatRx1549to2047B  = 11
+  val StatRx2048toMax    = 12
+  val StatRxGoodPkt      = 13
+  val StatRxOversize     = 14
+  val StatRxJabber       = 15
+  val StatRxOctetsHigh   = 16
+  val StatRxOctetsLow    = 30
+
+  // Working statistics vector
+  val newStatsVec = WireInit(0.U(30.W))
+
   when(bcount < 64.U) {
-    new_stats_vec := new_stats_vec | (1.U << STAT_RX_SMALL)
-    when(crc_ok) {
-      new_stats_vec := new_stats_vec | (1.U << STAT_RX_UNDERSIZE)
+    newStatsVec := newStatsVec | (1.U << StatRxSmall)
+    when(crcOk) {
+      newStatsVec := newStatsVec | (1.U << StatRxUndersize)
     }.otherwise {
-      new_stats_vec := new_stats_vec | (1.U << STAT_RX_FRAGMENT)
+      newStatsVec := newStatsVec | (1.U << StatRxFragment)
     }
+
   }.elsewhen(bcount === 64.U) {
-    new_stats_vec := new_stats_vec | (1.U << STAT_RX_64B)
-  }.elsewhen(bcount > 64.U && bcount <= 127.U) {
-    new_stats_vec := new_stats_vec | (1.U << STAT_RX_65_127B)
-  }.elsewhen(bcount > 127.U && bcount <= 255.U) {
-    new_stats_vec := new_stats_vec | (1.U << STAT_RX_128_255B)
-  }.elsewhen(bcount > 255.U && bcount <= 511.U) {
-    new_stats_vec := new_stats_vec | (1.U << STAT_RX_256_511B)
-  }.elsewhen(bcount > 511.U && bcount <= 1023.U) {
-    new_stats_vec := new_stats_vec | (1.U << STAT_RX_512_1023B)
-  }.elsewhen(bcount > 1023.U && bcount <= 1518.U) {
-    new_stats_vec := new_stats_vec | (1.U << STAT_RX_1024_1518B)
-  }.elsewhen(bcount > 1518.U && bcount <= 1522.U) {
-    new_stats_vec := new_stats_vec | (1.U << STAT_RX_1519_1522B)
-  }.elsewhen(bcount > 1522.U && bcount <= 1548.U) {
-    new_stats_vec := new_stats_vec | (1.U << STAT_RX_1523_1548B)
-  }.elsewhen(bcount > 1548.U && bcount <= 2047.U) {
-    new_stats_vec := new_stats_vec | (1.U << STAT_RX_1549_2047B)
-  }.elsewhen(bcount > 2047.U) {
-    // Using RX_MTU constant (would be defined elsewhere)
-    val RX_MTU = 16384.U  // Example value
-    when(bcount <= RX_MTU) {
-      new_stats_vec := new_stats_vec | (1.U << STAT_RX_2048_MAX)
+    newStatsVec := newStatsVec | (1.U << StatRx64B)
+
+  }.elsewhen(bcount <= 127.U) {
+    newStatsVec := newStatsVec | (1.U << StatRx65to127B)
+
+  }.elsewhen(bcount <= 255.U) {
+    newStatsVec := newStatsVec | (1.U << StatRx128to255B)
+
+  }.elsewhen(bcount <= 511.U) {
+    newStatsVec := newStatsVec | (1.U << StatRx256to511B)
+
+  }.elsewhen(bcount <= 1023.U) {
+    newStatsVec := newStatsVec | (1.U << StatRx512to1023B)
+
+  }.elsewhen(bcount <= 1518.U) {
+    newStatsVec := newStatsVec | (1.U << StatRx1024to1518B)
+
+  }.elsewhen(bcount <= 1522.U) {
+    newStatsVec := newStatsVec | (1.U << StatRx1519to1522B)
+
+  }.elsewhen(bcount <= 1548.U) {
+    newStatsVec := newStatsVec | (1.U << StatRx1523to1548B)
+
+  }.elsewhen(bcount <= 2047.U) {
+    newStatsVec := newStatsVec | (1.U << StatRx1549to2047B)
+
+  }.otherwise {
+    val rxMtu = 16384.U
+    when(bcount <= rxMtu) {
+      newStatsVec := newStatsVec | (1.U << StatRx2048toMax)
     }
   }
-  
-  // Set good packet flag if CRC is OK
-  when(crc_ok) {
-    new_stats_vec := new_stats_vec | (1.U << STAT_RX_GOOD_PKT)
+
+  // Good packet indicator
+  when(crcOk) {
+    newStatsVec := newStatsVec | (1.U << StatRxGoodPkt)
   }
-  
-  // Handle oversize/jabber for packets > 1518 bytes
+
+  // Oversize / jabber classification
   when(bcount > 1518.U) {
-    when(crc_ok) {
-      new_stats_vec := new_stats_vec | (1.U << STAT_RX_OVERSIZE)
+    when(crcOk) {
+      newStatsVec := newStatsVec | (1.U << StatRxOversize)
     }.otherwise {
-      new_stats_vec := new_stats_vec | (1.U << STAT_RX_JABBER)
+      newStatsVec := newStatsVec | (1.U << StatRxJabber)
     }
   }
-  
-  // Set octet count (14 bits in the vector)
-  val octet_bits = bcount(13, 0)  // Use lower 14 bits of byte count
-  new_stats_vec := new_stats_vec | (octet_bits << STAT_RX_OCTETS_HIGH)
-  
-  // Update the statistics vector register
-  rx_statistics_vector_reg := new_stats_vec
-}
+
+  // Octet count (lower 14 bits)
+  val octetBits = bcount(13, 0)
+  newStatsVec := newStatsVec | (octetBits << StatRxOctetsHigh)
+
+ 
+  rxStatisticsVectorReg := newStatsVec
+ val _macImportTest = MAC_PREAMBLE
+
 }

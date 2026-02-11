@@ -106,28 +106,28 @@ object PcsTxInterface {
   ))
 }
 
-object Main extends App {
-  val mainClassName = "Nfmac10g"
-  val coreDir = s"modules/${mainClassName.toLowerCase()}"
-  PcsTxInterfaceParams.synConfigMap.foreach { case (configName, p) =>
-    println(s"Generating Verilog for config: $configName")
-    ChiselStage.emitSystemVerilog(
-      new PcsTxInterface(
-        dataW = p.dataW, hdrW = p.hdrW, gbxIfEn = p.gbxIfEn, bitReverse = p.bitReverse,
-        scramblerDisable = p.scramblerDisable, prbs31En = p.prbs31En, serdesPipeline = p.serdesPipeline
-      ),
-      firtoolOpts = Array(
-        "--lowering-options=disallowLocalVariables,disallowPackedArrays",
-        "--disable-all-randomization",
-        "--strip-debug-info",
-        "--split-verilog",
-        s"-o=${coreDir}/generated/synTestCases/$configName"
-      )
-    )
-    // Synthesis collateral generation
-    sdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-    YosysTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
-    StaTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
-    RunScriptFile.create(mainClassName, PcsTxInterfaceParams.synConfigs, s"${coreDir}/generated/synTestCases")
-  }
-}
+// object Main extends App {
+//   val mainClassName = "Nfmac10g"
+//   val coreDir = s"modules/${mainClassName.toLowerCase()}"
+//   PcsTxInterfaceParams.synConfigMap.foreach { case (configName, p) =>
+//     println(s"Generating Verilog for config: $configName")
+//     ChiselStage.emitSystemVerilog(
+//       new PcsTxInterface(
+//         dataW = p.dataW, hdrW = p.hdrW, gbxIfEn = p.gbxIfEn, bitReverse = p.bitReverse,
+//         scramblerDisable = p.scramblerDisable, prbs31En = p.prbs31En, serdesPipeline = p.serdesPipeline
+//       ),
+//       firtoolOpts = Array(
+//         "--lowering-options=disallowLocalVariables,disallowPackedArrays",
+//         "--disable-all-randomization",
+//         "--strip-debug-info",
+//         "--split-verilog",
+//         s"-o=${coreDir}/generated/synTestCases/$configName"
+//       )
+//     )
+//     // Synthesis collateral generation
+//     sdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
+//     YosysTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
+//     StaTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
+//     RunScriptFile.create(mainClassName, PcsTxInterfaceParams.synConfigs, s"${coreDir}/generated/synTestCases")
+//   }
+// }

@@ -20,6 +20,7 @@ class Xgmii2Axis extends Module {
     // XGMII input
     val xgmii_d = Input(UInt(64.W))
     val xgmii_c = Input(UInt(8.W))
+    val tready = Input(Bool())
     
     // AXIS output
     val aresetn = Input(Bool())

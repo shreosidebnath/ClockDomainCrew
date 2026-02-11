@@ -33,8 +33,8 @@ class PcsTxInterfaceTb(val p: PcsTxInterfaceParams) extends Module {
     serdesPipeline = p.serdesPipeline
   ))
 
-  dut.io.clk := io.clk
-  dut.io.rst := io.rst
+  dut.clock := io.clk
+  dut.reset := io.rst
   dut.io.encoded_tx_data := io.encoded_tx_data
   dut.io.encoded_tx_data_valid := io.encoded_tx_data_valid
   dut.io.encoded_tx_hdr := io.encoded_tx_hdr

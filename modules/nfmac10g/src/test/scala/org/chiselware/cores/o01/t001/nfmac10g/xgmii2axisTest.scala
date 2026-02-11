@@ -1,5 +1,7 @@
 package org.chiselware.cores.o01.t001.nfmac10g
 
+import org.chiselware.cores.o01.t001.nfmac10g.bfm._
+
 import chisel3._
 import chiseltest._
 import firrtl2.options.TargetDirAnnotation
@@ -21,29 +23,12 @@ class Xgmii2AxisTest extends AnyFlatSpec with Matchers with ChiselScalatestTeste
   // Create a directory for storing the Scala coverage reports
   new File("generated/scalaCoverage").mkdirs()
 
-  private type AxisBeat = (BigInt, Int, Boolean, BigInt)
   private val idleWord: BigInt = BigInt("0707070707070707", 16)
 
   /** Helper: drive XGMII word */
   private def driveXgmii(dut: Xgmii2AxisTb, data: BigInt, ctrl: Int): Unit = {
     dut.io.xgmii_d.poke(data.U(64.W))
     dut.io.xgmii_c.poke(ctrl.U(8.W))
-   }
-
-  /** Helper: collect AXIS beats for N cycles */
-  private def collectAxis(dut: Xgmii2AxisTb, n: Int): Seq[AxisBeat] = {
-    val out = ArrayBuffer.empty[AxisBeat]
-    for (_ <- 0 until n) {
-      if (dut.io.tvalid.peek().litToBoolean) {
-        val data = dut.io.tdata.peek().litValue
-        val keep = dut.io.tkeep.peek().litValue.toInt
-        val last = dut.io.tlast.peek().litToBoolean
-        val user = dut.io.tuser.peek().litValue
-        out += ((data, keep, last, user))
-      }
-      dut.clock.step(1)
-    }
-    out.toSeq
   }
 
   private def defineTests(configName: String, p: Xgmii2AxisParams): Unit = {
@@ -77,6 +62,19 @@ class Xgmii2AxisTest extends AnyFlatSpec with Matchers with ChiselScalatestTeste
         dut.io.aresetn.poke(true.B)
         dut.clock.step(5)
 
+        // AXIS sink BFM (TB drives tready + captures beats on handshake)
+        val sink = new AxisSinkBfm(
+          tvalid = dut.io.tvalid,
+          tready = dut.io.tready,
+          tdata  = dut.io.tdata,
+          tkeep  = dut.io.tkeep,
+          tlast  = dut.io.tlast,
+          tuser  = dut.io.tuser,
+          clock  = dut.clock,
+          stallProbability = 0.0 // try 0.0 first
+        )
+        sink.init()
+
         // -----------------------
         // 2) Drive a simple frame
         // -----------------------
@@ -105,19 +103,18 @@ class Xgmii2AxisTest extends AnyFlatSpec with Matchers with ChiselScalatestTeste
         // -----------------------
         // 3) Collect AXIS output
         // -----------------------
-        val collected = collectAxis(dut, 30)
+        sink.step(30)
+        val frames = sink.popAllFrames()
 
         // -----------------------
         // 4) Basic assertions
         // -----------------------
-        collected.nonEmpty shouldBe true
-        collected.exists(_._3) shouldBe true // saw tlast
+        frames.nonEmpty shouldBe true
+        info(s"Captured ${frames.size} AXIS frames")
+        val first = frames.head
 
         // Print for bring-up
-        info(s"Collected ${collected.size} AXIS beats")
-        collected.zipWithIndex.foreach { case ((data, keep, last, user), i) =>
-          info(f"Beat $i: data=0x$data%016x keep=0x$keep%02x last=$last user=$user")
-        }
+        info(s"Frame has ${first.beats.size} beats; last beat keep=0x${first.beats.last.keep.toHexString}")
       }
     }
   }

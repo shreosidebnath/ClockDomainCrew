@@ -92,6 +92,7 @@ class RxTest extends AnyFlatSpec with Matchers with ChiselScalatestTester {
         //   [b7 b6 b5 b4 b3 b2 b1 b0]
         // Here b0 is bits(7,0).
         //
+        val rng = new Random(0xC0FFEE) // stable seed
         val start = 0xFB
         val payload56 = BigInt(56, rng) // 7 bytes
         val word0 = (payload56 << 8) | BigInt(start) // payload in b7..b1, S in b0
@@ -101,7 +102,6 @@ class RxTest extends AnyFlatSpec with Matchers with ChiselScalatestTester {
         dut.clock.step(1)
 
         // Word 1: full data
-        val rng = new Random(0xC0FFEE) // stable seed
         def randWord64(): BigInt = BigInt(64, rng) // [0, 2^64)
         val word1 = randWord64()
         driveXgmii(dut, word1, 0x00)

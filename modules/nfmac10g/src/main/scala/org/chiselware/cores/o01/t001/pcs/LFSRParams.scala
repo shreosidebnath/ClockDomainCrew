@@ -4,7 +4,7 @@ import chisel3.util._
 import scala.collection.mutable.LinkedHashMap
 import java.io.{File, PrintWriter}
 
-case class LFSRParams(
+case class LfsrParams(
   lfsrW: Int = 31,
   lfsrPoly: BigInt = 0x10000001L,
   lfsrGalois: Boolean = false,
@@ -15,13 +15,13 @@ case class LFSRParams(
   dataOutEn: Boolean = true
 )
 
-object LFSRParams {
-  val simConfigMap = LinkedHashMap[String, LFSRParams](
-    "config" -> LFSRParams()
+object LfsrParams {
+  val simConfigMap = LinkedHashMap[String, LfsrParams](
+    "config" -> LfsrParams()
   )
 
-  val synConfigMap = LinkedHashMap[String, LFSRParams](
-    "descrambler_inst" -> LFSRParams(
+  val synConfigMap = LinkedHashMap[String, LfsrParams](
+    "descrambler_inst" -> LfsrParams(
       lfsrW            = 58,
       lfsrPoly         = BigInt("8000000001", 16),
       lfsrGalois       = false,
@@ -31,7 +31,7 @@ object LFSRParams {
       dataInEn        = true,
       dataOutEn       = true
     ),
-    "prbs31_check_inst" -> LFSRParams(
+    "prbs31_check_inst" -> LfsrParams(
       lfsrW            = 31,
       lfsrPoly         = BigInt("10000001", 16),
       lfsrGalois       = false,
@@ -41,7 +41,7 @@ object LFSRParams {
       dataInEn        = true,
       dataOutEn       = true
     ),
-    "scrambler_inst" -> LFSRParams(
+    "scrambler_inst" -> LfsrParams(
       lfsrW            = 58,
       lfsrPoly         = BigInt("8000000001", 16),
       lfsrGalois       = false,
@@ -51,7 +51,7 @@ object LFSRParams {
       dataInEn        = true,
       dataOutEn       = true
     ),
-    "prbs31_gen_inst" -> LFSRParams(
+    "prbs31_gen_inst" -> LfsrParams(
       lfsrW            = 31,
       lfsrPoly         = BigInt("10000001", 16),
       lfsrGalois       = false,
@@ -66,14 +66,14 @@ object LFSRParams {
   val synConfigs = synConfigMap.keys.mkString(" ")
 }
 
-object sdcFile {
-  def create(sdcFilePath: String): Unit = {
-    val sdcFileData = ""
-    val sdcFileDir = new File(sdcFilePath)
-    sdcFileDir.mkdirs()
-    val sdcFileName = new File(s"$sdcFilePath/LFSR.sdc")
-    val sdcFile = new PrintWriter(sdcFileName)
-    sdcFile.write(sdcFileData)
-    sdcFile.close()
-  }
-}
+// object sdcFile {
+//   def create(sdcFilePath: String): Unit = {
+//     val sdcFileData = ""
+//     val sdcFileDir = new File(sdcFilePath)
+//     sdcFileDir.mkdirs()
+//     val sdcFileName = new File(s"$sdcFilePath/Lfsr.sdc")
+//     val sdcFile = new PrintWriter(sdcFileName)
+//     sdcFile.write(sdcFileData)
+//     sdcFile.close()
+//   }
+// }

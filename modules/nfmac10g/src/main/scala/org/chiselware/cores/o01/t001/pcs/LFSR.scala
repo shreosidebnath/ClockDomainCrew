@@ -5,7 +5,7 @@ import _root_.circt.stage.ChiselStage
 import org.chiselware.syn.{YosysTclFile, StaTclFile, RunScriptFile}
 import java.io.{File, PrintWriter}
 
-class LFSR(
+class Lfsr(
   val lfsrW: Int = 31,
   val lfsrPoly: BigInt = BigInt("10000001", 16),
   val lfsrGalois: Boolean = false,
@@ -150,37 +150,37 @@ class LFSR(
   io.data_out := data_out_wire.asUInt
 }
 
-object LFSR {
-  def apply(p: LFSRParams): LFSR = Module(new LFSR(
+object Lfsr {
+  def apply(p: LfsrParams): Lfsr = Module(new Lfsr(
     lfsrW = p.lfsrW, lfsrPoly = p.lfsrPoly, lfsrGalois = p.lfsrGalois,
     lfsrFeedForward = p.lfsrFeedForward, reverse = p.reverse, dataW = p.dataW,
     dataInEn = p.dataInEn, dataOutEn = p.dataOutEn
   ))
 }
 
-object Main extends App {
-  val mainClassName = "Nfmac10g"
-  val coreDir = s"modules/${mainClassName.toLowerCase()}"
-  LFSRParams.synConfigMap.foreach { case (configName, p) =>
-    println(s"Generating Verilog for config: $configName")
-    ChiselStage.emitSystemVerilog(
-      new LFSR(
-        lfsrW = p.lfsrW, lfsrPoly = p.lfsrPoly, lfsrGalois = p.lfsrGalois,
-        lfsrFeedForward = p.lfsrFeedForward, reverse = p.reverse, dataW = p.dataW,
-        dataInEn = p.dataInEn, dataOutEn = p.dataOutEn
-      ),
-      firtoolOpts = Array(
-        "--lowering-options=disallowLocalVariables,disallowPackedArrays",
-        "--disable-all-randomization",
-        "--strip-debug-info",
-        "--split-verilog",
-        s"-o=${coreDir}/generated/synTestCases/$configName"
-      )
-    )
-    // Synthesis collateral generation
-    sdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-    YosysTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
-    StaTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
-    RunScriptFile.create(mainClassName, LFSRParams.synConfigs, s"${coreDir}/generated/synTestCases")
-  }
-}
+// object Main extends App {
+//   val mainClassName = "Nfmac10g"
+//   val coreDir = s"modules/${mainClassName.toLowerCase()}"
+//   LfsrParams.synConfigMap.foreach { case (configName, p) =>
+//     println(s"Generating Verilog for config: $configName")
+//     ChiselStage.emitSystemVerilog(
+//       new Lfsr(
+//         lfsrW = p.lfsrW, lfsrPoly = p.lfsrPoly, lfsrGalois = p.lfsrGalois,
+//         lfsrFeedForward = p.lfsrFeedForward, reverse = p.reverse, dataW = p.dataW,
+//         dataInEn = p.dataInEn, dataOutEn = p.dataOutEn
+//       ),
+//       firtoolOpts = Array(
+//         "--lowering-options=disallowLocalVariables,disallowPackedArrays",
+//         "--disable-all-randomization",
+//         "--strip-debug-info",
+//         "--split-verilog",
+//         s"-o=${coreDir}/generated/synTestCases/$configName"
+//       )
+//     )
+//     // Synthesis collateral generation
+//     sdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
+//     YosysTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
+//     StaTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
+//     RunScriptFile.create(mainClassName, LfsrParams.synConfigs, s"${coreDir}/generated/synTestCases")
+//   }
+// }

@@ -48,6 +48,7 @@ class Xgmii2AxisTb() extends Module {
     dut.io.xgmii_d              := io.xgmii_d
     dut.io.xgmii_c              := io.xgmii_c
     dut.io.aresetn              := io.aresetn
+    dut.io.tready               := io.tready
 
     // Outputs from DUT
     io.good_frames        := dut.io.good_frames

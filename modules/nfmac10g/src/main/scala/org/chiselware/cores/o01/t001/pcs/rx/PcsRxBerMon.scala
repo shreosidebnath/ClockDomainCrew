@@ -6,8 +6,8 @@ import org.chiselware.syn.{YosysTclFile, StaTclFile, RunScriptFile}
 import java.io.{File, PrintWriter}
 
 class PcsRxBerMon(
-  val hdrW: Int = 2,
-  val count125Us: Double = 125000.0 / 6.4
+  val hdrW: Int = 2, // correct
+  val count125Us: Double = 125000.0 / 6.4 // correct
 ) extends Module {
   val io = IO(new Bundle {
     /*
@@ -83,9 +83,4 @@ class PcsRxBerMon(
     berCountReg  := 0.U
     timeCountReg := count125UsInt.U
   }
-}
-
-// Generate the Verilog to verify (Optional helper object)
-object TaxiEthPhy10gRxBerMon extends App {
-  emitVerilog(new TaxiEthPhy10gRxBerMon(), Array("--target-dir", "generated"))
 }

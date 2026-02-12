@@ -10,7 +10,7 @@ class PcsRxWatchdog(
   val hdrW: Int = 2,
   // FIXED: Force floating point division before casting to Int
   // 125000 / 6.4 = 19531.25 -> 19531
-  val count125us: Int = (125000.0 / 6.4).toInt 
+  val count125us: Double = (125000.0 / 6.4)
 ) extends Module {
   val io = IO(new Bundle {
     val serdes_rx_hdr = Input(UInt(hdrW.W))
@@ -27,10 +27,10 @@ class PcsRxWatchdog(
 
   // Constants
   val SYNC_CTRL = "b01".U(2.W)
-  
+  val count125UsInt = count125us.toInt
   // Registers
   // We use log2Ceil(count + 1) to ensure the width fits the exact count value
-  val time_count_reg = RegInit(count125us.U(log2Ceil(count125us + 1).W))
+  val time_count_reg = RegInit(count125UsInt.U(log2Ceil(count125UsInt + 1).W))
   val error_count_reg = RegInit(0.U(4.W))
   val status_count_reg = RegInit(0.U(4.W))
   
@@ -79,7 +79,7 @@ class PcsRxWatchdog(
     time_count_next := time_count_reg - 1.U
   } .otherwise {
     // Timer Expired: Reset timer
-    time_count_next := count125us.U
+    time_count_next := count125UsInt.U
 
     // Check interval health
     when (!saw_ctrl_sh_reg || block_error_count_reg.andR) {
@@ -128,27 +128,27 @@ object PcsRxWatchdog {
   ))
 }
 
-object Main extends App {
-  val mainClassName = "Nfmac10g"
-  val coreDir = s"modules/${mainClassName.toLowerCase()}"
-  PcsRxWatchdogParams.synConfigMap.foreach { case (configName, p) =>
-    println(s"Generating Verilog for config: $configName")
-    ChiselStage.emitSystemVerilog(
-      new PcsRxWatchdog(
-        hdrW = p.hdrW, count125us = p.count125us
-      ),
-      firtoolOpts = Array(
-        "--lowering-options=disallowLocalVariables,disallowPackedArrays",
-        "--disable-all-randomization",
-        "--strip-debug-info",
-        "--split-verilog",
-        s"-o=${coreDir}/generated/synTestCases/$configName"
-      )
-    )
-    // Synthesis collateral generation
-    sdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-    YosysTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
-    StaTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
-    RunScriptFile.create(mainClassName, PcsRxWatchdogParams.synConfigs, s"${coreDir}/generated/synTestCases")
-  }
-}
+// object Main extends App {
+//   val mainClassName = "Nfmac10g"
+//   val coreDir = s"modules/${mainClassName.toLowerCase()}"
+//   PcsRxWatchdogParams.synConfigMap.foreach { case (configName, p) =>
+//     println(s"Generating Verilog for config: $configName")
+//     ChiselStage.emitSystemVerilog(
+//       new PcsRxWatchdog(
+//         hdrW = p.hdrW, count125us = p.count125us
+//       ),
+//       firtoolOpts = Array(
+//         "--lowering-options=disallowLocalVariables,disallowPackedArrays",
+//         "--disable-all-randomization",
+//         "--strip-debug-info",
+//         "--split-verilog",
+//         s"-o=${coreDir}/generated/synTestCases/$configName"
+//       )
+//     )
+//     // Synthesis collateral generation
+//     sdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
+//     YosysTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
+//     StaTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
+//     RunScriptFile.create(mainClassName, PcsRxWatchdogParams.synConfigs, s"${coreDir}/generated/synTestCases")
+//   }
+// }

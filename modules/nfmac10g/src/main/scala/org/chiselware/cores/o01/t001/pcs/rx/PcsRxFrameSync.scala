@@ -6,9 +6,9 @@ import org.chiselware.syn.{YosysTclFile, StaTclFile, RunScriptFile}
 import java.io.{File, PrintWriter}
 
 class PcsRxFrameSync(
-  hdrW: Int = 2,
-  bitslipHighCycles: Int = 1,
-  bitslipLowCycles: Int = 7
+  hdrW: Int = 2, // correct
+  bitslipHighCycles: Int = 1, // Should be 0
+  bitslipLowCycles: Int = 7 // correct
 ) extends Module {
   
   // --------------------------------------------------------

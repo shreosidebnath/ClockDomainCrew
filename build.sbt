@@ -47,6 +47,6 @@ lazy val core = project
     coverageMinimumStmtTotal := 90,
     coverageMinimumBranchTotal := 95,
     publish / skip := true,
-    Compile / mainClass := Some("org.chiselware.cores.o01.t001.pcs.Main")
+    Compile / mainClass := Some("org.chiselware.cores.o01.t001.pcs.tx.Main")
   )
   .settings(commonSettings: _*)

@@ -1,4 +1,4 @@
-package org.chiselware.cores.o01.t001.pcs
+package org.chiselware.cores.o01.t001.pcs.tx
 import chisel3._
 import chisel3.util._
 import _root_.circt.stage.ChiselStage
@@ -9,36 +9,36 @@ import chisel3._
 import chisel3.util._
 
 class XgmiiEncoder(
-  val DATA_W: Int = 64,
-  val GBX_IF_EN: Boolean = false,
-  val GBX_CNT: Int = 1
+  val dataW: Int = 64,
+  val ctrlW: Int = 8,
+  val hdrW: Int = 2,
+  val gbxIfEn: Boolean = false,
+  val gbxCnt: Int = 1
 ) extends Module {
   
   // Parameter validations
-  require(DATA_W == 32 || DATA_W == 64, "Error: Interface width must be 32 or 64")
-  val CTRL_W = DATA_W / 8
-  val HDR_W = 2
+  require(dataW == 32 || dataW == 64, "Error: Interface width must be 32 or 64")
   
   val io = IO(new Bundle {
-    val xgmii_txd = Input(UInt(DATA_W.W))
-    val xgmii_txc = Input(UInt(CTRL_W.W))
+    val xgmii_txd = Input(UInt(dataW.W))
+    val xgmii_txc = Input(UInt(ctrlW.W))
     val xgmii_tx_valid = Input(Bool())
-    val tx_gbx_sync_in = Input(UInt(GBX_CNT.W))
+    val tx_gbx_sync_in = Input(UInt(gbxCnt.W))
 
-    val encoded_tx_data = Output(UInt(DATA_W.W))
+    val encoded_tx_data = Output(UInt(dataW.W))
     val encoded_tx_data_valid = Output(Bool())
-    val encoded_tx_hdr = Output(UInt(HDR_W.W))
+    val encoded_tx_hdr = Output(UInt(hdrW.W))
     val encoded_tx_hdr_valid = Output(Bool())
-    val tx_gbx_sync_out = Output(UInt(GBX_CNT.W))
+    val tx_gbx_sync_out = Output(UInt(gbxCnt.W))
 
     val tx_bad_block = Output(Bool())
   })
 
   // Internal Constants
-  val DATA_W_INT = 64
-  val CTRL_W_INT = 8
-  val USE_HDR_VLD = GBX_IF_EN || DATA_W != 64
-  val SEG_CNT = DATA_W_INT / DATA_W
+  val dataWInt = 64
+  val ctrlWInt = 8
+  val useHdrVld = gbxIfEn || dataW != 64
+  val segCnt = dataWInt / dataW
 
   // XGMII Control Codes
   val XGMII_IDLE   = 0x07.U(8.W)
@@ -90,48 +90,48 @@ class XgmiiEncoder(
   val BLOCK_TYPE_TERM_7   = 0xff.U(8.W)
 
   // --- Registers ---
-  val encoded_tx_data_reg = RegInit(0.U(DATA_W_INT.W))
-  val encoded_tx_data_valid_reg = RegInit(0.U(SEG_CNT.W))
-  val encoded_tx_hdr_reg = RegInit(0.U(HDR_W.W))
+  val encoded_tx_data_reg = RegInit(0.U(dataWInt.W))
+  val encoded_tx_data_valid_reg = RegInit(0.U(segCnt.W))
+  val encoded_tx_hdr_reg = RegInit(0.U(hdrW.W))
   val encoded_tx_hdr_valid_reg = RegInit(false.B)
-  val tx_gbx_sync_reg = RegInit(0.U(GBX_CNT.W))
+  val tx_gbx_sync_reg = RegInit(0.U(gbxCnt.W))
   val tx_bad_block_reg = RegInit(false.B)
 
   // Next state wires
-  val encoded_tx_data_next = Wire(UInt(DATA_W_INT.W))
-  val encoded_tx_data_valid_next = Wire(UInt(SEG_CNT.W))
-  val encoded_tx_hdr_next = Wire(UInt(HDR_W.W))
+  val encoded_tx_data_next = Wire(UInt(dataWInt.W))
+  val encoded_tx_data_valid_next = Wire(UInt(segCnt.W))
+  val encoded_tx_hdr_next = Wire(UInt(hdrW.W))
   val encoded_tx_hdr_valid_next = Wire(Bool())
-  val tx_gbx_sync_next = Wire(UInt(GBX_CNT.W))
+  val tx_gbx_sync_next = Wire(UInt(gbxCnt.W))
   val tx_bad_block_next = Wire(Bool())
 
   // --- Input Repacking Logic ---
-  val xgmii_txd_int = Wire(UInt(DATA_W_INT.W))
-  val xgmii_txc_int = Wire(UInt(CTRL_W_INT.W))
+  val xgmii_txd_int = Wire(UInt(dataWInt.W))
+  val xgmii_txc_int = Wire(UInt(ctrlWInt.W))
   val xgmii_tx_valid_int = Wire(Bool())
 
-  if (DATA_W == 64) {
+  if (dataW == 64) {
     xgmii_txd_int := io.xgmii_txd
     xgmii_txc_int := io.xgmii_txc
     xgmii_tx_valid_int := io.xgmii_tx_valid
   } else {
     // 32-bit accumulation logic
-    val xgmii_txd_reg = RegInit(0.U((DATA_W_INT - DATA_W).W))
-    val xgmii_txc_reg = RegInit(0.U((CTRL_W_INT - CTRL_W).W))
+    val xgmii_txd_reg = RegInit(0.U((dataWInt - dataW).W))
+    val xgmii_txc_reg = RegInit(0.U((ctrlWInt - ctrlW).W))
     val xgmii_tx_valid_reg = RegInit(false.B)
 
     xgmii_txd_int := Cat(io.xgmii_txd, xgmii_txd_reg)
     xgmii_txc_int := Cat(io.xgmii_txc, xgmii_txc_reg)
     
-    val valid_pulse = if (GBX_IF_EN) io.xgmii_tx_valid else true.B
+    val valid_pulse = if (gbxIfEn) io.xgmii_tx_valid else true.B
     xgmii_tx_valid_int := xgmii_tx_valid_reg && valid_pulse
 
-    when (!GBX_IF_EN.B || io.xgmii_tx_valid) {
+    when (!gbxIfEn.B || io.xgmii_tx_valid) {
       xgmii_txd_reg := io.xgmii_txd
       xgmii_txc_reg := io.xgmii_txc
       xgmii_tx_valid_reg := !xgmii_tx_valid_reg
       
-      if (GBX_IF_EN) {
+      if (gbxIfEn) {
         when(io.tx_gbx_sync_in(0)) {
           xgmii_tx_valid_reg := false.B
         }
@@ -140,8 +140,8 @@ class XgmiiEncoder(
   }
 
   // --- Control Code Encoding ---
-  val encoded_ctrl_vec = Wire(Vec(CTRL_W_INT, UInt(7.W)))
-  val encode_err_vec = Wire(Vec(CTRL_W_INT, Bool()))
+  val encoded_ctrl_vec = Wire(Vec(ctrlWInt, UInt(7.W)))
+  val encode_err_vec = Wire(Vec(ctrlWInt, Bool()))
 
   val xgmii_txd_bytes = Wire(Vec(8, UInt(8.W)))
   val xgmii_txc_bits  = Wire(Vec(8, Bool()))
@@ -151,7 +151,7 @@ class XgmiiEncoder(
     xgmii_txc_bits(i)  := xgmii_txc_int(i)
   }
 
-  for (i <- 0 until CTRL_W_INT) {
+  for (i <- 0 until ctrlWInt) {
     when (xgmii_txc_bits(i)) {
       encode_err_vec(i) := false.B
       encoded_ctrl_vec(i) := CTRL_ERROR 
@@ -196,23 +196,23 @@ class XgmiiEncoder(
   }
 
   // --- Main Combinatorial Logic ---
-  encoded_tx_data_next := Cat(Fill(CTRL_W_INT, CTRL_ERROR), BLOCK_TYPE_CTRL)
+  encoded_tx_data_next := Cat(Fill(ctrlWInt, CTRL_ERROR), BLOCK_TYPE_CTRL)
   encoded_tx_data_valid_next := 0.U
   encoded_tx_hdr_next := SYNC_CTRL
   encoded_tx_hdr_valid_next := false.B
   tx_gbx_sync_next := 0.U
   tx_bad_block_next := false.B
 
-  if (SEG_CNT > 1) {
-    val upper_half = encoded_tx_data_reg(DATA_W_INT - 1, DATA_W)
-    encoded_tx_data_next := Cat(0.U(DATA_W.W), upper_half)
-    encoded_tx_data_valid_next := Cat(false.B, encoded_tx_data_valid_reg(SEG_CNT - 1, 1))
+  if (segCnt > 1) {
+    val upper_half = encoded_tx_data_reg(dataWInt - 1, dataW)
+    encoded_tx_data_next := Cat(0.U(dataW.W), upper_half)
+    encoded_tx_data_valid_next := Cat(false.B, encoded_tx_data_valid_reg(segCnt - 1, 1))
     encoded_tx_hdr_next := 0.U
     encoded_tx_hdr_valid_next := false.B
   }
 
   when (xgmii_tx_valid_int) {
-    encoded_tx_data_valid_next := Fill(SEG_CNT, 1.U)
+    encoded_tx_data_valid_next := Fill(segCnt, 1.U)
     encoded_tx_hdr_valid_next := true.B
     
     when (xgmii_txc_int === 0.U) {
@@ -270,13 +270,13 @@ class XgmiiEncoder(
         encoded_tx_data_next := Cat(encoded_ctrl_flat, BLOCK_TYPE_CTRL)
         tx_bad_block_next := encode_err_flat =/= 0.U
       } .otherwise {
-        encoded_tx_data_next := Cat(Fill(CTRL_W_INT, CTRL_ERROR), BLOCK_TYPE_CTRL)
+        encoded_tx_data_next := Cat(Fill(ctrlWInt, CTRL_ERROR), BLOCK_TYPE_CTRL)
         tx_bad_block_next := true.B
       }
     }
   }
 
-  if (GBX_IF_EN) {
+  if (gbxIfEn) {
     when(!xgmii_tx_valid_int) {
       tx_bad_block_next := false.B
     }
@@ -291,9 +291,9 @@ class XgmiiEncoder(
   tx_gbx_sync_reg := tx_gbx_sync_next
   tx_bad_block_reg := tx_bad_block_next
 
-  io.encoded_tx_data := encoded_tx_data_reg(DATA_W - 1, 0)
+  io.encoded_tx_data := encoded_tx_data_reg(dataW - 1, 0)
   
-  if (GBX_IF_EN) {
+  if (gbxIfEn) {
     io.encoded_tx_data_valid := encoded_tx_data_valid_reg(0)
     io.tx_gbx_sync_out := tx_gbx_sync_reg
   } else {
@@ -303,7 +303,7 @@ class XgmiiEncoder(
 
   io.encoded_tx_hdr := encoded_tx_hdr_reg
   
-  if (USE_HDR_VLD) {
+  if (useHdrVld) {
     io.encoded_tx_hdr_valid := encoded_tx_hdr_valid_reg
   } else {
     io.encoded_tx_hdr_valid := true.B
@@ -315,31 +315,31 @@ class XgmiiEncoder(
 
 object XgmiiEncoder {
   def apply(p: XgmiiEncoderParams): XgmiiEncoder = Module(new XgmiiEncoder(
-    DATA_W = p.DATA_W, GBX_IF_EN = p.GBX_IF_EN, GBX_CNT = p.GBX_CNT
+    dataW = p.dataW, ctrlW = p.ctrlW, hdrW = p.hdrW, gbxIfEn = p.gbxIfEn, gbxCnt = p.gbxCnt
   ))
 } 
 
-object Main extends App {
-  val mainClassName = "Nfmac10g"
-  val coreDir = s"modules/${mainClassName.toLowerCase()}"
-  XgmiiEncoderParams.synConfigMap.foreach { case (configName, p) =>
-    println(s"Generating Verilog for config: $configName")
-    ChiselStage.emitSystemVerilog(
-      new XgmiiEncoder(
-        DATA_W = p.DATA_W, GBX_IF_EN = p.GBX_IF_EN, GBX_CNT = p.GBX_CNT
-      ),
-      firtoolOpts = Array(
-        "--lowering-options=disallowLocalVariables,disallowPackedArrays",
-        "--disable-all-randomization",
-        "--strip-debug-info",
-        "--split-verilog",
-        s"-o=${coreDir}/generated/synTestCases/$configName"
-      )
-    )
-    // Synthesis collateral generation
-    sdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-    YosysTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
-    StaTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
-    RunScriptFile.create(mainClassName, XgmiiEncoderParams.synConfigs, s"${coreDir}/generated/synTestCases")
-  }
-}
+// object Main extends App {
+//   val mainClassName = "Nfmac10g"
+//   val coreDir = s"modules/${mainClassName.toLowerCase()}"
+//   XgmiiEncoderParams.synConfigMap.foreach { case (configName, p) =>
+//     println(s"Generating Verilog for config: $configName")
+//     ChiselStage.emitSystemVerilog(
+//       new XgmiiEncoder(
+//         dataW = p.dataW, ctrlW = p.ctrlW, hdrW = p.hdrW, gbxIfEn = p.gbxIfEn, gbxCnt = p.gbxCnt
+//       ),
+//       firtoolOpts = Array(
+//         "--lowering-options=disallowLocalVariables,disallowPackedArrays",
+//         "--disable-all-randomization",
+//         "--strip-debug-info",
+//         "--split-verilog",
+//         s"-o=${coreDir}/generated/synTestCases/$configName"
+//       )
+//     )
+//     // Synthesis collateral generation
+//     sdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
+//     YosysTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
+//     StaTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
+//     RunScriptFile.create(mainClassName, XgmiiEncoderParams.synConfigs, s"${coreDir}/generated/synTestCases")
+//   }
+// }

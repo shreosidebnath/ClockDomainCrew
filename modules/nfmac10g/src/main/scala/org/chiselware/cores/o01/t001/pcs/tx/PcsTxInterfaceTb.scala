@@ -1,4 +1,4 @@
-package org.chiselware.cores.o01.t001.pcs
+package org.chiselware.cores.o01.t001.pcs.tx
 import chisel3._
 import chisel3.util._
 

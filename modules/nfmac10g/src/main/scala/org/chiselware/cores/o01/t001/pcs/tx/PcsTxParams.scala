@@ -1,0 +1,49 @@
+package org.chiselware.cores.o01.t001.pcs.tx
+import chisel3._
+import chisel3.util._
+import scala.collection.mutable.LinkedHashMap
+import java.io.{File, PrintWriter}
+
+case class PcsTxParams(
+    dataW: Int = 64,
+    ctrlW: Int = 8,
+    hdrW: Int = 2,
+    gbxIfEn: Boolean = false,
+    bitReverse: Boolean = false,
+    scramblerDisable: Boolean = false,
+    prbs31En: Boolean = false,
+    serdesPipeline: Int = 0
+)
+
+object PcsTxParams {
+  val simConfigMap = LinkedHashMap[String, PcsTxParams](
+    "config" -> PcsTxParams()
+  )
+
+  val synConfigMap = LinkedHashMap[String, PcsTxParams](
+    "pcs_tx_inst" -> PcsTxParams(
+      dataW             = 32,
+      ctrlW             = 4,
+      hdrW              = 2,
+      gbxIfEn           = true,
+      bitReverse        = true,
+      scramblerDisable  = false,
+      prbs31En          = false,
+      serdesPipeline    = 1
+    )
+  )
+
+  val synConfigs = synConfigMap.keys.mkString(" ")
+}
+
+object sdcFile {
+  def create(sdcFilePath: String): Unit = {
+    val sdcFileData = ""
+    val sdcFileDir = new File(sdcFilePath)
+    sdcFileDir.mkdirs()
+    val sdcFileName = new File(s"$sdcFilePath/PcsTx.sdc")
+    val sdcFile = new PrintWriter(sdcFileName)
+    sdcFile.write(sdcFileData)
+    sdcFile.close()
+  }
+}

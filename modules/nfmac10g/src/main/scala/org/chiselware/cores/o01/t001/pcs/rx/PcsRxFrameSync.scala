@@ -137,3 +137,34 @@ class PcsRxFrameSync(
   io.serdesRxBitslip := serdesRxBitslipReg
   io.rxBlockLock     := rxBlockLockReg
 }
+
+object PcsRxFrameSync {
+  def apply(p: PcsRxFrameSyncParams): PcsRxFrameSync = Module(new PcsRxFrameSync(
+    hdrW = p.hdrW, bitslipHighCycles = p.bitslipHighCycles, bitslipLowCycles = p.bitslipLowCycles
+  ))
+}
+
+// object Main extends App {
+//   val mainClassName = "Nfmac10g"
+//   val coreDir = s"modules/${mainClassName.toLowerCase()}"
+//   PcsRxFrameSyncParams.synConfigMap.foreach { case (configName, p) =>
+//     println(s"Generating Verilog for config: $configName")
+//     ChiselStage.emitSystemVerilog(
+//       new PcsRxFrameSync(
+//         hdrW = p.hdrW, bitslipHighCycles = p.bitslipHighCycles, bitslipLowCycles = p.bitslipLowCycles
+//       ),
+//       firtoolOpts = Array(
+//         "--lowering-options=disallowLocalVariables,disallowPackedArrays",
+//         "--disable-all-randomization",
+//         "--strip-debug-info",
+//         "--split-verilog",
+//         s"-o=${coreDir}/generated/synTestCases/$configName"
+//       )
+//     )
+//     // Synthesis collateral generation
+//     sdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
+//     YosysTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
+//     StaTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
+//     RunScriptFile.create(mainClassName, PcsRxWatchdogParams.synConfigs, s"${coreDir}/generated/synTestCases")
+//   }
+// }

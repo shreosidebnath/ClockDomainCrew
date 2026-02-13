@@ -5,10 +5,10 @@ import scala.collection.mutable.LinkedHashMap
 import java.io.{File, PrintWriter}
 
 case class XgmiiDecoderParams(
-  dataW: Int = 64,
-  ctrlW: Int = 8,
+  dataW: Int = 32,
+  ctrlW: Int = 4,
   hdrW: Int = 2,
-  gbxIfEn: Boolean = false,
+  gbxIfEn: Boolean = true,
 )
 
 object XgmiiDecoderParams {
@@ -28,14 +28,14 @@ object XgmiiDecoderParams {
   val synConfigs = synConfigMap.keys.mkString(" ")
 }
 
-object sdcFile {
-  def create(sdcFilePath: String): Unit = {
-    val sdcFileData = ""
-    val sdcFileDir = new File(sdcFilePath)
-    sdcFileDir.mkdirs()
-    val sdcFileName = new File(s"$sdcFilePath/XgmiiDecoder.sdc")
-    val sdcFile = new PrintWriter(sdcFileName)
-    sdcFile.write(sdcFileData)
-    sdcFile.close()
-  }
-}
+// object sdcFile {
+//   def create(sdcFilePath: String): Unit = {
+//     val sdcFileData = ""
+//     val sdcFileDir = new File(sdcFilePath)
+//     sdcFileDir.mkdirs()
+//     val sdcFileName = new File(s"$sdcFilePath/XgmiiDecoder.sdc")
+//     val sdcFile = new PrintWriter(sdcFileName)
+//     sdcFile.write(sdcFileData)
+//     sdcFile.close()
+//   }
+// }

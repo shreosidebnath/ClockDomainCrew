@@ -493,27 +493,27 @@ object XgmiiDecoder {
   ))
 } 
 
-object Main extends App {
-  val mainClassName = "Nfmac10g"
-  val coreDir = s"modules/${mainClassName.toLowerCase()}"
-  XgmiiDecoderParams.synConfigMap.foreach { case (configName, p) =>
-    println(s"Generating Verilog for config: $configName")
-    ChiselStage.emitSystemVerilog(
-      new XgmiiDecoder(
-        dataW = p.dataW, ctrlW = p.ctrlW, hdrW = p.hdrW, gbxIfEn = p.gbxIfEn
-      ),
-      firtoolOpts = Array(
-        "--lowering-options=disallowLocalVariables,disallowPackedArrays",
-        "--disable-all-randomization",
-        "--strip-debug-info",
-        "--split-verilog",
-        s"-o=${coreDir}/generated/synTestCases/$configName"
-      )
-    )
-    // Synthesis collateral generation
-    sdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-    YosysTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
-    StaTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
-    RunScriptFile.create(mainClassName, XgmiiDecoderParams.synConfigs, s"${coreDir}/generated/synTestCases")
-  }
-}
+// object Main extends App {
+//   val mainClassName = "Nfmac10g"
+//   val coreDir = s"modules/${mainClassName.toLowerCase()}"
+//   XgmiiDecoderParams.synConfigMap.foreach { case (configName, p) =>
+//     println(s"Generating Verilog for config: $configName")
+//     ChiselStage.emitSystemVerilog(
+//       new XgmiiDecoder(
+//         dataW = p.dataW, ctrlW = p.ctrlW, hdrW = p.hdrW, gbxIfEn = p.gbxIfEn
+//       ),
+//       firtoolOpts = Array(
+//         "--lowering-options=disallowLocalVariables,disallowPackedArrays",
+//         "--disable-all-randomization",
+//         "--strip-debug-info",
+//         "--split-verilog",
+//         s"-o=${coreDir}/generated/synTestCases/$configName"
+//       )
+//     )
+//     // Synthesis collateral generation
+//     sdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
+//     YosysTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
+//     StaTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
+//     RunScriptFile.create(mainClassName, XgmiiDecoderParams.synConfigs, s"${coreDir}/generated/synTestCases")
+//   }
+// }

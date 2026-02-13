@@ -84,3 +84,36 @@ class PcsRxBerMon(
     timeCountReg := count125UsInt.U
   }
 }
+
+
+
+object PcsRxBerMon {
+  def apply(p: PcsRxBerMonParams): PcsRxBerMon = Module(new PcsRxBerMon(
+    hdrW = p.hdrW, count125Us = p.count125Us
+  ))
+}
+
+// object Main extends App {
+//   val mainClassName = "Nfmac10g"
+//   val coreDir = s"modules/${mainClassName.toLowerCase()}"
+//   PcsRxBerMonParams.synConfigMap.foreach { case (configName, p) =>
+//     println(s"Generating Verilog for config: $configName")
+//     ChiselStage.emitSystemVerilog(
+//       new PcsRxBerMon(
+//         hdrW = p.hdrW, count125Us = p.count125Us
+//       ),
+//       firtoolOpts = Array(
+//         "--lowering-options=disallowLocalVariables,disallowPackedArrays",
+//         "--disable-all-randomization",
+//         "--strip-debug-info",
+//         "--split-verilog",
+//         s"-o=${coreDir}/generated/synTestCases/$configName"
+//       )
+//     )
+//     // Synthesis collateral generation
+//     sdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
+//     YosysTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
+//     StaTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
+//     RunScriptFile.create(mainClassName, PcsRxBerMonParams.synConfigs, s"${coreDir}/generated/synTestCases")
+//   }
+// }

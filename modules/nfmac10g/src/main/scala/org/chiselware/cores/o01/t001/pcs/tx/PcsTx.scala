@@ -42,7 +42,7 @@ class PcsTx(
   val tx_gbx_sync_int = Wire(Bool())
 
   // Encoder
-  val encoder = Module(new XgmiiEncoder(dataW, ctrlW, hdrW, gbxIfEn, 1))
+  val encoder = Module(new XgmiiEncoder(dataW=dataW, ctrlW=ctrlW, hdrW=hdrW, gbxIfEn=gbxIfEn, gbxCnt=1))
   encoder.clock := clock
   encoder.reset := reset
   encoder.io.xgmii_txd := io.xgmii_txd
@@ -60,7 +60,7 @@ class PcsTx(
 
   // TX Interface
   val tx_if = Module(new PcsTxInterface(
-    dataW, hdrW, gbxIfEn, bitReverse, scramblerDisable, prbs31En, serdesPipeline
+    dataW=dataW, hdrW=hdrW, gbxIfEn=gbxIfEn, bitReverse=bitReverse, scramblerDisable=scramblerDisable, prbs31En=prbs31En, serdesPipeline=serdesPipeline
   ))
   
   tx_if.clock := clock

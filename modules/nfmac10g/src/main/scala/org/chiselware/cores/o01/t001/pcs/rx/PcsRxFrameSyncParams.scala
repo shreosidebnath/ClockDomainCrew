@@ -4,18 +4,19 @@ import chisel3.util._
 import scala.collection.mutable.LinkedHashMap
 import java.io.{File, PrintWriter}
 
-case class PcsRxWatchdogParams(
+case class PcsRxFrameSyncParams(
   hdrW: Int = 2,
-  count125us: Double = 125000.0 / 6.4
+  bitslipHighCycles: Int = 0,
+  bitslipLowCycles: Int = 7
 )
 
-object PcsRxWatchdogParams {
-    val simConfigMap = LinkedHashMap[String, PcsRxWatchdogParams](
-        "config" -> PcsRxWatchdogParams()
+object PcsRxFrameSyncParams {
+    val simConfigMap = LinkedHashMap[String, PcsRxFrameSyncParams](
+        "config" -> PcsRxFrameSyncParams()
     )
 
-    val synConfigMap = LinkedHashMap[String, PcsRxWatchdogParams](
-        "pcs_rx_watchdog_inst" -> PcsRxWatchdogParams()
+    val synConfigMap = LinkedHashMap[String, PcsRxFrameSyncParams](
+        "pcs_rx_frame_sync_inst" -> PcsRxFrameSyncParams()
     )
 
     val synConfigs = synConfigMap.keys.mkString(" ")
@@ -26,7 +27,7 @@ object PcsRxWatchdogParams {
 //     val sdcFileData = ""
 //     val sdcFileDir = new File(sdcFilePath)
 //     sdcFileDir.mkdirs()
-//     val sdcFileName = new File(s"$sdcFilePath/PcsRxWatchdog.sdc")
+//     val sdcFileName = new File(s"$sdcFilePath/PcsRxFrameSync.sdc")
 //     val sdcFile = new PrintWriter(sdcFileName)
 //     sdcFile.write(sdcFileData)
 //     sdcFile.close()

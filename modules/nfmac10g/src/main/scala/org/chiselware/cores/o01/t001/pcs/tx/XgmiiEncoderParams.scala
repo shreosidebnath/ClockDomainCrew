@@ -5,11 +5,11 @@ import scala.collection.mutable.LinkedHashMap
 import java.io.{File, PrintWriter}
 
 case class XgmiiEncoderParams(
-  dataW: Int = 64,
-  ctrlW: Int = 8,
-  hdrW: Int = 2,
-  gbxIfEn: Boolean = false,
-  gbxCnt: Int = 1
+    dataW: Int = 32,
+    ctrlW: Int = 4,
+    hdrW: Int = 2,
+    gbxIfEn: Boolean = true,
+    gbxCnt: Int = 1
 )
 
 object XgmiiEncoderParams {
@@ -18,13 +18,7 @@ object XgmiiEncoderParams {
   )
 
   val synConfigMap = LinkedHashMap[String, XgmiiEncoderParams](
-    "xgmii_encoder_inst" -> XgmiiEncoderParams(
-        dataW = 32,
-        ctrlW = 4,
-        hdrW = 2,
-        gbxIfEn = true,
-        gbxCnt = 1,
-    )
+    "xgmii_encoder_inst" -> XgmiiEncoderParams()
   )
 
   val synConfigs = synConfigMap.keys.mkString(" ")

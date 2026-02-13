@@ -16,10 +16,6 @@ case class LfsrParams(
 )
 
 object LfsrParams {
-  val simConfigMap = LinkedHashMap[String, LfsrParams](
-    "config" -> LfsrParams()
-  )
-
   val synConfigMap = LinkedHashMap[String, LfsrParams](
     "descrambler_inst" -> LfsrParams(
       lfsrW            = 58,
@@ -62,6 +58,8 @@ object LfsrParams {
       dataOutEn       = true
     )
   )
+
+  val simConfigMap = synConfigMap
 
   val synConfigs = synConfigMap.keys.mkString(" ")
 }

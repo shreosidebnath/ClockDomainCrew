@@ -5,13 +5,13 @@ import scala.collection.mutable.LinkedHashMap
 import java.io.{File, PrintWriter}
 
 case class PcsTxInterfaceParams(
-  dataW: Int = 64,
+  dataW: Int = 32,
   hdrW: Int = 2,
-  gbxIfEn: Boolean = false,
-  bitReverse: Boolean = false,
+  gbxIfEn: Boolean = true,
+  bitReverse: Boolean = true,
   scramblerDisable: Boolean = false,
   prbs31En: Boolean = false,
-  serdesPipeline: Int = 0
+  serdesPipeline: Int = 1
 )
 
 object PcsTxInterfaceParams {
@@ -20,15 +20,7 @@ object PcsTxInterfaceParams {
   )
 
   val synConfigMap = LinkedHashMap[String, PcsTxInterfaceParams](
-    "pcs_tx_interface_inst" -> PcsTxInterfaceParams(
-        dataW = 32,
-        hdrW = 2,
-        gbxIfEn = true,
-        bitReverse = true,
-        scramblerDisable = false,
-        prbs31En = false,
-        serdesPipeline = 1
-    )
+    "pcs_tx_interface_inst" -> PcsTxInterfaceParams()
   )
 
   val synConfigs = synConfigMap.keys.mkString(" ")

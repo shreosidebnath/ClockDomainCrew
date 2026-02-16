@@ -1,5 +1,5 @@
 package org.chiselware.cores.o01.t001.pcs.tx
-import org.chiselware.cores.o01.t001.pcs.Lfsr
+import org.chiselware.cores.o01.t001.Lfsr
 import chisel3._
 import chisel3.util._
 import _root_.circt.stage.ChiselStage

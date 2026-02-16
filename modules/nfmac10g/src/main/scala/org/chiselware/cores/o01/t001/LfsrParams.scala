@@ -1,4 +1,4 @@
-package org.chiselware.cores.o01.t001.pcs
+package org.chiselware.cores.o01.t001
 import chisel3._
 import chisel3.util._
 import scala.collection.mutable.LinkedHashMap

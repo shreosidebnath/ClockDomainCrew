@@ -1,0 +1,9 @@
+name: "01 - Connectivity Smoke Test (ICMP + RAW)"
+backend: "hw"
+test:
+  iface: "ens6"
+  l3: "icmp"
+  dst_ip: "192.168.10.10"
+  count: 3
+  timeout: 3
+payload: "CDCREW smoke payload"

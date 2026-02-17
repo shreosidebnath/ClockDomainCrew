@@ -1,10 +1,9 @@
-# Verification_Compliance/tests/testcases/local_link_up.py
 import threading, time, socket, sys, os
 from scapy.all import conf
 from scapy.layers.l2 import Ether
 from scapy.packet import Raw
 from tests.base import load_spec, TestSpec
-from scapy.all import AsyncSniffer  
+from scapy.all import AsyncSniffer 
 import struct
 
 

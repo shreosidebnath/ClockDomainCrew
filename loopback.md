@@ -2,10 +2,16 @@ CDC
 
 ## How to run the yml file for Scapy
 Run the following command in the project's main directory.
+
+for a connectivity test:
 ```bash
-sudo python3 -m tests.runner --spec tests/specs/03_nic_loopback.yml
+sudo python3 -m tests.runner --spec tests/specs/01_connectivity.yml
 ```
 
+for a loopback test:
+```bash
+sudo python3 -m tests.runner --spec tests/specs/02_nic_loopback.yml
+```
 
 ## Connecting to the FPGA Linux shell (Ubuntu image)
 
@@ -60,7 +66,7 @@ Run the following command to install Scapy on the FPGA
 sudo apt install python3-scapy
 ```
 
-## Scapy Logic for echoing packets back at the application level (FPGA side)
+## Scapy Logic for echoing packets back at the application level (FPGA side) (Unsued)
 By default, the FPGA with Ubuntu running on it does not send packets back. It will simply receive the packets and drop it, making the fpga loopback fail.
 
 To ensure that packets are echoed back, create a python file on Ubuntu on FPGA called `reflect.py`

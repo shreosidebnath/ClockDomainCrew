@@ -45,7 +45,7 @@ class Xgmii2AxisIO(cfg: Xgmii2AxisConfig) extends Bundle {
   // XGMII
   val xgmiiTxd      = Output(UInt(cfg.dataW.W))
   val xgmiiTxc      = Output(UInt(cfg.ctrlW.W))
-  val xgmiiTxValid = Output(Bool())
+  val xgmiiTxValid =  Output(Bool())
 
   val txGbxReqSync  = Input(UInt(cfg.GBX_CNT.W))
   val txGbxReqStall = Input(Bool())
@@ -144,33 +144,33 @@ class xgmii2axis(cfg: Xgmii2AxisConfig) extends Module {
     // ============================================================
     // Default Outputs
     // ============================================================
+   //xgmii output
+    io.xgmiitxd      := 0.U
+    io.xgmiiTxc      := Fill(cfg.CTRL_W, 1.U(1.W))
+    io.xgmiiTxValid := false.B
+    io.txGbxSync    := 0.U
 
-    io.xgmii_txd      := 0.U
-    io.xgmii_txc      := Fill(cfg.CTRL_W, 1.U(1.W))
-    io.xgmii_tx_valid := false.B
-    io.tx_gbx_sync    := 0.U
+    io.txStartPacket := 0.U
+    io.statTxByte := 0.U
+    io.statTxPktLen := 0.U
+    io.statTxPktUcast := false.B
+    io.statTxPktMcast := false.B
+    io.statTxPktBcast := false.B
+    io.statTxPktVlan := false.B
+    io.statTxPktGood := false.B
+    io.statTxPktBad := false.B
+    io.statTxErrOversize := false.B
+    io.statTxErrUser := false.B
+    io.statTxErrUnderflow  := false.B
 
-    io.tx_start_packet := 0.U
-    io.stat_tx_byte := 0.U
-    io.stat_tx_pkt_len := 0.U
-    io.stat_tx_pkt_ucast := false.B
-    io.stat_tx_pkt_mcast := false.B
-    io.stat_tx_pkt_bcast := false.B
-    io.stat_tx_pkt_vlan := false.B
-    io.stat_tx_pkt_good := false.B
-    io.stat_tx_pkt_bad := false.B
-    io.stat_tx_err_oversize := false.B
-    io.stat_tx_err_user := false.B
-    io.stat_tx_err_underflow := false.B
+    io.sAxisTx.tready := (stateReg === sPayload)
 
-    io.s_axis_tx.tready := (stateReg === sPayload)
-
-    io.m_axis_tx_cpl.tvalid := false.B
-    io.m_axis_tx_cpl.tdata  := 0.U
-    io.m_axis_tx_cpl.tkeep  := 0.U
-    io.m_axis_tx_cpl.tlast  := false.B
-    io.m_axis_tx_cpl.tuser  := 0.U
-    io.m_axis_tx_cpl.tid    := 0.U
+    io.mAxisTxCpl.tvalid := false.B
+    io.mAxisTxCpl.tdata  := 0.U
+    io.mAxisTxCpl.tkeep  := 0.U
+    io.mAxisTxCpl.tlast  := false.B
+    io.mAxisTxCpl.tuser  := 0.U
+    io.mAxisTxCpl.tid    := 0.U
   }
   // ============================================================
 // Datapath control
@@ -193,20 +193,20 @@ val swapTxcReg = RegInit(0.U(4.W))
 // AXIS staging
 // ============================================================
 
-val sTdataReg  = RegInit(0.U(cfg.DATA_W.W))
-val sTdataNext = Wire(UInt(cfg.DATA_W.W))
+val sTdataReg  = RegInit(0.U(cfg.dataW.W))
+val sTdataNext = Wire(UInt(cfg.dataW.W))
 
-val sEmptyReg  = RegInit(0.U(EMPTY_W.W))
-val sEmptyNext = Wire(UInt(EMPTY_W.W))
+val sEmptyReg  = RegInit(0.U(emptyW.W))
+val sEmptyNext = Wire(UInt(emptyW.W))
 
 // ============================================================
 // FCS datapath outputs
 // ============================================================
 
-val fcsOutputTxd0 = Wire(UInt(cfg.DATA_W.W))
-val fcsOutputTxd1 = Wire(UInt(cfg.DATA_W.W))
-val fcsOutputTxc0 = Wire(UInt(cfg.CTRL_W.W))
-val fcsOutputTxc1 = Wire(UInt(cfg.CTRL_W.W))
+val fcsOutputTxd0 = Wire(UInt(cfg.dataW.W))
+val fcsOutputTxd1 = Wire(UInt(cfg.dataW.W))
+val fcsOutputTxc0 = Wire(UInt(cfg.dataW.W))
+val fcsOutputTxc1 = Wire(UInt(cfg.ctrlW.W))
 
 // ============================================================
 // IFG / frame tracking
@@ -216,40 +216,28 @@ val ifgOffset = Wire(UInt(8.W))
 
 val frameStartReg  = RegInit(false.B)
 val frameStartNext = Wire(Bool())
-
 val frameReg  = RegInit(false.B)
 val frameNext = Wire(Bool())
-
 val frameErrorReg  = RegInit(false.B)
 val frameErrorNext = Wire(Bool())
-
 val frameOversizeReg  = RegInit(false.B)
 val frameOversizeNext = Wire(Bool())
-
 val frameMinCountReg  = RegInit(0.U(MIN_LEN_W.W))
 val frameMinCountNext = Wire(UInt(MIN_LEN_W.W))
-
 val hdrPtrReg  = RegInit(0.U(2.W))
 val hdrPtrNext = Wire(UInt(2.W))
-
 val isMcastReg  = RegInit(false.B)
 val isMcastNext = Wire(Bool())
-
 val isBcastReg  = RegInit(false.B)
 val isBcastNext = Wire(Bool())
-
 val is8021qReg  = RegInit(false.B)
 val is8021qNext = Wire(Bool())
-
 val frameLenReg  = RegInit(0.U(16.W))
 val frameLenNext = Wire(UInt(16.W))
-
 val frameLenLimCycReg  = RegInit(0.U(13.W))
 val frameLenLimCycNext = Wire(UInt(13.W))
-
 val frameLenLimLastReg  = RegInit(0.U(3.W))
 val frameLenLimLastNext = Wire(UInt(3.W))
-
 val frameLenLimCheckReg  = RegInit(false.B)
 val frameLenLimCheckNext = Wire(Bool())
 
@@ -305,17 +293,12 @@ val tsIncReg  = RegInit(0.U(20.W))
 // XGMII outputs
 // ============================================================
 
-val xgmiiTxdReg  = RegInit(Fill(cfg.CTRL_W, XGMII_IDLE))
-val xgmiiTxdNext = Wire(UInt(cfg.DATA_W.W))
+val xgmiiTxdReg  = RegInit(Fill(cfg.ctrlW, xgmiiIdle))
+val xgmiiTxdNext = Wire(UInt(cfg.dataW.W))
 
-val xgmiiTxcReg  = RegInit(Fill(cfg.CTRL_W, 1.U(1.W)))
-val xgmiiTxcNext = Wire(UInt(cfg.CTRL_W.W))
-
+val xgmiiTxcReg  = RegInit(Fill(cfg.ctrlW, 1.U(1.W)))
+val xgmiiTxcNext = Wire(UInt(cfg.ctrlW.W))
 val xgmiiTxValidReg = RegInit(false.B)
-
-// ============================================================
-// GBX + status
-// ============================================================
 
 val txGbxSyncReg = RegInit(0.U(cfg.GBX_CNT.W))
 
@@ -338,42 +321,41 @@ val statTxErrUnderflowReg = RegInit(false.B)
 // ============================================================
 
 // AXIS ready
-io.s_axis_tx.tready :=
+io.s_axis_tx.tReady :=
   sAxisTxTreadyReg && (!cfg.GBX_IF_EN.B || !io.tx_gbx_req_stall)
 
 // XGMII
-io.xgmii_txd      := xgmiiTxdReg
-io.xgmii_txc      := xgmiiTxcReg
-io.xgmii_tx_valid := Mux(cfg.GBX_IF_EN.B, xgmiiTxValidReg, true.B)
-io.tx_gbx_sync    := Mux(cfg.GBX_IF_EN.B, txGbxSyncReg, 0.U)
+io.xgmiiTxd      := xgmiiTxdReg
+io.xgmiiTxc      := xgmiiTxcReg
+io.xgmiiTxValid := Mux(cfg.gbxIfEn.B, xgmiiTxValidReg, true.B)
+io.txGbxSync    := Mux(cfg.gbxIfEn.B, txGbxSyncReg, 0.U)
 
 // Completion AXIS
-io.m_axis_tx_cpl.tdata :=
-  Mux(cfg.PTP_TS_EN.B,
-    Mux(!cfg.PTP_TS_FMT_TOD.B || mAxisTxCplTsBorrowReg,
+io.mAxisTxCpl.tData :=
+  Mux(cfg.ptpTsEn.B,
+    Mux(!cfg.ptpTsFmtTod.B || mAxisTxCplTsBorrowReg,
       mAxisTxCplTsReg,
       mAxisTxCplTsAdjReg),
     0.U
   )
 
-io.m_axis_tx_cpl.tkeep  := 1.U
-io.m_axis_tx_cpl.tvalid := mAxisTxCplValidReg
-io.m_axis_tx_cpl.tlast  := true.B
-io.m_axis_tx_cpl.tid    := mAxisTxCplTagReg
-io.m_axis_tx_cpl.tuser  := 0.U
+io.mAxisTxCpl.tKeep  := 1.U
+io.mAxisTxCpl.tValid := mAxisTxCplValidReg
+io.mAxisTxCpl.tLast  := true.B
+io.mAxisTxCpl.tId    := mAxisTxCplTagReg
+io.mAxisTxCpl.tUser  := 0.U
 
-// Status outputs
-io.tx_start_packet        := startPacketReg
-io.stat_tx_byte           := statTxByteReg
-io.stat_tx_pkt_len        := statTxPktLenReg
-io.stat_tx_pkt_ucast      := statTxPktUcastReg
-io.stat_tx_pkt_mcast      := statTxPktMcastReg
-io.stat_tx_pkt_bcast      := statTxPktBcastReg
-io.stat_tx_pkt_vlan       := statTxPktVlanReg
-io.stat_tx_pkt_good       := statTxPktGoodReg
-io.stat_tx_pkt_bad        := statTxPktBadReg
-io.stat_tx_err_oversize   := statTxErrOversizeReg
-io.stat_tx_err_user       := statTxErrUserReg
-io.stat_tx_err_underflow  := statTxErrUnderflowReg
+io.txStartPacket        := startPacketReg
+io.statTxByte           := statTxByteReg
+io.statTxPktLen         := statTxPktLenReg
+io.statTxPktUcast       := statTxPktUcastReg
+io.statTxPktMcast       := statTxPktMcastReg
+io.statTxPktBcast       := statTxPktBcastReg
+io.statTxPktVlan        := statTxPktVlanReg
+io.statTxPktGood        := statTxPktGoodReg
+io.statTxPktBad         := statTxPktBadReg
+io.statTxErrOversize    := statTxErrOversizeReg
+io.statTxErrUser        := statTxErrUserReg
+io.statTxErrUnderflow   := statTxErrUnderflowReg
 
 }

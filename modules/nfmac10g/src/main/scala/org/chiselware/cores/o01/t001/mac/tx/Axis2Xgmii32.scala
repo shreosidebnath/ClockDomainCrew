@@ -1,12 +1,15 @@
 package org.chiselware.cores.o01.t001.mac.tx
-
-import chisel3._
-import chisel3.util._
 import org.chiselware.cores.o01.t001.Lfsr
 import org.chiselware.cores.o01.t001.mac.AxisInterface
+import chisel3._
+import chisel3.util._
+import _root_.circt.stage.ChiselStage
+import org.chiselware.syn.{YosysTclFile, StaTclFile, RunScriptFile}
+import java.io.{File, PrintWriter}
 
 class Axis2Xgmii32(
   val dataW: Int = 32,
+  val ctrlW: Int = 4,
   val gbxIfEn: Boolean = false,
   val gbxCnt: Int = 1,
   val paddingEn: Boolean = true,
@@ -19,7 +22,6 @@ class Axis2Xgmii32(
 ) extends Module {
 
   // --- Derived Parameters ---
-  val ctrlW = dataW / 8
   val keepW = dataW / 8
   val userW = if (txCplCtrlInTuser) 2 else 1
   
@@ -548,7 +550,7 @@ class Axis2Xgmii32(
         }
       }
 
-      is (STATE_FCS_3) {
+    is (STATE_FCS_3) {
         s_axis_tx_tready_next := frame_next
         xgmii_txd_next := Cat(XGMII_TERM, XGMII_IDLE, XGMII_IDLE, XGMII_IDLE)
         xgmii_txc_next := Fill(ctrlW, 1.U)
@@ -563,16 +565,18 @@ class Axis2Xgmii32(
         stat_tx_err_oversize_next := frame_oversize_reg
 
         if (dicEn) {
-          when (ifg_count_next > 3.U) {
+          // FIX: Check ifg_count_reg instead of ifg_count_next to break the cycle
+          when (ifg_count_reg > 3.U) {
             state_next := STATE_IFG
           } .otherwise {
-            deficit_idle_count_next := ifg_count_next
+            deficit_idle_count_next := ifg_count_reg // Capture current value
             ifg_count_next := 0.U
             s_axis_tx_tready_next := true.B
             state_next := STATE_IDLE
           }
         } else {
-          when (ifg_count_next > 0.U) {
+          // FIX: Check ifg_count_reg here too
+          when (ifg_count_reg > 0.U) {
             state_next := STATE_IFG
           } .otherwise {
             state_next := STATE_IDLE
@@ -599,27 +603,29 @@ class Axis2Xgmii32(
         state_next := STATE_IFG
       }
 
-      is (STATE_IFG) {
+    is (STATE_IFG) {
         s_axis_tx_tready_next := frame_next
         xgmii_txd_next := VecInit(Seq.fill(ctrlW)(XGMII_IDLE)).asUInt
         xgmii_txc_next := Fill(ctrlW, 1.U)
 
-        when (ifg_count_reg > 4.U) {
-          ifg_count_next := ifg_count_reg - 4.U
-        } .otherwise {
-          ifg_count_next := 0.U
-        }
+        // FIX: Calculate the next value into a temp variable first
+        val ifg_decremented = Mux(ifg_count_reg > 4.U, ifg_count_reg - 4.U, 0.U)
+        
+        // Assign default next value
+        ifg_count_next := ifg_decremented
 
         if (dicEn) {
-           when (ifg_count_next > 3.U || frame_reg) {
+           // FIX: Check the temp variable 'ifg_decremented', not the wire 'ifg_count_next'
+           when (ifg_decremented > 3.U || frame_reg) {
              state_next := STATE_IFG
            } .otherwise {
-             deficit_idle_count_next := ifg_count_next
-             ifg_count_next := 0.U
+             deficit_idle_count_next := ifg_decremented
+             ifg_count_next := 0.U // This overwrite is now safe
              state_next := STATE_IDLE
            }
         } else {
-           when (ifg_count_next > 0.U || frame_reg) {
+           // FIX: Check the temp variable here too
+           when (ifg_decremented > 0.U || frame_reg) {
              state_next := STATE_IFG
            } .otherwise {
              state_next := STATE_IDLE
@@ -688,4 +694,59 @@ class Axis2Xgmii32(
   stat_tx_err_underflow_reg := stat_tx_err_underflow_next
 
   tx_gbx_sync_reg := io.tx_gbx_req_sync
+}
+
+
+
+
+object Axis2Xgmii32 {
+  def apply(p: Axis2Xgmii32Params): Axis2Xgmii32 = Module(new Axis2Xgmii32(
+    dataW = p.dataW,
+    ctrlW = p.ctrlW,
+    gbxIfEn = p.gbxIfEn,
+    gbxCnt = p.gbxCnt,
+    paddingEn = p.paddingEn,
+    dicEn = p.dicEn,
+    minFrameLen = p.minFrameLen,
+    ptpTsEn = p.ptpTsEn,
+    ptpTsW = p.ptpTsW,
+    txCplCtrlInTuser = p.txCplCtrlInTuser,
+    idW = p.idW
+  ))
+}
+
+
+object Main extends App {
+  val mainClassName = "Nfmac10g"
+  val coreDir = s"modules/${mainClassName.toLowerCase()}"
+  Axis2Xgmii32Params.synConfigMap.foreach { case (configName, p) =>
+    println(s"Generating Verilog for config: $configName")
+    ChiselStage.emitSystemVerilog(
+      new Axis2Xgmii32(
+        dataW = p.dataW,
+        ctrlW = p.ctrlW,
+        gbxIfEn = p.gbxIfEn,
+        gbxCnt = p.gbxCnt,
+        paddingEn = p.paddingEn,
+        dicEn = p.dicEn,
+        minFrameLen = p.minFrameLen,
+        ptpTsEn = p.ptpTsEn,
+        ptpTsW = p.ptpTsW,
+        txCplCtrlInTuser = p.txCplCtrlInTuser,
+        idW = p.idW
+      ),
+      firtoolOpts = Array(
+        "--lowering-options=disallowLocalVariables,disallowPackedArrays",
+        "--disable-all-randomization",
+        "--strip-debug-info",
+        "--split-verilog",
+        s"-o=${coreDir}/generated/synTestCases/$configName"
+      )
+    )
+    // Synthesis collateral generation
+    sdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
+    YosysTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
+    StaTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
+    RunScriptFile.create(mainClassName, Axis2Xgmii32Params.synConfigs, s"${coreDir}/generated/synTestCases")
+  }
 }

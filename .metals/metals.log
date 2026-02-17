@@ -6113,3 +6113,101 @@ WARNING: Unmatched cancel notification for request id 11329
 2026.02.09 10:45:01 INFO  Memory monitor stopped
 2026.02.09 10:45:01 INFO  shutting down Metals
 2026.02.09 10:45:01 INFO  Exiting server
+2026.02.09 10:45:34 INFO  Started: Metals version 1.6.5 in folders 'C:\Users\benja\ethernet-mac-chisel' for client Visual Studio Code 1.109.0.
+2026.02.09 10:45:35 INFO  Memory monitor started
+2026.02.09 10:45:37 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.02.09 10:45:37 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+Feb. 09, 2026 10:45:42 A.M. org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFO: Unsupported notification method: $/setTrace
+Feb. 09, 2026 10:45:42 A.M. org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 2
+2026.02.09 10:45:42 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 10:45:42 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 10:45:42 INFO  Attempting to connect to the build server...
+2026.02.09 10:45:42 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 10:45:43 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+Feb. 09, 2026 10:45:43 A.M. org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 9
+Feb. 09, 2026 10:45:43 A.M. org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 10
+2026.02.09 10:45:58 INFO  Running BSP server List(C:\Users\benja\AppData\Local\Programs\Eclipse Adoptium\jdk-11.0.28.6-hotspot/bin/java, -Xms100m, -Xmx100m, -classpath, C:\Program Files (x86)\sbt\\bin\sbt-launch.jar, -Dsbt.script=C:\Program Files (x86)\sbt\bin\sbt.bat, xsbt.boot.Boot, -bsp)
+2026.02.09 10:45:58 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at C:\Users\benja\ethernet-mac-chisel\.metals\bsp.trace.json or C:\Users\benja\AppData\Local\scalameta\metals\cache\bsp.trace.json
+2026.02.09 10:46:02 INFO  BSP server: [info] server was not detected. starting an instance
+2026.02.09 10:46:02 INFO  BSP server: \sbt\bin\sbt.bat was unexpected at this time.
+2026.02.09 10:46:03 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 10:46:03 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 10:46:03 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+Feb. 09, 2026 10:46:05 A.M. org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFO: Unsupported notification method: $/setTrace
+2026.02.09 10:46:19 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 10:46:19 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 10:46:39 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 10:46:40 WARN  no build target for: C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala
+2026.02.09 10:46:40 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 10:46:40 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 10:46:58 ERROR Timeout waiting for 'build/initialize' response
+2026.02.09 10:46:58 WARN  Retrying connection to the build server sbt
+2026.02.09 10:46:58 INFO  Running BSP server List(C:\Users\benja\AppData\Local\Programs\Eclipse Adoptium\jdk-11.0.28.6-hotspot/bin/java, -Xms100m, -Xmx100m, -classpath, C:\Program Files (x86)\sbt\\bin\sbt-launch.jar, -Dsbt.script=C:\Program Files (x86)\sbt\bin\sbt.bat, xsbt.boot.Boot, -bsp)
+2026.02.09 10:46:58 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at C:\Users\benja\ethernet-mac-chisel\.metals\bsp.trace.json or C:\Users\benja\AppData\Local\scalameta\metals\cache\bsp.trace.json
+2026.02.09 10:47:01 INFO  BSP server: [info] server was not detected. starting an instance
+2026.02.09 10:47:01 INFO  BSP server: \sbt\bin\sbt.bat was unexpected at this time.
+2026.02.09 11:04:55 ERROR Timeout waiting for 'build/initialize' response
+2026.02.09 11:04:55 WARN  Retrying connection to the build server sbt
+2026.02.09 11:04:55 INFO  Running BSP server List(C:\Users\benja\AppData\Local\Programs\Eclipse Adoptium\jdk-11.0.28.6-hotspot/bin/java, -Xms100m, -Xmx100m, -classpath, C:\Program Files (x86)\sbt\\bin\sbt-launch.jar, -Dsbt.script=C:\Program Files (x86)\sbt\bin\sbt.bat, xsbt.boot.Boot, -bsp)
+2026.02.09 11:04:55 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at C:\Users\benja\ethernet-mac-chisel\.metals\bsp.trace.json or C:\Users\benja\AppData\Local\scalameta\metals\cache\bsp.trace.json
+2026.02.09 11:04:59 INFO  BSP server: [info] server was not detected. starting an instance
+2026.02.09 11:04:59 INFO  BSP server: \sbt\bin\sbt.bat was unexpected at this time.
+Feb. 09, 2026 11:05:19 A.M. org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFO: Unsupported notification method: $/setTrace
+2026.02.09 11:05:55 ERROR Timeout waiting for 'build/initialize' response
+2026.02.09 11:05:55 WARN  Retrying connection to the build server sbt
+2026.02.09 11:05:55 INFO  Running BSP server List(C:\Users\benja\AppData\Local\Programs\Eclipse Adoptium\jdk-11.0.28.6-hotspot/bin/java, -Xms100m, -Xmx100m, -classpath, C:\Program Files (x86)\sbt\\bin\sbt-launch.jar, -Dsbt.script=C:\Program Files (x86)\sbt\bin\sbt.bat, xsbt.boot.Boot, -bsp)
+2026.02.09 11:05:55 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at C:\Users\benja\ethernet-mac-chisel\.metals\bsp.trace.json or C:\Users\benja\AppData\Local\scalameta\metals\cache\bsp.trace.json
+2026.02.09 11:06:00 INFO  BSP server: [info] server was not detected. starting an instance
+2026.02.09 11:06:00 INFO  BSP server: \sbt\bin\sbt.bat was unexpected at this time.
+Feb. 09, 2026 11:06:49 A.M. org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFO: Unsupported notification method: $/setTrace
+2026.02.09 11:06:55 ERROR Timeout waiting for 'build/initialize' response
+2026.02.09 11:06:55 WARN  Retrying connection to the build server sbt
+2026.02.09 11:06:55 INFO  Running BSP server List(C:\Users\benja\AppData\Local\Programs\Eclipse Adoptium\jdk-11.0.28.6-hotspot/bin/java, -Xms100m, -Xmx100m, -classpath, C:\Program Files (x86)\sbt\\bin\sbt-launch.jar, -Dsbt.script=C:\Program Files (x86)\sbt\bin\sbt.bat, xsbt.boot.Boot, -bsp)
+2026.02.09 11:06:55 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at C:\Users\benja\ethernet-mac-chisel\.metals\bsp.trace.json or C:\Users\benja\AppData\Local\scalameta\metals\cache\bsp.trace.json
+2026.02.09 11:07:00 INFO  BSP server: [info] server was not detected. starting an instance
+2026.02.09 11:07:00 INFO  BSP server: \sbt\bin\sbt.bat was unexpected at this time.
+2026.02.09 11:07:55 ERROR Timeout waiting for 'build/initialize' response
+2026.02.09 11:07:55 WARN  Retrying connection to the build server sbt
+2026.02.09 11:07:55 INFO  Running BSP server List(C:\Users\benja\AppData\Local\Programs\Eclipse Adoptium\jdk-11.0.28.6-hotspot/bin/java, -Xms100m, -Xmx100m, -classpath, C:\Program Files (x86)\sbt\\bin\sbt-launch.jar, -Dsbt.script=C:\Program Files (x86)\sbt\bin\sbt.bat, xsbt.boot.Boot, -bsp)
+2026.02.09 11:07:55 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at C:\Users\benja\ethernet-mac-chisel\.metals\bsp.trace.json or C:\Users\benja\AppData\Local\scalameta\metals\cache\bsp.trace.json
+2026.02.09 11:07:59 INFO  BSP server: [info] server was not detected. starting an instance
+2026.02.09 11:07:59 INFO  BSP server: \sbt\bin\sbt.bat was unexpected at this time.
+2026.02.09 11:08:55 ERROR Timeout waiting for 'build/initialize' response
+2026.02.09 11:08:55 ERROR Failed to connect with build server, no functionality will work.
+java.util.concurrent.TimeoutException
+	at java.util.concurrent.CompletableFuture.timedGet(CompletableFuture.java:1960)
+	at java.util.concurrent.CompletableFuture.get(CompletableFuture.java:2095)
+	at scala.meta.internal.metals.BuildServerConnection$.initialize(BuildServerConnection.scala:806)
+	at scala.meta.internal.metals.BuildServerConnection$.$anonfun$fromSockets$1(BuildServerConnection.scala:658)
+	at scala.concurrent.impl.Promise$Transformation.run(Promise.scala:500)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.lang.Thread.run(Thread.java:840)
+
+2026.02.09 11:08:55 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 11:08:55 WARN  no build target for: C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala
+2026.02.09 11:08:55 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 11:08:57 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 11:08:59 INFO  time: code lens generation in 3.82s
+2026.02.09 11:08:59 INFO  time: code lens generation in 3.82s
+2026.02.09 18:12:38 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+Feb. 09, 2026 6:12:39 P.M. org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 29
+2026.02.09 18:12:38 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 18:12:42 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+Feb. 09, 2026 6:12:42 P.M. org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFO: Unsupported notification method: $/setTrace
+2026.02.09 18:12:44 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+Feb. 09, 2026 6:12:44 P.M. org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 33
+2026.02.09 18:12:44 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+2026.02.09 18:12:45 INFO  no build target found for C:\Users\benja\ethernet-mac-chisel\src\main\scala\ethernet\xgmii2axis.scala. Using presentation compiler with project's scala-library version: 3.3.7
+Feb. 09, 2026 10:38:19 P.M. org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFO: Unsupported notification method: $/setTrace

@@ -10,10 +10,13 @@ class TestSpec:
     payload: bytes
 
 def load_spec(path: str) -> TestSpec:
-    doc = yaml.safe_load(open(path, "r", encoding="utf-8"))
+    with open(path, "r", encoding="utf-8") as f:
+        doc = yaml.safe_load(f) or {}
     payload = doc.get("payload", b"")
     if isinstance(payload, str):
         payload = payload.encode()
+    elif payload is None:
+        payload = b""
     return TestSpec(
         name=doc.get("name","unnamed"),
         backend=doc.get("backend","local"),

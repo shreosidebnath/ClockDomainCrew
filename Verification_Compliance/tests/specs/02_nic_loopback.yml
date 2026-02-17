@@ -1,12 +1,13 @@
 name: "02 - NIC↔FPGA Loopback (RAW)"
 backend: hw
 test:
-  type: link_up
+  type: loopback
   iface: "ens6"
   l3: raw
   verify_loopback: true
-  loopback_mode: nic
   count: 10
   timeout: 2
   marker: "CDCREW"
+  arm_delay: 0.2
+  inter_gap: 0.05
 payload: "loopback-test"

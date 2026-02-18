@@ -3,7 +3,7 @@ import chisel3._
 import chisel3.util._
 
 
-class EthMacDefinitions extends Module {
+object EthMacDefinitions {
 
  
   val S = "hFB".U(8.W)  

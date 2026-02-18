@@ -1,8 +1,23 @@
+error id: file:///C:/Users/benja/ethernet-mac-chisel/src/main/scala/ethernet/xgmiitoaxis.scala:
+file:///C:/Users/benja/ethernet-mac-chisel/src/main/scala/ethernet/xgmiitoaxis.scala
+empty definition using pc, found symbol in pc: 
+empty definition using semanticdb
+empty definition using fallback
+non-local guesses:
+	 -U.
+	 -U#
+	 -U().
+	 -scala/Predef.U.
+	 -scala/Predef.U#
+	 -scala/Predef.U().
+offset: 16083
+uri: file:///C:/Users/benja/ethernet-mac-chisel/src/main/scala/ethernet/xgmiitoaxis.scala
+text:
+```scala
 package ethernet
 import chisel3._
 import chisel3.util._
-import EthernetCrc._
-
+import ethernet.EthMacDefinitions.
 
 class Xgmii2AxisConfig(
   val dataW: Int = 64,
@@ -359,7 +374,8 @@ io.statTxErrOversize    := statTxErrOversizeReg
 io.statTxErrUser        := statTxErrUserReg
 io.statTxErrUnderflow   := statTxErrUnderflowReg
 
-// State enumeration
+
+  // State enumeration
 val stateIdle :: statePreamble :: statePayload :: stateFCS :: stateFCS2 :: Nil = Enum(5)
 val state = RegInit(stateIdle)
 
@@ -375,7 +391,7 @@ for (i <- 0 until 8) {
 }
 val s_tdata_masked = maskedVec.asUInt
 
-
+// Identify empty bytes (Matches Verilog casez logic)
 val s_empty = MuxCase(0.U, Seq(
   (io.s_axis_tx_tkeep === "b00000001".U) -> 7.U,
   (io.s_axis_tx_tkeep === "b00000011".U) -> 6.U,
@@ -387,12 +403,12 @@ val s_empty = MuxCase(0.U, Seq(
   (io.s_axis_tx_tkeep === "b11111111".U) -> 0.U
 ))
 
-// Calculate all 8 CRCs in parallel using your EthernetCrc object
+// Calculate all 8 CRCs in parallel (like your 8 LFSR instances)
 for (i <- 0 until 8) {
   // Each CRC instance processes (i+1)*8 bits of data
   // Using crcState(7) as the previous state (cascaded like your LFSR array)
   crcNext(i) := Mux(io.s_axis_tx.fire,
-    EthernetCrc.crc32(s_tdata_masked(8*(i+1)-1, 0), crcState(7), (i+1)*8),
+    EthMacDefinitions.crcN(crcState(7), s_tdata_masked(8*(i+1)-1, 0), (i+1)*8),
     crcState(i)
   )
 }
@@ -414,6 +430,7 @@ fcs_d0 := EthMacDefinitions.qwIdleD
 fcs_c0 := EthMacDefinitions.qwIdleC
 
 // FCS insertion logic using the appropriate CRC state based on s_empty
+// Note: Using crcState(s_empty) or crcState(s_empty-1) depending on alignment
 switch(s_empty) {
   is(0.U) { // 8 bytes valid - FCS goes in next cycle
     fcs_d0 := s_tdata_masked
@@ -520,7 +537,14 @@ io.mAxisTxCpl.tKeep  := 1.U
 io.mAxisTxCpl.tValid := (state === stateFCS) || (state === stateFCS2)
 io.mAxisTxCpl.tLast  := true.B
 io.mAxisTxCpl.tId    := 0.U
-io.mAxisTxCpl.tUser  := 0.U
+io.mAxisTxCpl.tUser  := 0.U@@
 }
 
 
+
+```
+
+
+#### Short summary: 
+
+empty definition using pc, found symbol in pc: 

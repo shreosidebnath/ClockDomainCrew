@@ -1,0 +1,15 @@
+name: "04 - RAW Loopback MTU (1500B payload)"
+backend: "hw"
+test:
+  type: loopback
+  iface: "ens6"
+  l3: "raw"
+  verify_loopback: true
+  count: 200
+  timeout: 5
+  marker: "CDCREW"
+  payload_len: 1500
+  pattern: "prbs"
+  arm_delay: 0.2
+  inter_gap: 0.001
+payload: ""

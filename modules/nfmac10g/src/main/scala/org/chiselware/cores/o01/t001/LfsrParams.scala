@@ -56,6 +56,56 @@ object LfsrParams {
       dataW            = 34,
       dataInEn        = false,
       dataOutEn       = true
+    ),
+    "eth_crc_inst" -> LfsrParams(
+      lfsrW            = 32,
+      lfsrPoly         = BigInt("4c11db7", 32),
+      lfsrGalois       = true,
+      lfsrFeedForward = false,
+      reverse           = true,
+      dataW            = 32,
+      dataInEn        = true,
+      dataOutEn       = false
+    ),
+    "eth_crc_1_inst" -> LfsrParams(
+      lfsrW            = 32,
+      lfsrPoly         = BigInt("4c11db7", 32),
+      lfsrGalois       = true,
+      lfsrFeedForward = false,
+      reverse           = true,
+      dataW            = 8,
+      dataInEn        = true,
+      dataOutEn       = false
+    ),
+    "eth_crc_2_inst" -> LfsrParams(
+      lfsrW            = 32,
+      lfsrPoly         = BigInt("4c11db7", 32),
+      lfsrGalois       = true,
+      lfsrFeedForward = false,
+      reverse           = true,
+      dataW            = 16,
+      dataInEn        = true,
+      dataOutEn       = false
+    ),
+    "eth_crc_3_inst" -> LfsrParams(
+      lfsrW            = 32,
+      lfsrPoly         = BigInt("4c11db7", 32),
+      lfsrGalois       = true,
+      lfsrFeedForward = false,
+      reverse           = true,
+      dataW            = 24,
+      dataInEn        = true,
+      dataOutEn       = false
+    ),
+    "eth_crc_4_inst" -> LfsrParams(
+      lfsrW            = 32,
+      lfsrPoly         = BigInt("4c11db7", 32),
+      lfsrGalois       = true,
+      lfsrFeedForward = false,
+      reverse           = true,
+      dataW            = 32,
+      dataInEn        = true,
+      dataOutEn       = false
     )
   )
 
@@ -64,14 +114,14 @@ object LfsrParams {
   val synConfigs = synConfigMap.keys.mkString(" ")
 }
 
-// object sdcFile {
-//   def create(sdcFilePath: String): Unit = {
-//     val sdcFileData = ""
-//     val sdcFileDir = new File(sdcFilePath)
-//     sdcFileDir.mkdirs()
-//     val sdcFileName = new File(s"$sdcFilePath/Lfsr.sdc")
-//     val sdcFile = new PrintWriter(sdcFileName)
-//     sdcFile.write(sdcFileData)
-//     sdcFile.close()
-//   }
-// }
+object sdcFile {
+  def create(sdcFilePath: String): Unit = {
+    val sdcFileData = ""
+    val sdcFileDir = new File(sdcFilePath)
+    sdcFileDir.mkdirs()
+    val sdcFileName = new File(s"$sdcFilePath/Lfsr.sdc")
+    val sdcFile = new PrintWriter(sdcFileName)
+    sdcFile.write(sdcFileData)
+    sdcFile.close()
+  }
+}

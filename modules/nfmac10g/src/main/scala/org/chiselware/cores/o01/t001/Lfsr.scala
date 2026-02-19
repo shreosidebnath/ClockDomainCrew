@@ -158,29 +158,29 @@ object Lfsr {
   ))
 }
 
-// object Main extends App {
-//   val mainClassName = "Nfmac10g"
-//   val coreDir = s"modules/${mainClassName.toLowerCase()}"
-//   LfsrParams.synConfigMap.foreach { case (configName, p) =>
-//     println(s"Generating Verilog for config: $configName")
-//     ChiselStage.emitSystemVerilog(
-//       new Lfsr(
-//         lfsrW = p.lfsrW, lfsrPoly = p.lfsrPoly, lfsrGalois = p.lfsrGalois,
-//         lfsrFeedForward = p.lfsrFeedForward, reverse = p.reverse, dataW = p.dataW,
-//         dataInEn = p.dataInEn, dataOutEn = p.dataOutEn
-//       ),
-//       firtoolOpts = Array(
-//         "--lowering-options=disallowLocalVariables,disallowPackedArrays",
-//         "--disable-all-randomization",
-//         "--strip-debug-info",
-//         "--split-verilog",
-//         s"-o=${coreDir}/generated/synTestCases/$configName"
-//       )
-//     )
-//     // Synthesis collateral generation
-//     sdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-//     YosysTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
-//     StaTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
-//     RunScriptFile.create(mainClassName, LfsrParams.synConfigs, s"${coreDir}/generated/synTestCases")
-//   }
-// }
+object Main extends App {
+  val mainClassName = "Nfmac10g"
+  val coreDir = s"modules/${mainClassName.toLowerCase()}"
+  LfsrParams.synConfigMap.foreach { case (configName, p) =>
+    println(s"Generating Verilog for config: $configName")
+    ChiselStage.emitSystemVerilog(
+      new Lfsr(
+        lfsrW = p.lfsrW, lfsrPoly = p.lfsrPoly, lfsrGalois = p.lfsrGalois,
+        lfsrFeedForward = p.lfsrFeedForward, reverse = p.reverse, dataW = p.dataW,
+        dataInEn = p.dataInEn, dataOutEn = p.dataOutEn
+      ),
+      firtoolOpts = Array(
+        "--lowering-options=disallowLocalVariables,disallowPackedArrays",
+        "--disable-all-randomization",
+        "--strip-debug-info",
+        "--split-verilog",
+        s"-o=${coreDir}/generated/synTestCases/$configName"
+      )
+    )
+    // Synthesis collateral generation
+    sdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
+    YosysTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
+    StaTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
+    RunScriptFile.create(mainClassName, LfsrParams.synConfigs, s"${coreDir}/generated/synTestCases")
+  }
+}

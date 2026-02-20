@@ -1,4 +1,4 @@
-name: "13 - RAW Oversize Robustness (Expected Drop)"
+name: "13 - RAW Oversize Robustness (Expected Result is to Drop)"
 backend: "hw"
 test:
   type: loopback
@@ -9,6 +9,6 @@ test:
   count: 20
   timeout: 5
   marker: "CDCREW"
-  payload_len: 10000
+  payload_len: 9696
   pattern: "prbs"
 payload: ""

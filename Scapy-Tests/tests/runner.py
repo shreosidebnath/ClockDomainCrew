@@ -5,7 +5,7 @@ from tests.base import load_spec
 from tests.hw_connectivity import run as hw_run
 
 
-ALLOWED_L3 = {"link", "raw"}
+ALLOWED_L3 = {"link", "raw", "pause"}
 ALLOWED_TYPES = {"connectivity", "loopback"}
 
 

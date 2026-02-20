@@ -324,14 +324,16 @@ def send_raw(
         except Exception:
             src_mac = "00:00:00:00:00:00"
 
-    eth = Ether(dst=dst_mac, src=src_mac, type=ether_type)
-
     if isinstance(vlan, dict) and bool(vlan.get("enabled", False)):
         vid = int(vlan.get("vid", 1))
         pcp = int(vlan.get("pcp", 0))
-        frame = eth / Dot1Q(vlan=vid, prio=pcp) / Raw(load=payload)
+        frame = (
+            Ether(dst=dst_mac, src=src_mac, type=0x8100)
+            / Dot1Q(vlan=vid, prio=pcp, type=ether_type)
+            / Raw(load=payload)
+        )
     else:
-        frame = eth / Raw(load=payload)
+        frame = Ether(dst=dst_mac, src=src_mac, type=ether_type) / Raw(load=payload)
 
     sendp(frame, iface=conf.iface, verbose=False)
 

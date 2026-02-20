@@ -225,7 +225,7 @@ import socket
 from typing import Tuple, Dict, Any, List
 
 from scapy.all import conf, AsyncSniffer
-from scapy.layers.l2 import Ether
+from scapy.layers.l2 import Ether, Dot1Q
 from scapy.packet import Raw
 
 from tests.base import load_spec, TestSpec
@@ -376,8 +376,25 @@ def run(spec_path: str) -> Tuple[bool, str]:
     def is_returned(p) -> bool:
         if not p.haslayer(Ether) or not p.haslayer(Raw):
             return False
+
         raw_bytes = bytes(p[Raw].load)
-        return raw_bytes.startswith(marker_prefix)
+        if not raw_bytes.startswith(marker_prefix):
+            return False
+
+        if vlan and vlan.get("enabled"):
+            if not p.haslayer(Dot1Q):
+                return False
+            dot1q = p[Dot1Q]
+
+            vid = int(vlan.get("vid", 0))
+            if vid and int(dot1q.vlan) != vid:
+                return False
+
+            if "pcp" in vlan:
+                if int(dot1q.prio) != int(vlan.get("pcp", 0)):
+                    return False
+
+        return True
 
     print(
         f"[RAW] iface={conf.iface} host_mac={host_mac} tx={tx_src}->{tx_dst} "
@@ -390,12 +407,13 @@ def run(spec_path: str) -> Tuple[bool, str]:
     # Prefer ignoring outgoing copies at socket level so we don't need MAC-based heuristics.
     # If the kernel doesn't support it / call fails, we'll still likely see outgoing frames,
     # BUT the marker+seq uniqueness logic will still work in many cases.
-    bpf = "ether proto 0x9000"
+    bpf = "ether proto 0x9000 or (vlan and ether proto 0x9000)"
     listen_sock = conf.L2listen(iface=conf.iface, filter=bpf)
 
     try:
         pkt_ignore = getattr(socket, "PACKET_IGNORE_OUTGOING", 23)
-        listen_sock.ins.setsockopt(socket.SOL_PACKET, pkt_ignore, 1)
+        sol_packet = getattr(socket, "SOL_PACKET", 263)  # fallback for builds missing SOL_PACKET
+        listen_sock.ins.setsockopt(sol_packet, pkt_ignore, 1)
     except Exception as e:
         print(f"[WARN] PACKET_IGNORE_OUTGOING not set (may see TX copies): {e}")
 

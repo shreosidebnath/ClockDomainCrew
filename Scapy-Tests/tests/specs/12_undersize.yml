@@ -1,4 +1,4 @@
-name: "12 - RAW Undersize (Runt) Robustness (Expected Drop)"
+name: "12 - RAW Undersize (Runt) Robustness (Expected Result is to Drop)"
 backend: "hw"
 test:
   type: loopback
@@ -9,6 +9,6 @@ test:
   count: 50
   timeout: 3
   marker: "CDCREW"
-  payload_len: 30
+  payload_len: 6
   pattern: "inc"
 payload: ""

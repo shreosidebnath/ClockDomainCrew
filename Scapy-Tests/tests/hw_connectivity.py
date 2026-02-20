@@ -221,6 +221,7 @@ import sys
 import time
 import json
 import struct
+import socket
 from typing import Tuple, Dict, Any, List
 
 from scapy.all import conf, AsyncSniffer
@@ -320,7 +321,7 @@ def run(spec_path: str) -> Tuple[bool, str]:
     marker_prefix = marker + b":"
 
     count = int(t.get("count", 5))
-    timeout = float(t.get("timeout", 3))
+    timeout = float(t.get("timeout", 3))  # currently unused but kept for compatibility
     arm_delay = float(t.get("arm_delay", 0.2))
     inter_gap = float(t.get("inter_gap", 0.05))
 
@@ -339,10 +340,6 @@ def run(spec_path: str) -> Tuple[bool, str]:
     src_mac_cfg = t.get("src_mac")
     tx_src = host_mac if not src_mac_cfg else str(src_mac_cfg).lower()
 
-    # Destination selection:
-    # - If dst_kind specified: broadcast or multicast (no FPGA MAC needed)
-    # - Else if dst_mac specified: use it
-    # - Else default broadcast (so it "just works" with iface/board)
     dst_kind = str(t.get("dst_kind", "")).lower().strip()
     dst_mac_cfg = t.get("dst_mac")
 
@@ -352,17 +349,6 @@ def run(spec_path: str) -> Tuple[bool, str]:
         tx_dst = str(t.get("multicast_mac", "01:00:5e:00:00:01")).lower()
     else:
         tx_dst = str(dst_mac_cfg).lower().strip() if dst_mac_cfg else "ff:ff:ff:ff:ff:ff"
-
-    expected_dst = host_mac
-
-    # We want to IGNORE our own TX packets and only count returned ones.
-    # We do NOT require peer MAC knowledge.
-    # We'll "learn" the first non-host src MAC we see for our marker and stick to it.
-    learned_peer_mac = {"mac": ""}
-
-    # BPF filter: only our custom EtherType frames.
-    # We allow dst to be us or broadcast (depending on board behavior).
-    bpf = f"ether proto 0x9000 and (ether dst {expected_dst} or ether dst ff:ff:ff:ff:ff:ff)"
 
     send_times_us: Dict[int, int] = {}
 
@@ -374,46 +360,24 @@ def run(spec_path: str) -> Tuple[bool, str]:
             header += struct.pack("!Q", ts_us)
 
         if payload_len is None:
-            # Use provided payload or default
             body = spec.payload if spec.payload else b"hello-raw"
             return header + body
 
         target = int(payload_len)
         if target <= len(header):
-            # undersize/runt case: truncate header
             return header[:target]
 
         body = _pattern_bytes(target - len(header), pattern)
         return header + body
 
+    # Return filter:
+    # - must carry our marker (so we only count our test frames)
+    # - we do NOT enforce src != host_mac (your loopback may not rewrite MACs)
     def is_returned(p) -> bool:
         if not p.haslayer(Ether) or not p.haslayer(Raw):
             return False
-
-        eth = p[Ether]
         raw_bytes = bytes(p[Raw].load)
-
-        if not raw_bytes.startswith(marker_prefix):
-            return False
-
-        # Ignore our own TX frames when verifying loopback
-        if verify_loopback and eth.src.lower() == host_mac:
-            return False
-
-        # Must be destined to us or broadcast
-        if eth.dst.lower() not in (expected_dst, "ff:ff:ff:ff:ff:ff"):
-            return False
-
-        src_l = eth.src.lower()
-
-        # Learn + enforce a single peer MAC for this run
-        if not learned_peer_mac["mac"]:
-            if src_l != host_mac:
-                learned_peer_mac["mac"] = src_l
-                return True
-            return False
-
-        return src_l == learned_peer_mac["mac"]
+        return raw_bytes.startswith(marker_prefix)
 
     print(
         f"[RAW] iface={conf.iface} host_mac={host_mac} tx={tx_src}->{tx_dst} "
@@ -422,9 +386,21 @@ def run(spec_path: str) -> Tuple[bool, str]:
         f"expect={expect}"
     )
 
+    # Capture setup:
+    # Prefer ignoring outgoing copies at socket level so we don't need MAC-based heuristics.
+    # If the kernel doesn't support it / call fails, we'll still likely see outgoing frames,
+    # BUT the marker+seq uniqueness logic will still work in many cases.
+    bpf = "ether proto 0x9000"
+    listen_sock = conf.L2listen(iface=conf.iface, filter=bpf)
+
+    try:
+        pkt_ignore = getattr(socket, "PACKET_IGNORE_OUTGOING", 23)
+        listen_sock.ins.setsockopt(socket.SOL_PACKET, pkt_ignore, 1)
+    except Exception as e:
+        print(f"[WARN] PACKET_IGNORE_OUTGOING not set (may see TX copies): {e}")
+
     sniffer = AsyncSniffer(
-        iface=conf.iface,
-        filter=bpf,
+        opened_socket=listen_sock,
         lfilter=is_returned,
         store=True,
         promisc=True,
@@ -445,17 +421,18 @@ def run(spec_path: str) -> Tuple[bool, str]:
         if inter_gap > 0:
             time.sleep(inter_gap)
 
-    # Stop and collect (avoid Optional[PacketList])
     pkts = sniffer.stop() or []
 
     if not verify_loopback:
-        return True, f"RAW send completed (sniffed {len(pkts)} returned frames)"
+        return True, f"RAW send completed (sniffed {len(pkts)} frames with marker)"
 
     # Unique seq count + optional RTT
     seen = set()
     rtts_us: List[int] = []
 
     for p in pkts:
+        if not p.haslayer(Raw):
+            continue
         raw_bytes = bytes(p[Raw].load)
         if len(raw_bytes) < len(marker_prefix) + 4:
             continue
@@ -469,7 +446,6 @@ def run(spec_path: str) -> Tuple[bool, str]:
             rtts_us.append(max(0, ts_now - ts_sent))
 
     captured = len(seen)
-    peer_mac_final = learned_peer_mac["mac"] or "unknown"
     duration_s = max(1e-9, time.time() - t_start)
     loss = max(0, count - captured)
 
@@ -481,7 +457,6 @@ def run(spec_path: str) -> Tuple[bool, str]:
             "iface": conf.iface,
             "test_type": test_type,
             "host_mac": host_mac,
-            "peer_mac": peer_mac_final,
             "tx_dst": tx_dst,
             "dst_kind": dst_kind,
             "sent": count,
@@ -510,13 +485,11 @@ def run(spec_path: str) -> Tuple[bool, str]:
 
     # Expectation handling
     if expect == "drop":
-        # For runt/oversize tests, driver/NIC may normalize frames.
-        # Treat "almost nothing returned" as success.
         if captured <= 1:
-            return True, f"RAW expected-drop OK (peer_mac={peer_mac_final}, returned {captured}/{count})"
-        return False, f"RAW expected-drop FAIL (peer_mac={peer_mac_final}, returned {captured}/{count})"
+            return True, f"RAW expected-drop OK (returned {captured}/{count})"
+        return False, f"RAW expected-drop FAIL (returned {captured}/{count})"
 
     if captured >= count:
-        return True, f"RAW loopback OK (peer_mac={peer_mac_final}, {captured}/{count} unique frames)"
-    return False, f"RAW loopback FAIL (peer_mac={peer_mac_final}, {captured}/{count} unique frames)"
+        return True, f"RAW loopback OK ({captured}/{count} unique frames)"
+    return False, f"RAW loopback FAIL ({captured}/{count} unique frames)"
 

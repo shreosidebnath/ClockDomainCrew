@@ -2,7 +2,7 @@ import argparse
 import sys
 
 from tests.base import load_spec
-from tests.testcases.hw_connectivity import run as hw_run
+from tests.hw_connectivity import run as hw_run
 
 
 ALLOWED_L3 = {"link", "raw"}

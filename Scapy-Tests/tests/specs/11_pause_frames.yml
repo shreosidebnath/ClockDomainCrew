@@ -1,0 +1,10 @@
+name: "11 - PAUSE Frame Injection (Quanta 0xFFFF)"
+backend: "hw"
+test:
+  type: loopback
+  iface: "ens6"
+  l3: "pause"
+  pause_quanta: 65535
+  count: 10
+  timeout: 2
+payload: ""

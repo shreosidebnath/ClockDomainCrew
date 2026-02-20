@@ -227,37 +227,11 @@
 import os
 import time
 import subprocess
-from typing import Tuple
+from typing import Tuple, Optional, Dict, Any
 
-from scapy.all import conf, sniff, get_if_list, get_if_addr, get_if_hwaddr, sendp
-from scapy.layers.l2 import Ether
+from scapy.all import conf, get_if_list, get_if_hwaddr, sendp
+from scapy.layers.l2 import Ether, Dot1Q
 from scapy.packet import Raw
-
-try:
-    from scapy.arch.windows import get_windows_if_list
-except Exception:
-    get_windows_if_list = None
-
-
-def list_ifaces():
-    print("Scapy interfaces (portable view):")
-    for name in get_if_list():
-        mac = None
-        ip = None
-        try:
-            mac = get_if_hwaddr(name)
-        except Exception:
-            pass
-        try:
-            ip = get_if_addr(name)
-        except Exception:
-            pass
-        print(f"- {name} | mac={mac} | ip={ip}")
-
-    if get_windows_if_list:
-        print("\nWindows raw list (from scapy.arch.windows):")
-        for i in get_windows_if_list():
-            print(f"- {i.get('name')} | guid={i.get('guid')} | desc={i.get('description')}")
 
 
 def set_iface(query: str) -> str:
@@ -272,7 +246,7 @@ def set_iface(query: str) -> str:
             return conf.iface
     raise SystemExit(
         f"[ERR] No interface match for: {query}\n"
-        f"Tip: use list_ifaces() to see exact names."
+        f"Tip: print(get_if_list()) to see exact names."
     )
 
 
@@ -296,15 +270,14 @@ def check_link(iface: str, timeout: float = 2.0) -> Tuple[bool, str]:
     last = ""
     while time.time() - t0 < timeout:
         try:
-            with open(oper_path, "r") as f:
+            with open(oper_path, "r", encoding="utf-8") as f:
                 oper = f.read().strip()
-            with open(carrier_path, "r") as f:
+            with open(carrier_path, "r", encoding="utf-8") as f:
                 carrier = f.read().strip()
         except Exception as e:
             return False, f"{iface}: error reading link state: {type(e).__name__}: {e}"
 
         last = f"operstate={oper}, carrier={carrier}"
-
         if carrier == "1":
             speed = _try_get_speed(iface)
             return True, f"{last}, speed={speed}"
@@ -316,10 +289,7 @@ def check_link(iface: str, timeout: float = 2.0) -> Tuple[bool, str]:
 
 
 def _try_get_speed(iface: str) -> str:
-    """
-    Best-effort speed read via ethtool (Linux).
-    If ethtool isn't available or fails, returns 'unknown'.
-    """
+    """Best-effort speed read via ethtool (Linux)."""
     try:
         out = subprocess.check_output(["ethtool", iface], text=True, stderr=subprocess.DEVNULL)
         for line in out.splitlines():
@@ -330,46 +300,38 @@ def _try_get_speed(iface: str) -> str:
     return "unknown"
 
 
-def send_raw(iface: str, dst_mac: str, src_mac: str | None = None, payload: bytes = b"hello-raw"):
+def send_raw(
+    iface: str,
+    dst_mac: str,
+    payload: bytes,
+    src_mac: Optional[str] = None,
+    ether_type: int = 0x9000,
+    vlan: Optional[Dict[str, Any]] = None,
+):
     """
-    Send a single raw Ethernet frame: Ether(dst, src)/Raw(payload).
-    If src_mac is None, uses NIC hardware MAC.
+    Send a raw Ethernet frame:
+      - Ether(dst, src, type=ether_type)
+      - Optional Dot1Q(vlan=vid, prio=pcp)
+      - Raw(payload)
+
+    NOTE: Caller should have already set iface via set_iface().
     """
-    conf.iface = iface  # assumes caller already normalized via set_iface()
+    conf.iface = iface
+
     if src_mac is None:
         try:
             src_mac = get_if_hwaddr(conf.iface)
         except Exception:
             src_mac = "00:00:00:00:00:00"
 
-    frame = Ether(dst=dst_mac, src=src_mac) / Raw(load=payload)
+    eth = Ether(dst=dst_mac, src=src_mac, type=ether_type)
+
+    if isinstance(vlan, dict) and bool(vlan.get("enabled", False)):
+        vid = int(vlan.get("vid", 1))
+        pcp = int(vlan.get("pcp", 0))
+        frame = eth / Dot1Q(vlan=vid, prio=pcp) / Raw(load=payload)
+    else:
+        frame = eth / Raw(load=payload)
+
     sendp(frame, iface=conf.iface, verbose=False)
 
-
-def sniff_packets(iface: str, bpf: str = "", count: int = 5, timeout: int = 5):
-    """
-    Optional utility for quick manual debugging. Returns a PacketList (or []).
-    """
-    conf.iface = iface
-    conf.sniff_promisc = True
-    print(f"[SNIFF] iface='{conf.iface}' filter='{bpf}' count={count} timeout={timeout}s")
-
-    try:
-        pkts = sniff(
-            iface=conf.iface,
-            filter=bpf if bpf else None,
-            count=count,
-            timeout=timeout,
-            store=True,
-            promisc=True,
-        )
-    except Exception as e:
-        print(f"[SNIFF] ERROR: {type(e).__name__}: {e}")
-        return []
-
-    if not pkts:
-        print("[SNIFF] no packets captured")
-    else:
-        for i, p in enumerate(pkts, 1):
-            print(f"[{i}] {p.summary()}")
-    return pkts

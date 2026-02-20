@@ -219,8 +219,9 @@
 import os
 import sys
 import time
+import json
 import struct
-from typing import Tuple
+from typing import Tuple, Dict, Any, List
 
 from scapy.all import conf, AsyncSniffer
 from scapy.layers.l2 import Ether
@@ -236,14 +237,32 @@ if _REPO_ROOT not in sys.path:
 import scapy_framework as lab  # type: ignore[import]
 
 
+def _pattern_bytes(n: int, pattern: str) -> bytes:
+    if n <= 0:
+        return b""
+    p = pattern.lower().strip()
+    if p == "zeros":
+        return b"\x00" * n
+    if p == "prbs":
+        # deterministic PRBS-ish bytes (simple LFSR)
+        out = bytearray()
+        x = 0xACE1
+        for _ in range(n):
+            x = ((x >> 1) ^ (0xB400 if (x & 1) else 0)) & 0xFFFF
+            out.append(x & 0xFF)
+        return bytes(out)
+    # default "inc"
+    return bytes((i & 0xFF) for i in range(n))
+
+
 def run(spec_path: str) -> Tuple[bool, str]:
     spec: TestSpec = load_spec(spec_path)
-    t = spec.test
+    t: Dict[str, Any] = spec.test
 
     iface_query: str = t.get("iface", "ens1f0")
     l3: str = (t.get("l3") or "raw").lower().strip()
 
-    # Bind interface in Scapy (and normalize iface name)
+    # Bind interface in Scapy (normalize actual name)
     conf.iface = lab.set_iface(iface_query)
 
     # -------------------------
@@ -256,121 +275,248 @@ def run(spec_path: str) -> Tuple[bool, str]:
         return False, f"LINK FAIL - {info}"
 
     # -------------------------
-    # RAW LOOPBACK (NIC↔FPGA)
+    # PAUSE FRAME INJECTION
     # -------------------------
-    if l3 == "raw":
-        src_mac_cfg = t.get("src_mac")
-        dst_mac_cfg = t.get("dst_mac")  # optional; if omitted we broadcast + learn peer
-        verify_loopback = bool(t.get("verify_loopback", False))
-        marker = (t.get("marker", "CDCREW")).encode()
-
-        count = int(t.get("count", 5))
-        timeout = float(t.get("timeout", 3))
-        arm_delay = float(t.get("arm_delay", 0.2))
+    if l3 == "pause":
+        pause_quanta = int(t.get("pause_quanta", 0xFFFF))
+        count = int(t.get("count", 1))
         inter_gap = float(t.get("inter_gap", 0.05))
 
         host_mac = lab.get_iface_mac(conf.iface).lower()
-        tx_src = host_mac if not src_mac_cfg else str(src_mac_cfg).lower()
 
-        # Destination behavior:
-        # - if dst_mac provided: send to that MAC (strict peer matching)
-        # - else: send broadcast and learn the peer MAC from first returned marked frame
-        dst_mac_norm = (str(dst_mac_cfg).strip().lower() if dst_mac_cfg else "")
-        if dst_mac_norm:
-            tx_dst = dst_mac_norm
-            expected_src_strict = dst_mac_norm
-        else:
-            tx_dst = "ff:ff:ff:ff:ff:ff"
-            expected_src_strict = ""
+        # 802.3x MAC Control Pause frame:
+        # DA = 01:80:C2:00:00:01 (slow protocols multicast)
+        # EtherType = 0x8808
+        # Opcode = 0x0001, Quanta = 16-bit
+        dst = "01:80:c2:00:00:01"
+        opcode = 0x0001
+        payload = struct.pack("!HH", opcode, pause_quanta) + (b"\x00" * 42)  # pad to >=46 bytes
 
-        expected_dst = host_mac
-        marker_prefix = marker + b":"
-        payload = spec.payload or b"hello-raw"
-
-        def make_payload(seq: int) -> bytes:
-            return marker_prefix + struct.pack("!I", seq) + payload
-
-        # BPF: only our custom EtherType, and destined either to us or broadcast
-        bpf = f"ether proto 0x9000 and (ether dst {expected_dst} or ether dst ff:ff:ff:ff:ff:ff)"
-
-        learned_peer_mac = {"mac": ""}
-
-        def is_returned(p) -> bool:
-            if not p.haslayer(Ether) or not p.haslayer(Raw):
-                return False
-
-            eth = p[Ether]
-            raw_bytes = bytes(p[Raw].load)
-
-            if not raw_bytes.startswith(marker_prefix):
-                return False
-
-            # IMPORTANT: if verifying loopback, ignore our own TX frames
-            if verify_loopback and eth.src.lower() == host_mac:
-                return False
-
-            # Returned frame must be for us (or broadcast in some setups)
-            if eth.dst.lower() not in (expected_dst, "ff:ff:ff:ff:ff:ff"):
-                return False
-
-            src_l = eth.src.lower()
-
-            # If strict peer MAC is known, enforce it
-            if expected_src_strict:
-                return src_l == expected_src_strict
-
-            # Otherwise learn first non-host source MAC, then enforce it
-            if not learned_peer_mac["mac"]:
-                if src_l != host_mac:
-                    learned_peer_mac["mac"] = src_l
-                    return True
-                return False
-
-            return src_l == learned_peer_mac["mac"]
-
-        print(
-            f"[RAW] iface={conf.iface} host_mac={host_mac} tx={tx_src}->{tx_dst} "
-            f"verify_loopback={verify_loopback} count={count}"
-        )
-
-        sniffer = AsyncSniffer(
-            iface=conf.iface,
-            filter=bpf,
-            lfilter=is_returned,
-            store=True,
-            promisc=True,
-        )
-        sniffer.start()
-        time.sleep(arm_delay)
-
-        for seq in range(count):
+        for _ in range(count):
             lab.send_raw(
                 iface=conf.iface,
-                dst_mac=tx_dst,
-                src_mac=tx_src,
-                payload=make_payload(seq),
+                dst_mac=dst,
+                src_mac=host_mac,
+                payload=payload,
+                ether_type=0x8808,
+                vlan=None,
             )
             time.sleep(inter_gap)
 
-        # Stop and collect
-        pkts = sniffer.stop() or []  # fixes Optional Iterable / None typing
+        return True, f"PAUSE frames sent (count={count}, quanta={pause_quanta}, iface={conf.iface})"
 
-        if not verify_loopback:
-            return True, f"RAW send completed (sniffed {len(pkts)} matching frames)"
+    # -------------------------
+    # RAW LOOPBACK (NIC↔FPGA)
+    # -------------------------
+    if l3 != "raw":
+        return False, f"unsupported l3={l3} (expected 'link', 'raw', or 'pause')"
 
-        # Count UNIQUE sequences returned (dedupe duplicates cleanly)
-        seen = set()
-        for p in pkts:
-            raw_bytes = bytes(p[Raw].load)
-            if len(raw_bytes) >= len(marker_prefix) + 4:
-                seq = struct.unpack("!I", raw_bytes[len(marker_prefix) : len(marker_prefix) + 4])[0]
-                seen.add(seq)
+    # ---- RAW config fields ----
+    test_type = str(t.get("type", "loopback")).lower().strip()
+    verify_loopback = bool(t.get("verify_loopback", False))
+    expect = str(t.get("expect", "pass")).lower().strip()  # "pass" or "drop"
 
-        captured = len(seen)
-        peer_mac_final = learned_peer_mac["mac"] or expected_src_strict or "unknown"
+    marker = (t.get("marker", "CDCREW")).encode()
+    marker_prefix = marker + b":"
 
-        if captured >= count:
-            return True, f"RAW loopback OK (peer_mac={peer_mac_final}, {captured}/{count} unique frames)"
-        return False, f"RAW loopback FAIL (peer_mac={peer_mac_final}, {captured}/{count} unique frames)"
+    count = int(t.get("count", 5))
+    timeout = float(t.get("timeout", 3))
+    arm_delay = float(t.get("arm_delay", 0.2))
+    inter_gap = float(t.get("inter_gap", 0.05))
 
-    return False, f"unsupported l3={l3} (expected 'link' or 'raw')"
+    payload_len = t.get("payload_len")  # int or None
+    pattern = str(t.get("pattern", "inc"))
+    include_ts = bool(t.get("include_ts", False))
+
+    vlan = t.get("vlan", None) if isinstance(t.get("vlan", None), dict) else None
+
+    metrics = t.get("metrics", {}) if isinstance(t.get("metrics", {}), dict) else {}
+    json_out = metrics.get("json_out")
+
+    # ---- MAC selection (NO FPGA MAC needed) ----
+    host_mac = lab.get_iface_mac(conf.iface).lower()
+
+    src_mac_cfg = t.get("src_mac")
+    tx_src = host_mac if not src_mac_cfg else str(src_mac_cfg).lower()
+
+    # Destination selection:
+    # - If dst_kind specified: broadcast or multicast (no FPGA MAC needed)
+    # - Else if dst_mac specified: use it
+    # - Else default broadcast (so it "just works" with iface/board)
+    dst_kind = str(t.get("dst_kind", "")).lower().strip()
+    dst_mac_cfg = t.get("dst_mac")
+
+    if dst_kind == "broadcast":
+        tx_dst = "ff:ff:ff:ff:ff:ff"
+    elif dst_kind == "multicast":
+        tx_dst = str(t.get("multicast_mac", "01:00:5e:00:00:01")).lower()
+    else:
+        tx_dst = str(dst_mac_cfg).lower().strip() if dst_mac_cfg else "ff:ff:ff:ff:ff:ff"
+
+    expected_dst = host_mac
+
+    # We want to IGNORE our own TX packets and only count returned ones.
+    # We do NOT require peer MAC knowledge.
+    # We'll "learn" the first non-host src MAC we see for our marker and stick to it.
+    learned_peer_mac = {"mac": ""}
+
+    # BPF filter: only our custom EtherType frames.
+    # We allow dst to be us or broadcast (depending on board behavior).
+    bpf = f"ether proto 0x9000 and (ether dst {expected_dst} or ether dst ff:ff:ff:ff:ff:ff)"
+
+    send_times_us: Dict[int, int] = {}
+
+    def make_payload(seq: int) -> bytes:
+        header = marker_prefix + struct.pack("!I", seq)
+        if include_ts:
+            ts_us = int(time.time() * 1e6)
+            send_times_us[seq] = ts_us
+            header += struct.pack("!Q", ts_us)
+
+        if payload_len is None:
+            # Use provided payload or default
+            body = spec.payload if spec.payload else b"hello-raw"
+            return header + body
+
+        target = int(payload_len)
+        if target <= len(header):
+            # undersize/runt case: truncate header
+            return header[:target]
+
+        body = _pattern_bytes(target - len(header), pattern)
+        return header + body
+
+    def is_returned(p) -> bool:
+        if not p.haslayer(Ether) or not p.haslayer(Raw):
+            return False
+
+        eth = p[Ether]
+        raw_bytes = bytes(p[Raw].load)
+
+        if not raw_bytes.startswith(marker_prefix):
+            return False
+
+        # Ignore our own TX frames when verifying loopback
+        if verify_loopback and eth.src.lower() == host_mac:
+            return False
+
+        # Must be destined to us or broadcast
+        if eth.dst.lower() not in (expected_dst, "ff:ff:ff:ff:ff:ff"):
+            return False
+
+        src_l = eth.src.lower()
+
+        # Learn + enforce a single peer MAC for this run
+        if not learned_peer_mac["mac"]:
+            if src_l != host_mac:
+                learned_peer_mac["mac"] = src_l
+                return True
+            return False
+
+        return src_l == learned_peer_mac["mac"]
+
+    print(
+        f"[RAW] iface={conf.iface} host_mac={host_mac} tx={tx_src}->{tx_dst} "
+        f"verify={verify_loopback} count={count} payload_len={payload_len} "
+        f"dst_kind={dst_kind or 'mac/broadcast'} vlan={'on' if (vlan and vlan.get('enabled')) else 'off'} "
+        f"expect={expect}"
+    )
+
+    sniffer = AsyncSniffer(
+        iface=conf.iface,
+        filter=bpf,
+        lfilter=is_returned,
+        store=True,
+        promisc=True,
+    )
+    sniffer.start()
+    time.sleep(arm_delay)
+
+    t_start = time.time()
+    for seq in range(count):
+        lab.send_raw(
+            iface=conf.iface,
+            dst_mac=tx_dst,
+            src_mac=tx_src,
+            payload=make_payload(seq),
+            ether_type=0x9000,
+            vlan=vlan,
+        )
+        if inter_gap > 0:
+            time.sleep(inter_gap)
+
+    # Stop and collect (avoid Optional[PacketList])
+    pkts = sniffer.stop() or []
+
+    if not verify_loopback:
+        return True, f"RAW send completed (sniffed {len(pkts)} returned frames)"
+
+    # Unique seq count + optional RTT
+    seen = set()
+    rtts_us: List[int] = []
+
+    for p in pkts:
+        raw_bytes = bytes(p[Raw].load)
+        if len(raw_bytes) < len(marker_prefix) + 4:
+            continue
+
+        seq = struct.unpack("!I", raw_bytes[len(marker_prefix) : len(marker_prefix) + 4])[0]
+        seen.add(seq)
+
+        if include_ts and len(raw_bytes) >= len(marker_prefix) + 4 + 8:
+            ts_sent = struct.unpack("!Q", raw_bytes[len(marker_prefix) + 4 : len(marker_prefix) + 12])[0]
+            ts_now = int(time.time() * 1e6)
+            rtts_us.append(max(0, ts_now - ts_sent))
+
+    captured = len(seen)
+    peer_mac_final = learned_peer_mac["mac"] or "unknown"
+    duration_s = max(1e-9, time.time() - t_start)
+    loss = max(0, count - captured)
+
+    # Metrics JSON (optional)
+    if json_out:
+        os.makedirs(os.path.dirname(json_out), exist_ok=True)
+        out: Dict[str, Any] = {
+            "name": spec.name,
+            "iface": conf.iface,
+            "test_type": test_type,
+            "host_mac": host_mac,
+            "peer_mac": peer_mac_final,
+            "tx_dst": tx_dst,
+            "dst_kind": dst_kind,
+            "sent": count,
+            "received_unique": captured,
+            "loss": loss,
+            "duration_s": duration_s,
+            "pps": (count / duration_s),
+            "payload_len": payload_len,
+            "pattern": pattern,
+            "include_ts": include_ts,
+            "vlan": vlan,
+            "expect": expect,
+        }
+        if rtts_us:
+            rtts_sorted = sorted(rtts_us)
+            out["rtt_us"] = {
+                "min": rtts_sorted[0],
+                "p50": rtts_sorted[len(rtts_sorted) // 2],
+                "p95": rtts_sorted[int(len(rtts_sorted) * 0.95) - 1],
+                "p99": rtts_sorted[int(len(rtts_sorted) * 0.99) - 1],
+                "max": rtts_sorted[-1],
+                "n": len(rtts_sorted),
+            }
+        with open(json_out, "w", encoding="utf-8") as f:
+            json.dump(out, f, indent=2)
+
+    # Expectation handling
+    if expect == "drop":
+        # For runt/oversize tests, driver/NIC may normalize frames.
+        # Treat "almost nothing returned" as success.
+        if captured <= 1:
+            return True, f"RAW expected-drop OK (peer_mac={peer_mac_final}, returned {captured}/{count})"
+        return False, f"RAW expected-drop FAIL (peer_mac={peer_mac_final}, returned {captured}/{count})"
+
+    if captured >= count:
+        return True, f"RAW loopback OK (peer_mac={peer_mac_final}, {captured}/{count} unique frames)"
+    return False, f"RAW loopback FAIL (peer_mac={peer_mac_final}, {captured}/{count} unique frames)"
+

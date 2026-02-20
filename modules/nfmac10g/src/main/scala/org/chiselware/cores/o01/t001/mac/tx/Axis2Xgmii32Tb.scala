@@ -52,6 +52,8 @@ class Axis2Xgmii32Tb(val p: Axis2Xgmii32Params) extends Module {
 
     dut.clock := io.clk
     dut.reset := io.rst
+    io.s_axis_tx <> dut.io.s_axis_tx
+    dut.io.m_axis_tx_cpl <> io.m_axis_tx_cpl
     io.xgmii_txd := dut.io.xgmii_txd
     io.xgmii_txc := dut.io.xgmii_txc
     io.xgmii_tx_valid := dut.io.xgmii_tx_valid

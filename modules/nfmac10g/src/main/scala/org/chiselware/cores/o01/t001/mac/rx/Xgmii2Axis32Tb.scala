@@ -47,11 +47,10 @@ class Xgmii2Axis32Tb(val p: Xgmii2Axis32Params) extends Module {
     dut.io.xgmii_rxd      := io.xgmii_rxd
     dut.io.xgmii_rxc      := io.xgmii_rxc
     dut.io.xgmii_rx_valid := io.xgmii_rx_valid
+    io.m_axis_rx            <> dut.io.m_axis_rx
     dut.io.ptp_ts         := io.ptp_ts
     dut.io.cfg_rx_max_pkt_len := io.cfg_rx_max_pkt_len
     dut.io.cfg_rx_enable      := io.cfg_rx_enable
-
-    io.m_axis_rx            := dut.io.m_axis_rx
     io.rx_start_packet      := dut.io.rx_start_packet
     io.stat_rx_byte         := dut.io.stat_rx_byte
     io.stat_rx_pkt_len      := dut.io.stat_rx_pkt_len

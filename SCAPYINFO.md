@@ -99,14 +99,14 @@ scp "file directory" ubuntu@192.168.10.10:/home/ubuntu/
 ## Performing Loopback with File Transfer
 The FPGANinja taxi repo only contains PL logic and no PS logic so Linux shell cannot be used. To send files, the following must be used.
 
-Have two terminals open on the PC (one for send, one for receive)
+Have two terminals open on the PC (one for sending packets for loopback, one for sniffing packets)
 
-Run the following command in receive terminal.
+Run the following command in terminal A. This checks the packets that are being transmitted.
 ```bash
-sudo tcpdump -i ens6 ether proto 0x88b5 -w rx.pcap
+sudo tcpdump -i ens6 -e -n -Q out ether proto 0x88b5 -w tx.pcap
 ```
 
-Run the following command in send terminal
+Run the following command in terminal B.
 ```bash
 sudo python3 send_file.py
 ```
@@ -133,14 +133,30 @@ for i in range(0, len(data), chunk_size):
 print("Sent", len(data), "bytes")
 ```
 Once the packet have been sent, press ctrl+C. 
-Then run the following two commands in the receive terminal.
+Then run the following two commands in terminal A.
 ```bash
-tcpdump -r rx.pcap -XX | grep -oP '(?<=0x0030: ).*' | tr -d ' ' | xxd -r -p > out.bin
+tcpdump -r tx.pcap -XX | grep -oP '(?<=0x0030: ).*' | tr -d ' ' | xxd -r -p > tx.bin
 ```
 
+
+Repeat the above process but for packets looping back from FPGA to computer in terminal A.
 ```bash
-sha256sum random.txt out.bin
+sudo tcpdump -i ens6 -e -n -Q in ether proto 0x88b5 -w rx.pcap
 ```
+
+Then, run `sudo python3 send_file.py` in terminal B.
+
+Press ctrl+C in terminal A, then run:
+```bash
+tcpdump -r rx.pcap -XX | grep -oP '(?<=0x0030: ).*' | tr -d ' ' | xxd -r -p > rx.bin
+```
+
+Then, check the hash of the packets sent and received with the following:
+
+```bash
+sha256sum rx.bin tx.bin
+```
+
 ## For FWUEN mode (QSPI image upload)
 You must configure the IP address of the ethernet port connected to the FPGA board.
 ```bash

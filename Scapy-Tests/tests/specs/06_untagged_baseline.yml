@@ -1,0 +1,15 @@
+name: "06 - RAW Loopback Untagged Baseline"
+backend: "hw"
+test:
+  type: loopback
+  iface: "ens6"
+  l3: "raw"
+  verify_loopback: true
+  count: 100
+  timeout: 3
+  marker: "CDCREW"
+  payload_len: 256
+  pattern: "inc"
+  vlan:
+    enabled: false
+payload: ""

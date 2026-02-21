@@ -1,0 +1,14 @@
+name: "12 - RAW Undersize (Runt) Robustness (Expected Result is to Drop)"
+backend: "hw"
+test:
+  type: loopback
+  iface: "ens6"
+  l3: "raw"
+  verify_loopback: true
+  expect: "drop"
+  count: 50
+  timeout: 3
+  marker: "CDCREW"
+  payload_len: 6
+  pattern: "inc"
+payload: ""

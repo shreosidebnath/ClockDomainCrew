@@ -1,0 +1,14 @@
+name: "13 - RAW Oversize Robustness (Expected Result is to Drop)"
+backend: "hw"
+test:
+  type: loopback
+  iface: "ens6"
+  l3: "raw"
+  verify_loopback: true
+  expect: "drop"
+  count: 20
+  timeout: 5
+  marker: "CDCREW"
+  payload_len: 9696
+  pattern: "prbs"
+payload: ""

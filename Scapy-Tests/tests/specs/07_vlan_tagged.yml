@@ -1,0 +1,16 @@
+name: "07 - RAW Loopback VLAN Tagged (VID 100)"
+backend: "hw"
+test:
+  type: loopback
+  iface: "ens6"
+  l3: "raw"
+  verify_loopback: true
+  count: 100
+  timeout: 3
+  marker: "CDCREW"
+  payload_len: 256
+  pattern: "inc"
+  vlan:
+    enabled: true
+    vid: 100
+payload: ""

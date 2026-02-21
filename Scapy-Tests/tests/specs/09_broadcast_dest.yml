@@ -1,0 +1,14 @@
+name: "09 - RAW Loopback Broadcast Dest"
+backend: "hw"
+test:
+  type: loopback
+  iface: "ens6"
+  l3: "raw"
+  dst_kind: "broadcast"
+  verify_loopback: true
+  count: 50
+  timeout: 3
+  marker: "CDCREW"
+  payload_len: 128
+  pattern: "inc"
+payload: ""

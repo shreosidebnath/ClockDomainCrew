@@ -119,30 +119,48 @@ class Lfsr(
   // State Output
   val next_state = Wire(Vec(lfsrW, Bool()))
   for (i <- 0 until lfsrW) {
-    val state_contrib = (0 until lfsrW).filter(b => ((v_state(i) >> b) & 1) == 1).map(b => io.state_in(b))
-    val data_contrib  = (0 until dataW).filter(b => ((v_data(i) >> b) & 1) == 1).map(b => io.data_in(b))
+    // If reverse is true, we need to map to the inverted mask index
+    val mask_i = if (reverse) lfsrW - 1 - i else i
+    
+    val state_contrib = (0 until lfsrW)
+      .filter(b => ((v_state(mask_i) >> b) & 1) == 1)
+      // Mirror the state_in pin mapping if reversed
+      .map(b => io.state_in(if (reverse) lfsrW - 1 - b else b))
+      
+    val data_contrib  = (0 until dataW)
+      .filter(b => ((v_data(mask_i) >> b) & 1) == 1)
+      // data_in does NOT need mirroring here because data_idx was flipped in the sim loop
+      .map(b => io.data_in(b)) 
+      
     val all_contribs = state_contrib ++ (if (dataInEn) data_contrib else Seq())
     
-    if (all_contribs.nonEmpty) next_state(i) := all_contribs.reduce(_ ^ _) else next_state(i) := false.B
+    if (all_contribs.nonEmpty) next_state(i) := all_contribs.reduce(_ ^ _) 
+    else next_state(i) := false.B
   }
   io.state_out := next_state.asUInt
 
   // Data Output
   val data_out_wire = Wire(Vec(dataW, Bool()))
   for (i <- 0 until dataW) {
-    // SV Reverse logic mapped output_mask indices differently
     val mask_idx = if (reverse) dataW - 1 - i else i
     
     val s_mask = v_out_state(mask_idx)
     val d_mask = v_out_data(mask_idx)
     
-    val state_contrib = (0 until lfsrW).filter(b => ((s_mask >> b) & 1) == 1).map(b => io.state_in(b))
-    val data_contrib  = (0 until dataW).filter(b => ((d_mask >> b) & 1) == 1).map(b => io.data_in(b))
+    val state_contrib = (0 until lfsrW)
+      .filter(b => ((s_mask >> b) & 1) == 1)
+      // Mirror the state_in pin mapping if reversed
+      .map(b => io.state_in(if (reverse) lfsrW - 1 - b else b))
+      
+    val data_contrib  = (0 until dataW)
+      .filter(b => ((d_mask >> b) & 1) == 1)
+      .map(b => io.data_in(b))
     
     val all_contribs = state_contrib ++ (if (dataInEn) data_contrib else Seq())
     
     if (dataOutEn) {
-       if (all_contribs.nonEmpty) data_out_wire(i) := all_contribs.reduce(_ ^ _) else data_out_wire(i) := false.B
+       if (all_contribs.nonEmpty) data_out_wire(i) := all_contribs.reduce(_ ^ _) 
+       else data_out_wire(i) := false.B
     } else {
        data_out_wire(i) := false.B
     }
@@ -158,29 +176,29 @@ object Lfsr {
   ))
 }
 
-// object Main extends App {
-//   val mainClassName = "Nfmac10g"
-//   val coreDir = s"modules/${mainClassName.toLowerCase()}"
-//   LfsrParams.synConfigMap.foreach { case (configName, p) =>
-//     println(s"Generating Verilog for config: $configName")
-//     ChiselStage.emitSystemVerilog(
-//       new Lfsr(
-//         lfsrW = p.lfsrW, lfsrPoly = p.lfsrPoly, lfsrGalois = p.lfsrGalois,
-//         lfsrFeedForward = p.lfsrFeedForward, reverse = p.reverse, dataW = p.dataW,
-//         dataInEn = p.dataInEn, dataOutEn = p.dataOutEn
-//       ),
-//       firtoolOpts = Array(
-//         "--lowering-options=disallowLocalVariables,disallowPackedArrays",
-//         "--disable-all-randomization",
-//         "--strip-debug-info",
-//         "--split-verilog",
-//         s"-o=${coreDir}/generated/synTestCases/$configName"
-//       )
-//     )
-//     // Synthesis collateral generation
-//     sdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-//     YosysTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
-//     StaTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
-//     RunScriptFile.create(mainClassName, LfsrParams.synConfigs, s"${coreDir}/generated/synTestCases")
-//   }
-// }
+object Main extends App {
+  val mainClassName = "Nfmac10g"
+  val coreDir = s"modules/${mainClassName.toLowerCase()}"
+  LfsrParams.synConfigMap.foreach { case (configName, p) =>
+    println(s"Generating Verilog for config: $configName")
+    ChiselStage.emitSystemVerilog(
+      new Lfsr(
+        lfsrW = p.lfsrW, lfsrPoly = p.lfsrPoly, lfsrGalois = p.lfsrGalois,
+        lfsrFeedForward = p.lfsrFeedForward, reverse = p.reverse, dataW = p.dataW,
+        dataInEn = p.dataInEn, dataOutEn = p.dataOutEn
+      ),
+      firtoolOpts = Array(
+        "--lowering-options=disallowLocalVariables,disallowPackedArrays",
+        "--disable-all-randomization",
+        "--strip-debug-info",
+        "--split-verilog",
+        s"-o=${coreDir}/generated/synTestCases/$configName"
+      )
+    )
+    // Synthesis collateral generation
+    sdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
+    YosysTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
+    StaTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
+    RunScriptFile.create(mainClassName, LfsrParams.synConfigs, s"${coreDir}/generated/synTestCases")
+  }
+}

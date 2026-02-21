@@ -5,16 +5,16 @@ import _root_.circt.stage.ChiselStage
 import org.chiselware.syn.{YosysTclFile, StaTclFile, RunScriptFile}
 import java.io.{File, PrintWriter}
 
-// --- Interface Definition ---
-// Matches taxi_axis_if.src usage
-class AxisInterface(val dataW: Int, val userW: Int, val idW: Int = 8, val destW: Int = 8) extends Bundle {
-  val tdata  = Output(UInt(dataW.W))
-  val tkeep  = Output(UInt((dataW/8).W))
-  val tstrb  = Output(UInt((dataW/8).W))
-  val tvalid = Output(Bool())
+class AxisInterface(val p: AxisInterfaceParams) extends Bundle {
+  // By default, this interface is for outputs (src) 
+  // Flipped() can be used to create a sink (snk).
+  val tdata  = Output(UInt(p.dataW.W))
+  val tkeep  = Output(UInt(p.keepW.W))
+  val tstrb  = Output(UInt(p.keepW.W))
+  val tid    = Output(UInt(p.idW.W))
+  val tdest  = Output(UInt(p.destW.W))
+  val tuser  = Output(UInt(p.userW.W))
   val tlast  = Output(Bool())
-  val tuser  = Output(UInt(userW.W))
-  val tid    = Output(UInt(idW.W))
-  val tdest  = Output(UInt(destW.W))
-  val tready = Input(Bool()) // Present in interface, but ignored by RX MAC (push only)
+  val tvalid = Output(Bool())
+  val tready = Input(Bool()) // tready flows in the opposite direction
 }

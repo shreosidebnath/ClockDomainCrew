@@ -4,21 +4,22 @@ import chisel3.util._
 import scala.collection.mutable.LinkedHashMap
 import java.io.{File, PrintWriter}
 
-case class Xgmii2Axis32Params(
-    dataW: Int = 32,
-    ctrlW: Int = 4,
-    gbxIfEn: Boolean = false,
+case class Xgmii2Axis64Params(
+    dataW: Int = 64,
+    ctrlW: Int = 8,
+    gbxIfEn: Boolean = true,
     ptpTsEn: Boolean = false,
+    ptpTsFmtTod: Boolean = true,
     ptpTsW: Int = 96
 )
 
-object Xgmii2Axis32Params {
-  val simConfigMap = LinkedHashMap[String, Xgmii2Axis32Params](
-    "config" -> Xgmii2Axis32Params()
+object Xgmii2Axis64Params {
+  val simConfigMap = LinkedHashMap[String, Xgmii2Axis64Params](
+    "config" -> Xgmii2Axis64Params()
   )
 
-  val synConfigMap = LinkedHashMap[String, Xgmii2Axis32Params](
-    "mac_xgmii_2_axis_32_inst" -> Xgmii2Axis32Params()
+  val synConfigMap = LinkedHashMap[String, Xgmii2Axis64Params](
+    "mac_xgmii_2_axis_64_inst" -> Xgmii2Axis64Params()
   )
 
   val synConfigs = synConfigMap.keys.mkString(" ")
@@ -29,7 +30,7 @@ object sdcFile {
     val sdcFileData = ""
     val sdcFileDir = new File(sdcFilePath)
     sdcFileDir.mkdirs()
-    val sdcFileName = new File(s"$sdcFilePath/Xgmii2Axis32.sdc")
+    val sdcFileName = new File(s"$sdcFilePath/Xgmii2Axis64.sdc")
     val sdcFile = new PrintWriter(sdcFileName)
     sdcFile.write(sdcFileData)
     sdcFile.close()

@@ -6,41 +6,47 @@ import org.chiselware.syn.{YosysTclFile, StaTclFile, RunScriptFile}
 import java.io.{File, PrintWriter}
 
 
-class AxisTie(
-  val dataW: Int, 
-  val userW: Int, 
-  val idW: Int = 8, 
-  val destW: Int = 8,
-  // AXI4-Stream feature enable flags to match SystemVerilog interface parameters
-  val keepEn: Boolean = true,
-  val strbEn: Boolean = true,
-  val lastEn: Boolean = true,
-  val idEn:   Boolean = true,
-  val destEn: Boolean = true,
-  val userEn: Boolean = true
-) extends RawModule {
-  
+class AxisTie(sParams: AxisInterfaceParams, mParams: AxisInterfaceParams) extends Module {
   val io = IO(new Bundle {
-    val s_axis = Flipped(new AxisInterface(dataW, userW, idW, destW))
-    val m_axis = new AxisInterface(dataW, userW, idW, destW)
+    // Flipped() creates the sink (input) interface
+    val s_axis = Flipped(new AxisInterface(sParams))
+    // Default creates the source (output) interface
+    val m_axis = new AxisInterface(mParams)
   })
 
-  // SystemVerilog $fatal checks translate perfectly to Chisel's require() statements.
-  // We check this at elaboration time.
-  require(io.m_axis.dataW == dataW, "Error: Interface DATA_W parameter mismatch")
-  
-  val keepW = dataW / 8
-  if (keepEn) {
-    require((io.m_axis.dataW / 8) == keepW, "Error: Interface KEEP_W parameter mismatch")
-  }
+  // Extract and combine parameters (Equivalent to SV localparams)
+  val dataW  = sParams.dataW
+  val keepEn = sParams.keepEn && mParams.keepEn
+  val keepW  = sParams.keepW
+  val strbEn = sParams.strbEn && mParams.strbEn
+  val lastEn = sParams.lastEn && mParams.lastEn
+  val idEn   = sParams.idEn && mParams.idEn
+  val destEn = sParams.destEn && mParams.destEn
+  val userEn = sParams.userEn && mParams.userEn
 
-  // AXI4-Stream tie logic
+  // Check configuration (Equivalent to SV $fatal checks)
+  require(
+    mParams.dataW == dataW, 
+    s"Error: Interface DATA_W parameter mismatch (m_axis: ${mParams.dataW}, s_axis: $dataW)"
+  )
+  
+  require(
+    !(keepEn && (mParams.keepW != keepW)), 
+    s"Error: Interface KEEP_W parameter mismatch (m_axis: ${mParams.keepW}, s_axis: $keepW)"
+  )
+
+  // Direct Assignments
   io.m_axis.tdata  := io.s_axis.tdata
+  io.m_axis.tvalid := io.s_axis.tvalid
+  io.s_axis.tready := io.m_axis.tready
+
+  // Conditional Assignments based on the combined enable flags
   
   if (keepEn) {
     io.m_axis.tkeep := io.s_axis.tkeep
   } else {
-    io.m_axis.tkeep := ((BigInt(1) << keepW) - 1).U
+    // Equivalent to '1 in SystemVerilog
+    io.m_axis.tkeep := Fill(mParams.keepW, 1.U(1.W)) 
   }
 
   if (strbEn) {
@@ -48,8 +54,6 @@ class AxisTie(
   } else {
     io.m_axis.tstrb := io.m_axis.tkeep
   }
-
-  io.m_axis.tvalid := io.s_axis.tvalid
 
   if (lastEn) {
     io.m_axis.tlast := io.s_axis.tlast
@@ -74,6 +78,22 @@ class AxisTie(
   } else {
     io.m_axis.tuser := 0.U
   }
+}
 
-  io.s_axis.tready := io.m_axis.tready
+
+// 2. The Companion Object (The Magic Factory)
+object AxisTie {
+  // This takes the ACTUAL interface objects you already created in your parent module
+  def apply(s_axis_in: AxisInterface, m_axis_out: AxisInterface): Unit = {
+    
+    // Extract the parameters directly from the passed objects!
+    val s_params = s_axis_in.p
+    val m_params = m_axis_out.p
+    
+    // Instantiate the underlying module
+    val tie_inst = Module(new AxisTie(s_params, m_params))
+    
+    tie_inst.io.s_axis <> s_axis_in
+    m_axis_out <> tie_inst.io.m_axis
+  }
 }

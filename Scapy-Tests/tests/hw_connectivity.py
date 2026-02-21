@@ -1,221 +1,3 @@
-# import threading, time, socket, sys, os
-# from scapy.all import conf
-# from scapy.layers.l2 import Ether
-# from scapy.packet import Raw
-# from tests.base import load_spec, TestSpec
-# from scapy.all import AsyncSniffer 
-# import struct
-
-
-# # Add repo root (Verification_Compliance) to sys.path so we can import scapy_lab_win.py
-# _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-# if _REPO_ROOT not in sys.path:
-#     sys.path.append(_REPO_ROOT)
-
-# import scapy_framework as lab  # type: ignore[import]
-
-
-# def _udp_echo_server(bind_ip="127.0.0.1", port=12345, stop_after=5.0):
-#     def _run():
-#         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-#         s.bind((bind_ip, port))
-#         s.settimeout(0.25)
-#         t0 = time.time()
-#         try:
-#             while time.time() - t0 < stop_after:
-#                 try:
-#                     data, addr = s.recvfrom(65535)
-#                     if data:
-#                         s.sendto(data, addr)
-#                 except socket.timeout:
-#                     pass
-#         finally:
-#             s.close()
-
-#     th = threading.Thread(target=_run, daemon=True)
-#     th.start()
-#     return th
-
-
-# def run(spec_path: str):
-#     spec: TestSpec = load_spec(spec_path)
-#     t = spec.test
-
-#     iface_query: str = t.get("iface", "ens1f0")
-#     l3: str = t.get("l3", "icmp").lower()
-#     dst_ip: str = t.get("dst_ip", "127.0.0.1")
-#     count: int = int(t.get("count", 3))
-#     timeout: int = int(t.get("timeout", 10))
-
-#     # Bind interface in Scapy
-#     conf.iface = lab.set_iface(iface_query)
-
-#     # ---- ICMP ----
-#     if l3 == "icmp":
-#         lab.send_ping(iface_query, dst_ip, count=count, timeout=timeout)
-#         lab.sniff_packets(
-#             iface_query,
-#             bpf="icmp",
-#             count=count,
-#             timeout=max(5, timeout + 2),
-#         )
-#         return True, "local ICMP ping + sniff ok"
-
-#     # ---- UDP (local echo on localhost) ----
-#     if l3 == "udp":
-#         udp_port = int(t.get("udp_port", 12345))
-#         echo = _udp_echo_server(dst_ip, udp_port, stop_after=5.0)
-
-#         sniffer = threading.Thread(
-#             target=lambda: lab.sniff_packets(
-#                 iface_query,
-#                 bpf="udp",
-#                 count=count * 2,
-#                 timeout=5,
-#             ),
-#             daemon=True,
-#         )
-#         sniffer.start()
-#         time.sleep(0.2)
-
-#         for _ in range(count):
-#             lab.send_udp(
-#                 iface_query,
-#                 dst_ip,
-#                 dport=udp_port,
-#                 payload=spec.payload or b"hello",
-#                 timeout=timeout,
-#             )
-#             time.sleep(0.05)
-
-#         sniffer.join(timeout=6)
-#         echo.join(timeout=6)
-#         return True, "local UDP echo + sniff ok"
-
-#     # ---- RAW ETHERNET (FPGA/NIC test) ----
-#     if l3 == "raw":
-#         # --- read spec fields ---
-#         src_mac_cfg = t.get("src_mac")
-#         dst_mac_cfg = t.get("dst_mac")
-#         verify_loopback = bool(t.get("verify_loopback", False))
-#         mode = (t.get("loopback_mode") or "").lower().strip()  # "nic" or "peer"
-#         marker = (t.get("marker", "CDCREW")).encode()
-
-#         count = int(t.get("count", 5))
-#         timeout = int(t.get("timeout", 3))
-#         arm_delay = float(t.get("arm_delay", 0.2))
-#         inter_gap = float(t.get("inter_gap", 0.05))
-
-#         # --- ground truth: host interface MAC ---
-#         host_mac = lab.get_if_hwaddr(conf.iface).lower()
-
-#         # --- decide loopback mode (never infer if explicitly provided) ---
-#         dst_mac_l = (dst_mac_cfg.lower() if dst_mac_cfg else "")
-#         if not mode:
-#             # infer: if user is sending to self, treat as NIC loopback, otherwise peer
-#             mode = "nic" if (dst_mac_l == host_mac or not dst_mac_l) else "peer"
-
-#         # --- compute TX src/dst and expected RX src/dst ---
-#         if mode == "nic":
-#             # NIC self-loopback: send to self, expect src=self dst=self
-#             tx_src = host_mac
-#             tx_dst = host_mac
-#             expected_src = host_mac
-#             expected_dst = host_mac
-#             label = "NIC RAW loopback"
-#         else:
-#             # Peer/FPGA loopback: send to peer, expect return src=peer dst=host
-#             if not dst_mac_cfg:
-#                 return False, "peer loopback requires dst_mac (peer/FPGA MAC) in spec"
-
-#             peer_mac = dst_mac_cfg.lower()
-#             tx_src = host_mac if not src_mac_cfg else src_mac_cfg.lower()
-#             tx_dst = peer_mac
-#             expected_src = peer_mac
-#             expected_dst = host_mac
-#             label = "FPGA RAW loopback"
-
-#         # --- payload format: marker + seq + user_payload ---
-#         payload = spec.payload or b"hello-raw"
-#         marker_prefix = marker + b":"
-#         # we’ll include a 32-bit sequence to dedupe reliably (NIC loopback often double-captures)
-#         # frame payload: b"CDCREW:" + seq(4B) + payload
-#         def make_payload(seq: int) -> bytes:
-#             return marker_prefix + struct.pack("!I", seq) + payload
-
-#         # --- sniffer filters ---
-#         # BPF narrows to our EtherType and frames destined to expected_dst (host_mac in both modes)
-#         bpf = f"ether proto 0x9000 and ether dst {expected_dst}"
-
-#         # lfilter ensures marker and expected src/dst match
-#         def is_returned(p):
-#             if not p.haslayer(Ether) or not p.haslayer(Raw):
-#                 return False
-#             eth = p[Ether]
-#             raw = bytes(p[Raw].load)
-
-#             if not raw.startswith(marker_prefix):
-#                 return False
-
-#             # strict src/dst match for the RETURNED frame
-#             if eth.src.lower() != expected_src:
-#                 return False
-#             if eth.dst.lower() != expected_dst:
-#                 return False
-
-#             return True
-
-#         print(
-#             f"[RAW] iface={iface_query} mode={mode} host_mac={host_mac} "
-#             f"tx={tx_src}->{tx_dst} expect={expected_src}->{expected_dst} "
-#             f"count={count} verify_loopback={verify_loopback}"
-#         )
-
-#         # --- start sniffer first (race-safe) ---
-#         sniffer = AsyncSniffer(
-#             iface=conf.iface,
-#             filter=bpf,
-#             lfilter=is_returned,
-#             store=True,
-#             promisc=True,
-#         )
-#         sniffer.start()
-#         time.sleep(arm_delay)
-
-#         # --- send frames ---
-#         for seq in range(count):
-#             lab.send_raw(
-#                 iface_query,
-#                 dst_mac=tx_dst,
-#                 src_mac=tx_src,
-#                 payload=make_payload(seq),
-#             )
-#             time.sleep(inter_gap)
-
-#         # --- stop and collect ---
-#         pkts = sniffer.stop()
-
-#         if not verify_loopback:
-#             # if you ever want a "send-only" mode, this at least confirms we saw something relevant
-#             return True, f"RAW send completed (sniffed {len(pkts)} matching frames)"
-
-#         # --- count UNIQUE sequences returned (fixes 20/10 NIC duplicates cleanly) ---
-#         seen = set()
-#         for p in pkts:
-#             raw = bytes(p[Raw].load)
-#             # raw is b"CDCREW:" + 4B seq + payload
-#             if len(raw) >= len(marker_prefix) + 4:
-#                 seq = struct.unpack("!I", raw[len(marker_prefix):len(marker_prefix) + 4])[0]
-#                 seen.add(seq)
-
-#         captured = len(seen)
-
-#         if captured >= count:
-#             return True, f"{label} OK (captured {captured}/{count} unique marked frames)"
-#         else:
-#             return False, f"{label} FAIL (captured {captured}/{count} unique marked frames)"
-
-#     return False, f"unsupported l3={l3}"
 import os
 import sys
 import time
@@ -274,37 +56,161 @@ def run(spec_path: str) -> Tuple[bool, str]:
         if ok:
             return True, f"LINK OK - {info}"
         return False, f"LINK FAIL - {info}"
+    
+        # -------------------------
+    # PAUSE FRAME TEST (NIC -> DUT)
+    # - Send a stream of RAW frames that the DUT loops back (creates DUT TX)
+    # - Inject PAUSE frames mid-stream
+    # - Verify we observe a "quiet gap" in returned frames after PAUSE
+    # -------------------------
+    if l3 == "pause_frame":
+        # --- parameters ---
+        marker = (t.get("marker", "CDCREW")).encode()
+        marker_prefix = marker + b":"
 
-    # -------------------------
-    # PAUSE FRAME INJECTION
-    # -------------------------
-    if l3 == "pause":
+        data_count = int(t.get("data_count", 200))
+        data_payload_len = int(t.get("data_payload_len", 256))
+        data_pattern = str(t.get("data_pattern", "inc"))
+        data_inter_gap = float(t.get("data_inter_gap", 0.0005))
+        inject_after = int(t.get("inject_after", max(1, data_count // 4)))
+
         pause_quanta = int(t.get("pause_quanta", 0xFFFF))
-        count = int(t.get("count", 1))
-        inter_gap = float(t.get("inter_gap", 0.05))
+        pause_count = int(t.get("pause_count", 5))
+        pause_inter_gap = float(t.get("pause_inter_gap", 0.01))
+
+        observe_window_s = float(t.get("observe_window_s", 0.25))
+        require_gap_s = float(t.get("require_gap_s", 0.05))
+
+        arm_delay = float(t.get("arm_delay", 0.05))
+        timeout = float(t.get("timeout", 2))
+
+        vlan = t.get("vlan", None) if isinstance(t.get("vlan", None), dict) else None
 
         host_mac = lab.get_iface_mac(conf.iface).lower()
 
-        # 802.3x MAC Control Pause frame:
-        # DA = 01:80:C2:00:00:01 (slow protocols multicast)
-        # EtherType = 0x8808
-        # Opcode = 0x0001, Quanta = 16-bit
-        dst = "01:80:c2:00:00:01"
-        opcode = 0x0001
-        payload = struct.pack("!HH", opcode, pause_quanta) + (b"\x00" * 42)  # pad to >=46 bytes
+        # Destination defaults to broadcast (consistent with your other tests)
+        dst_kind = str(t.get("dst_kind", "")).lower().strip()
+        dst_mac_cfg = t.get("dst_mac")
+        
+        tx_dst = "ff:ff:ff:ff:ff:ff"
+        tx_src = host_mac if not t.get("src_mac") else str(t.get("src_mac")).lower()
 
-        for _ in range(count):
+        # Payload generator: marker + seq + padding bytes
+        def make_data_payload(seq: int) -> bytes:
+            header = marker_prefix + struct.pack("!I", seq)
+            if data_payload_len <= len(header):
+                return header[:data_payload_len]
+            body = _pattern_bytes(data_payload_len - len(header), data_pattern)
+            return header + body
+
+        # Sniff filter: capture our test ether_type for both untagged and VLAN-tagged frames
+        # (If VLAN is used, inner ethertype is 0x9000)
+        bpf = "ether proto 0x9000 or (vlan and ether proto 0x9000)"
+
+        def is_marked(p) -> bool:
+            # Only count frames that contain our marker prefix in the Raw payload.
+            # (We keep it strict to your existing scheme.)
+            if not p.haslayer(Raw):
+                return False
+            raw_bytes = bytes(p[Raw].load)
+            return raw_bytes.startswith(marker_prefix)
+
+        print(
+            f"[PAUSE_FRAME] iface={conf.iface} host_mac={host_mac} tx={tx_src}->{tx_dst} "
+            f"rx={tx_dst}->{host_mac} data_count={data_count} inject_after={inject_after} "
+            f"pause_quanta={pause_quanta} pause_count={pause_count} "
+            f"require_gap_s={require_gap_s} observe_window_s={observe_window_s}"
+        )
+
+        # Start sniffer first
+        listen_sock = conf.L2listen(iface=conf.iface, filter=bpf)
+        try:
+            pkt_ignore = getattr(socket, "PACKET_IGNORE_OUTGOING", 23)
+            sol_packet = getattr(socket, "SOL_PACKET", 263)
+            listen_sock.ins.setsockopt(sol_packet, pkt_ignore, 1)
+        except Exception as e:
+            print(f"[WARN] PACKET_IGNORE_OUTGOING not set (may see TX copies): {e}")
+
+        sniffer = AsyncSniffer(
+            opened_socket=listen_sock,
+            lfilter=is_marked,
+            store=True,
+            promisc=True,
+        )
+        sniffer.start()
+        time.sleep(arm_delay)
+
+        # --- transmit stream + inject pause ---
+        inject_t = None
+
+        for seq in range(data_count):
+            # Inject PAUSE at the configured point
+            if inject_t is None and seq == inject_after:
+                # Build and send PAUSE frames (802.3x MAC Control)
+                dst = "01:80:c2:00:00:01"
+                opcode = 0x0001
+                pause_payload = struct.pack("!HH", opcode, pause_quanta) + (b"\x00" * 42)
+
+                inject_t = time.time()
+                for _ in range(pause_count):
+                    lab.send_raw(
+                        iface=conf.iface,
+                        dst_mac=dst,
+                        src_mac=host_mac,
+                        payload=pause_payload,
+                        ether_type=0x8808,
+                        vlan=None,
+                    )
+                    time.sleep(pause_inter_gap)
+
+            # Send a data frame that should be looped back by DUT
             lab.send_raw(
                 iface=conf.iface,
-                dst_mac=dst,
-                src_mac=host_mac,
-                payload=payload,
-                ether_type=0x8808,
-                vlan=None,
+                dst_mac=tx_dst,
+                src_mac=tx_src,
+                payload=make_data_payload(seq),
+                ether_type=0x9000,
+                vlan=vlan,
             )
-            time.sleep(inter_gap)
+            if data_inter_gap > 0:
+                time.sleep(data_inter_gap)
 
-        return True, f"PAUSE frames sent (count={count}, quanta={pause_quanta}, iface={conf.iface})"
+        # Give time for returns to arrive after injection
+        if inject_t is None:
+            inject_t = time.time()
+        time.sleep(min(timeout, observe_window_s + 0.05))
+
+        pkts = sniffer.stop() or []
+
+        # --- analyze returned marked frames for a quiet gap after pause injection ---
+        # Use packet timestamps from scapy (p.time) when available; fallback to "now"
+        times = []
+        for p in pkts:
+            try:
+                times.append(float(getattr(p, "time")))
+            except Exception:
+                pass
+
+        times.sort()
+        window_start = float(inject_t)
+        window_end = window_start + float(observe_window_s)
+
+        # Keep only times in the observation window
+        win = [x for x in times if window_start <= x <= window_end]
+
+        if not win:
+            return True, f"PAUSE FRAME OK (no returned frames in {observe_window_s:.3f}s window after injection)"
+
+        # Compute the maximum quiet gap within the window, including from window_start to first packet
+        max_gap = win[0] - window_start
+        for a, b in zip(win, win[1:]):
+            max_gap = max(max_gap, b - a)
+        # Also consider last packet to window_end
+        max_gap = max(max_gap, window_end - win[-1])
+
+        if max_gap >= require_gap_s:
+            return True, f"PAUSE FRAME OK (max quiet gap {max_gap:.3f}s >= {require_gap_s:.3f}s)"
+        return False, f"PAUSE FRAME FAIL (max quiet gap {max_gap:.3f}s < {require_gap_s:.3f}s)"
 
     # -------------------------
     # RAW LOOPBACK (NIC↔FPGA)
@@ -321,7 +227,6 @@ def run(spec_path: str) -> Tuple[bool, str]:
     marker_prefix = marker + b":"
 
     count = int(t.get("count", 5))
-    timeout = float(t.get("timeout", 3))  # currently unused but kept for compatibility
     arm_delay = float(t.get("arm_delay", 0.2))
     inter_gap = float(t.get("inter_gap", 0.05))
 
@@ -397,9 +302,12 @@ def run(spec_path: str) -> Tuple[bool, str]:
         return True
 
     print(
-        f"[RAW] iface={conf.iface} host_mac={host_mac} tx={tx_src}->{tx_dst} "
+        f"[RAW] iface={conf.iface} "
+        f"TX {tx_src}->{tx_dst}  "
+        f"RX {tx_dst}->{host_mac}  "
         f"verify={verify_loopback} count={count} payload_len={payload_len} "
-        f"dst_kind={dst_kind or 'mac/broadcast'} vlan={'on' if (vlan and vlan.get('enabled')) else 'off'} "
+        f"dst_kind={dst_kind or 'mac/broadcast'} "
+        f"vlan={'on' if (vlan and vlan.get('enabled')) else 'off'} "
         f"expect={expect}"
     )
 
@@ -459,9 +367,12 @@ def run(spec_path: str) -> Tuple[bool, str]:
         seen.add(seq)
 
         if include_ts and len(raw_bytes) >= len(marker_prefix) + 4 + 8:
-            ts_sent = struct.unpack("!Q", raw_bytes[len(marker_prefix) + 4 : len(marker_prefix) + 12])[0]
-            ts_now = int(time.time() * 1e6)
-            rtts_us.append(max(0, ts_now - ts_sent))
+            ts_sent = struct.unpack(
+                "!Q",
+                raw_bytes[len(marker_prefix) + 4 : len(marker_prefix) + 12])[0]
+            # Use packet capture timestamp (when packet was sniffed), NOT analysis time
+            rx_us = int(float(getattr(p, "time", time.time())) * 1e6)
+            rtts_us.append(max(0, rx_us - ts_sent))
 
     captured = len(seen)
     duration_s = max(1e-9, time.time() - t_start)

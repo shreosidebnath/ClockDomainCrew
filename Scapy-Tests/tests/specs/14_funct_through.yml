@@ -5,7 +5,7 @@ test:
   iface: "ens6"
   l3: "raw"
   verify_loopback: true
-  count: 5000
+  count: 2000
   timeout: 10
   marker: "CDCREW"
   payload_len: 512

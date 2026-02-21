@@ -9,6 +9,7 @@ SPECDIR := tests/specs
 .PHONY: help list run
 help:
 	@echo "Usage:"
+	@echo "  make all           # run all spec files in $(SPECDIR)"
 	@echo "  make NN            # run spec tests/specs/NN_*.yml (e.g., make 02)"
 	@echo "  make run SPEC=...  # run exact spec path (e.g., make run SPEC=$(SPECDIR)/02_nic_loopback.yml)"
 	@echo "  make list          # list available spec files"
@@ -21,6 +22,21 @@ run:
 	@test -n "$(SPEC)" || (echo "ERROR: SPEC is required, e.g. make run SPEC=$(SPECDIR)/02_nic_loopback.yml" && exit 2)
 	@echo "[RUN] $(SPEC)"
 	@sudo $(PY) -m $(RUNNER) --spec "$(SPEC)"
+
+all:
+	@set -e; \
+	specs="$$(ls -1 $(SPECDIR)/*.yml 2>/dev/null)"; \
+	if [ -z "$$specs" ]; then \
+	  echo "ERROR: No spec files found in $(SPECDIR)"; \
+	  exit 2; \
+	fi; \
+	for spec in $$specs; do \
+	  echo "=============================="; \
+	  echo "[RUN] $$spec"; \
+	  sudo $(PY) -m $(RUNNER) --spec "$$spec"; \
+	done; \
+	echo "=============================="; \
+	echo "DONE: ran all specs."
 
 # Pattern rule: make 02 -> finds tests/specs/02_*.yml and runs it
 %:

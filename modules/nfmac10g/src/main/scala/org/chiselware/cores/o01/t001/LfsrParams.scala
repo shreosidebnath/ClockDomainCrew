@@ -59,7 +59,7 @@ object LfsrParams {
     ),
     "eth_crc_inst" -> LfsrParams(
       lfsrW            = 32,
-      lfsrPoly         = BigInt("4c11db7", 32),
+      lfsrPoly         = BigInt("4c11db7", 16),
       lfsrGalois       = true,
       lfsrFeedForward = false,
       reverse           = true,
@@ -69,7 +69,7 @@ object LfsrParams {
     ),
     "eth_crc_1_inst" -> LfsrParams(
       lfsrW            = 32,
-      lfsrPoly         = BigInt("4c11db7", 32),
+      lfsrPoly         = BigInt("4c11db7", 16),
       lfsrGalois       = true,
       lfsrFeedForward = false,
       reverse           = true,
@@ -79,7 +79,7 @@ object LfsrParams {
     ),
     "eth_crc_2_inst" -> LfsrParams(
       lfsrW            = 32,
-      lfsrPoly         = BigInt("4c11db7", 32),
+      lfsrPoly         = BigInt("4c11db7", 16),
       lfsrGalois       = true,
       lfsrFeedForward = false,
       reverse           = true,
@@ -89,7 +89,7 @@ object LfsrParams {
     ),
     "eth_crc_3_inst" -> LfsrParams(
       lfsrW            = 32,
-      lfsrPoly         = BigInt("4c11db7", 32),
+      lfsrPoly         = BigInt("4c11db7", 16),
       lfsrGalois       = true,
       lfsrFeedForward = false,
       reverse           = true,
@@ -99,7 +99,7 @@ object LfsrParams {
     ),
     "eth_crc_4_inst" -> LfsrParams(
       lfsrW            = 32,
-      lfsrPoly         = BigInt("4c11db7", 32),
+      lfsrPoly         = BigInt("4c11db7", 16),
       lfsrGalois       = true,
       lfsrFeedForward = false,
       reverse           = true,

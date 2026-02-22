@@ -6,7 +6,7 @@ import org.chiselware.syn.{YosysTclFile, StaTclFile, RunScriptFile}
 import java.io.{File, PrintWriter}
 
 
-class AxisTie(sParams: AxisInterfaceParams, mParams: AxisInterfaceParams) extends Module {
+class AxisTie(sParams: AxisInterfaceParams, mParams: AxisInterfaceParams) extends RawModule {
   val io = IO(new Bundle {
     // Flipped() creates the sink (input) interface
     val s_axis = Flipped(new AxisInterface(sParams))

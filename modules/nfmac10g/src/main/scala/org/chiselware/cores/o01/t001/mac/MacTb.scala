@@ -1,14 +1,12 @@
 package org.chiselware.cores.o01.t001.mac
-import org.chiselware.cores.o01.t001.mac.AxisInterface
-import org.chiselware.cores.o01.t001.mac.AxisInterfaceParams
 import chisel3._
 import chisel3.util._
 
 
-class Axis2Xgmii64Tb(val p: Axis2Xgmii64Params) extends Module {
-    val keepW = dataW / 8
+class MacTb(val p: MacParams) extends Module {
+    val keepW = p.dataW / 8
     val txUserW = 1
-    val rxUserW = (if (ptpTsEn) ptpTsW else 0) + 1
+    val rxUserW = (if (p.ptpTsEn) p.ptpTsW else 0) + 1
     val txTagW = 8 // Extracted from s_axis_tx.ID_W
 
     val io = IO(new Bundle {
@@ -17,7 +15,7 @@ class Axis2Xgmii64Tb(val p: Axis2Xgmii64Params) extends Module {
         val tx_clk = Input(Clock())
         val tx_rst = Input(Bool())
         val s_axis_tx = Flipped(new AxisInterface(AxisInterfaceParams(dataW = p.dataW, keepW = keepW, idEn = true, idW = txTagW, userEn = true, userW = txUserW)))
-        val m_axis_tx_cpl = new AxisInterface(AxisInterfaceParams( dataW = 96 keepW = 1, idW = 8))
+        val m_axis_tx_cpl = new AxisInterface(AxisInterfaceParams( dataW = 96, keepW = 1, idW = 8))
         val m_axis_rx = new AxisInterface(AxisInterfaceParams(dataW = p.dataW, keepW = keepW, userEn = true, userW = rxUserW))
         val xgmii_rxd = Input(UInt(p.dataW.W))
         val xgmii_rxc = Input(UInt(p.ctrlW.W))
@@ -127,10 +125,11 @@ class Axis2Xgmii64Tb(val p: Axis2Xgmii64Params) extends Module {
         val cfg_rx_pfc_en = Input(Bool())
     })
 
-    val dut = Module(new Axis2Xgmii64(
+    val dut = Module(new Mac(
         dataW = p.dataW,
         ctrlW = p.ctrlW,
-        gbxIfEn = p.gbxIfEn,
+        txGbxIfEn = p.txGbxIfEn,
+        rxGbxIfEn = p.rxGbxIfEn,
         gbxCnt = p.gbxCnt,
         paddingEn = p.paddingEn,
         dicEn = p.dicEn,
@@ -138,23 +137,41 @@ class Axis2Xgmii64Tb(val p: Axis2Xgmii64Params) extends Module {
         ptpTsEn = p.ptpTsEn,
         ptpTsFmtTod = p.ptpTsFmtTod,
         ptpTsW = p.ptpTsW,
-        txCplCtrlInTuser = p.txCplCtrlInTuser
+        pfcEn = p.pfcEn,
+        pauseEn = p.pauseEn
     ))
 
-    dut.clock := io.clk
-    dut.reset := io.rst
+    dut.io.rx_clk := io.rx_clk
+    dut.io.rx_rst := io.rx_rst
+    dut.io.tx_clk := io.tx_clk
+    dut.io.tx_rst := io.tx_rst
     io.s_axis_tx <> dut.io.s_axis_tx
     dut.io.m_axis_tx_cpl <> io.m_axis_tx_cpl
+    dut.io.m_axis_rx <> io.m_axis_rx
+    dut.io.xgmii_rxd := io.xgmii_rxd
+    dut.io.xgmii_rxc := io.xgmii_rxc        
+    dut.io.xgmii_rx_valid := io.xgmii_rx_valid
     io.xgmii_txd := dut.io.xgmii_txd
     io.xgmii_txc := dut.io.xgmii_txc
     io.xgmii_tx_valid := dut.io.xgmii_tx_valid
     dut.io.tx_gbx_req_sync := io.tx_gbx_req_sync
     dut.io.tx_gbx_req_stall := io.tx_gbx_req_stall
     io.tx_gbx_sync := dut.io.tx_gbx_sync
-    dut.io.ptp_ts := io.ptp_ts
-    dut.io.cfg_tx_max_pkt_len := io.cfg_tx_max_pkt_len
-    dut.io.cfg_tx_ifg := io.cfg_tx_ifg
-    dut.io.cfg_tx_enable := io.cfg_tx_enable
+    dut.io.tx_ptp_ts := io.tx_ptp_ts
+    dut.io.rx_ptp_ts := io.rx_ptp_ts
+    dut.io.tx_lfc_req := io.tx_lfc_req
+    dut.io.tx_lfc_resend := io.tx_lfc_resend
+    dut.io.rx_lfc_en := io.rx_lfc_en
+    io.rx_lfc_req := dut.io.rx_lfc_req
+    dut.io.rx_lfc_ack := io.rx_lfc_ack
+    dut.io.tx_pfc_req := io.tx_pfc_req
+    dut.io.tx_pfc_resend := io.tx_pfc_resend
+    dut.io.rx_pfc_en := io.rx_pfc_en
+    io.rx_pfc_req := dut.io.rx_pfc_req
+    dut.io.rx_pfc_ack := io.rx_pfc_ack
+    dut.io.tx_lfc_pause_en := io.tx_lfc_pause_en
+    dut.io.tx_pause_req := io.tx_pause_req
+    io.tx_pause_ack := dut.io.tx_pause_ack
     io.tx_start_packet := dut.io.tx_start_packet
     io.stat_tx_byte := dut.io.stat_tx_byte
     io.stat_tx_pkt_len := dut.io.stat_tx_pkt_len
@@ -167,4 +184,74 @@ class Axis2Xgmii64Tb(val p: Axis2Xgmii64Params) extends Module {
     io.stat_tx_err_oversize := dut.io.stat_tx_err_oversize
     io.stat_tx_err_user := dut.io.stat_tx_err_user
     io.stat_tx_err_underflow := dut.io.stat_tx_err_underflow
+    io.rx_start_packet := dut.io.rx_start_packet
+    io.stat_rx_byte := dut.io.stat_rx_byte
+    io.stat_rx_pkt_len := dut.io.stat_rx_pkt_len
+    io.stat_rx_pkt_fragment := dut.io.stat_rx_pkt_fragment
+    io.stat_rx_pkt_jabber := dut.io.stat_rx_pkt_jabber
+    io.stat_rx_pkt_ucast := dut.io.stat_rx_pkt_ucast
+    io.stat_rx_pkt_mcast := dut.io.stat_rx_pkt_mcast
+    io.stat_rx_pkt_bcast := dut.io.stat_rx_pkt_bcast
+    io.stat_rx_pkt_vlan := dut.io.stat_rx_pkt_vlan
+    io.stat_rx_pkt_good := dut.io.stat_rx_pkt_good
+    io.stat_rx_pkt_bad := dut.io.stat_rx_pkt_bad
+    io.stat_rx_err_oversize := dut.io.stat_rx_err_oversize
+    io.stat_rx_err_bad_fcs := dut.io.stat_rx_err_bad_fcs
+    io.stat_rx_err_bad_block := dut.io.stat_rx_err_bad_block
+    io.stat_rx_err_framing := dut.io.stat_rx_err_framing
+    io.stat_rx_err_preamble := dut.io.stat_rx_err_preamble
+    io.stat_tx_mcf := dut.io.stat_tx_mcf
+    io.stat_rx_mcf := dut.io.stat_rx_mcf
+    io.stat_tx_lfc_pkt := dut.io.stat_tx_lfc_pkt
+    io.stat_tx_lfc_xon := dut.io.stat_tx_lfc_xon
+    io.stat_tx_lfc_xoff := dut.io.stat_tx_lfc_xoff
+    io.stat_tx_lfc_paused := dut.io.stat_tx_lfc_paused
+    io.stat_tx_pfc_pkt := dut.io.stat_tx_pfc_pkt
+    io.stat_tx_pfc_xon := dut.io.stat_tx_pfc_xon
+    io.stat_tx_pfc_xoff := dut.io.stat_tx_pfc_xoff
+    io.stat_tx_pfc_paused := dut.io.stat_tx_pfc_paused
+    io.stat_rx_lfc_pkt := dut.io.stat_rx_lfc_pkt
+    io.stat_rx_lfc_xon := dut.io.stat_rx_lfc_xon
+    io.stat_rx_lfc_xoff := dut.io.stat_rx_lfc_xoff
+    io.stat_rx_lfc_paused := dut.io.stat_rx_lfc_paused
+    io.stat_rx_pfc_pkt := dut.io.stat_rx_pfc_pkt
+    io.stat_rx_pfc_xon := dut.io.stat_rx_pfc_xon
+    io.stat_rx_pfc_xoff := dut.io.stat_rx_pfc_xoff
+    io.stat_rx_pfc_paused := dut.io.stat_rx_pfc_paused
+    dut.io.cfg_tx_max_pkt_len := io.cfg_tx_max_pkt_len
+    dut.io.cfg_tx_ifg := io.cfg_tx_ifg
+    dut.io.cfg_tx_enable := io.cfg_tx_enable
+    dut.io.cfg_rx_max_pkt_len := io.cfg_rx_max_pkt_len
+    dut.io.cfg_rx_enable := io.cfg_rx_enable
+    dut.io.cfg_mcf_rx_eth_dst_mcast := io.cfg_mcf_rx_eth_dst_mcast
+    dut.io.cfg_mcf_rx_check_eth_dst_mcast := io.cfg_mcf_rx_check_eth_dst_mcast
+    dut.io.cfg_mcf_rx_eth_dst_ucast := io.cfg_mcf_rx_eth_dst_ucast
+    dut.io.cfg_mcf_rx_check_eth_dst_ucast := io.cfg_mcf_rx_check_eth_dst_ucast
+    dut.io.cfg_mcf_rx_eth_src := io.cfg_mcf_rx_eth_src
+    dut.io.cfg_mcf_rx_check_eth_src := io.cfg_mcf_rx_check_eth_src
+    dut.io.cfg_mcf_rx_eth_type := io.cfg_mcf_rx_eth_type
+    dut.io.cfg_mcf_rx_opcode_lfc := io.cfg_mcf_rx_opcode_lfc
+    dut.io.cfg_mcf_rx_check_opcode_lfc := io.cfg_mcf_rx_check_opcode_lfc
+    dut.io.cfg_mcf_rx_opcode_pfc := io.cfg_mcf_rx_opcode_pfc
+    dut.io.cfg_mcf_rx_check_opcode_pfc := io.cfg_mcf_rx_check_opcode_pfc
+    dut.io.cfg_mcf_rx_forward := io.cfg_mcf_rx_forward
+    dut.io.cfg_mcf_rx_enable := io.cfg_mcf_rx_enable
+    dut.io.cfg_tx_lfc_eth_dst := io.cfg_tx_lfc_eth_dst
+    dut.io.cfg_tx_lfc_eth_src := io.cfg_tx_lfc_eth_src
+    dut.io.cfg_tx_lfc_eth_type := io.cfg_tx_lfc_eth_type
+    dut.io.cfg_tx_lfc_opcode := io.cfg_tx_lfc_opcode
+    dut.io.cfg_tx_lfc_en := io.cfg_tx_lfc_en
+    dut.io.cfg_tx_lfc_quanta := io.cfg_tx_lfc_quanta
+    dut.io.cfg_tx_lfc_refresh := io.cfg_tx_lfc_refresh
+    dut.io.cfg_tx_pfc_eth_dst := io.cfg_tx_pfc_eth_dst
+    dut.io.cfg_tx_pfc_eth_src := io.cfg_tx_pfc_eth_src
+    dut.io.cfg_tx_pfc_eth_type := io.cfg_tx_pfc_eth_type
+    dut.io.cfg_tx_pfc_opcode := io.cfg_tx_pfc_opcode
+    dut.io.cfg_tx_pfc_en := io.cfg_tx_pfc_en
+    dut.io.cfg_tx_pfc_quanta := io.cfg_tx_pfc_quanta
+    dut.io.cfg_tx_pfc_refresh := io.cfg_tx_pfc_refresh
+    dut.io.cfg_rx_lfc_opcode := io.cfg_rx_lfc_opcode
+    dut.io.cfg_rx_lfc_en := io.cfg_rx_lfc_en
+    dut.io.cfg_rx_pfc_opcode := io.cfg_rx_pfc_opcode
+    dut.io.cfg_rx_pfc_en := io.cfg_rx_pfc_en
 }

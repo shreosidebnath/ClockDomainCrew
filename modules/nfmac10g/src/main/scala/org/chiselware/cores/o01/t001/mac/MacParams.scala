@@ -5,8 +5,8 @@ import scala.collection.mutable.LinkedHashMap
 import java.io.{File, PrintWriter}
 
 case class MacParams(
-  val dataW: Int = 32,
-  val ctrlW: Int = 4,
+  val dataW: Int = 64,
+  val ctrlW: Int = 8,
   val txGbxIfEn: Boolean = true,
   val rxGbxIfEn: Boolean = true,
   val gbxCnt: Int = 1,
@@ -17,14 +17,7 @@ case class MacParams(
   val ptpTsFmtTod: Boolean = true,
   val ptpTsW: Int = 96,
   val pfcEn: Boolean = false,
-  val pauseEn: Boolean = false,
-  val statEn: Boolean = false,
-  val statTxLevel: Int = 1,
-  val statRxLevel: Int = 1,
-  val statIdBase: Int = 0,
-  val statUpdatePeriod: Int = 1024,
-  val statStrEn: Boolean = false,
-  val statPrefixStr: String = "MAC" 
+  val pauseEn: Boolean = false
 )
 
 object MacParams {

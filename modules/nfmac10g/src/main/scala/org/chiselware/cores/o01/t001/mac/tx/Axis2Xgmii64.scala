@@ -39,7 +39,7 @@ class Axis2Xgmii64(
     val s_axis_tx = Flipped(new AxisInterface(AxisInterfaceParams(
       dataW = dataW, keepW = keepW, idEn = true, idW = txTagW, userEn = true, userW = userW
     )))
-    val m_axis_tx_cpl = new AxisInterface(AxisInterfaceParams(
+    val m_axis_tx_cpl = new AxisInterface(AxisInterfaceParams( // Defined in fpga_core wrapper
       dataW = 96, keepW = 1, idW = 8
     ))
 

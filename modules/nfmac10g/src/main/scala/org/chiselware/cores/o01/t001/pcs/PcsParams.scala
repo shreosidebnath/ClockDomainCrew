@@ -5,8 +5,8 @@ import scala.collection.mutable.LinkedHashMap
 import java.io.{File, PrintWriter}
 
 case class PcsParams(
-  val dataW: Int = 32,
-  val ctrlW: Int = 4,
+  val dataW: Int = 64,
+  val ctrlW: Int = 8,
   val hdrW: Int = 2,
   val txGbxIfEn: Boolean = true,
   val rxGbxIfEn: Boolean = true,

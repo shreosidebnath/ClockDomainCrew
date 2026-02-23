@@ -1,24 +1,47 @@
 # ClockDomainCrew
 
-Chisel-based hardware designs following chiselware standards.
+Chisel-based 10 Gigabit Ethernet implementation following chiselware standards.
 
 ## Modules
 
-### nfmac10g - 10 Gigabit Ethernet MAC
+### MAC - Media Access Control
+**Location:** `modules/mac/`
 
-Located in `modules/nfmac10g/`
+10G Ethernet MAC layer implementing IEEE 802.3 framing, CRC, and flow control.
+- Standalone module usable independently
+- AXI-Stream interface for packet data
+- XGMII interface to PCS layer
 
-**Components:**
-- XGMII interface
-- AXI Stream conversion
-- Transmit/Receive logic
-- Flow control (pause frames)
+**Status:** In development
+
+### PCS - Physical Coding Sublayer
+**Location:** `modules/pcs/`
+
+Physical coding sublayer implementing 64b/66b encoding and lane management.
+- Standalone module usable independently
+- XGMII interface from MAC layer
+- Serialized output to transceiver
+
+**Status:** In development
+
+### nfmac10g (Reference)
+**Location:** `modules/nfmac10g/`
+
+Original Verilog-to-Chisel translation. Kept for reference only.
+Not following chiselware standards - do not use as template.
 
 ## Building
 ```bash
 # Compile all modules
 sbt compile
 
+# Compile specific module
+sbt "project mac" compile
+sbt "project pcs" compile
+
+# Run tests
+sbt "project mac" test
+sbt "project pcs" test
 # Compile only the core project
 sbt "project core" compile
 ```
@@ -72,9 +95,17 @@ make all
 ## Project Structure
 ```
 ClockDomainCrew/
-├── build.sbt                 # Root sbt build (aggregator)
-├── Makefile                  # Primary build + verification entry point
+├── build.sbt
+├── Makefile              # Primary build + verification entry point
 ├── docs/                     # Project-level reports and documentation
+├── modules/
+│   ├── mac/              # MAC layer (standalone)
+│   ├── pcs/              # PCS layer (standalone)
+│   └── nfmac10g/         # Reference only
+└── project/
+
+
+The following is project structure of the 00-000-dff template. This is kept here as a reference for now
 ├── modules/
 │   └── nfmac10g/              # Core hardware module
 │       ├── docs/
@@ -87,7 +118,10 @@ ClockDomainCrew/
 └── project/                   # sbt plugins and build config
 ```
 
-## Documentation
+## Development Approach
 
-- Module documentation: `modules/nfmac10g/docs/user-guide/`
-- Verification: `docs/verification-compliance/`
+Building incrementally following chiselware standards:
+1. Clean interface definitions
+2. Well-documented code with descriptive names
+3. Modular design for reusability
+4. Comprehensive testing at each phase

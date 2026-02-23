@@ -1,4 +1,4 @@
-package org.chiselware.cores.o01.t001.nfmac10g.bfm
+package org.chiselware.cores.o01.t001.mac.bfm
 
 import chisel3._
 import chiseltest._

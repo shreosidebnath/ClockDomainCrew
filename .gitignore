@@ -13,12 +13,10 @@ project/*
 modules/*/generated/*
 modules/*/target/*
 target/*
-**/target/
 
 # sbt specific
-.bsp/
-.metals/
-.bloop/
+.bsp
+.bloop
 metals.sbt
 .metals
 
@@ -36,7 +34,7 @@ metals.sbt
 out/
 
 # VS Code
-.vscode/
+.vscode
 
 # Mac
 .DS_Store
@@ -46,9 +44,6 @@ out/
 *.fir
 *.anno.json
 test_run_dir/
-
-# Old structure (ignore if still present)
-src/src/
 
 *.rpt
 generated/*.rpt

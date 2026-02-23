@@ -99,6 +99,12 @@ class MacBb(p: MacBbParams)
     val stat_rx_err_framing   = Output(Bool())
     val stat_rx_err_oversize  = Output(Bool())
     val stat_rx_pkt_fragment  = Output(Bool())
+
+    val stat_tx_pkt_good        = Output(Bool())
+    val stat_tx_pkt_bad         = Output(Bool())
+    val stat_tx_err_oversize    = Output(Bool())
+    val stat_tx_err_user        = Output(Bool())
+    val stat_tx_err_underflow   = Output(Bool())
   })
 
   p.bbFiles.foreach(f => addResource(s"/org/chiselware/cores/o01/t001/mac/$f"))

@@ -49,20 +49,3 @@ lazy val pcs = (project in file("modules/pcs"))
     addCompilerPlugin("edu.berkeley.cs" % "chisel3-plugin" % chiselVersion cross CrossVersion.full)
   )
 
-lazy val nfmac10g = (project in file("modules/nfmac10g"))
-  .settings(commonSettings)
-  .settings(
-    name := "nfmac10g",
-    libraryDependencies ++= Seq(
-      "edu.berkeley.cs" %% "chisel3" % chiselVersion,
-      "edu.berkeley.cs" %% "chiseltest" % "0.6.0" % Test
-    ),
-    scalacOptions ++= Seq(
-      "-language:reflectiveCalls",
-      "-deprecation",
-      "-feature",
-      "-Xcheckinit"
-    ),
-    //addCompilerPlugin("org.chipsalliance" % "chisel-plugin" % "5.3.0" cross CrossVersion.full)
-    addCompilerPlugin("edu.berkeley.cs" % "chisel3-plugin" % chiselVersion cross CrossVersion.full)
-  )

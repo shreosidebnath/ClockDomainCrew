@@ -30,7 +30,12 @@ Physical coding sublayer implementing 64b/66b encoding and lane management.
 Original Verilog-to-Chisel translation. Kept for reference only.
 Not following chiselware standards - do not use as template.
 
-## Building
+## Running the Project
+The primary way to interact with the project is through the provided Makefiles. The build system is split to support the MAC and PCS cores independently.
+
+(Note: You can substitute `Makefile.mac` with `Makefile.pcs` in any of the Make commands below to target the other module.)
+
+### Building (via sbt)
 ```bash
 # Compile all modules
 sbt compile
@@ -38,76 +43,73 @@ sbt compile
 # Compile specific module
 sbt "project mac" compile
 sbt "project pcs" compile
+```
 
-# Run tests
+### Testing
+
+Run the following command to execute the test suite for the MAC core:
+```bash
+make -f Makefile.mac verilog
+```
+
+Which is equivalent to running the following under the hood:
+```bash
 sbt "project mac" test
-sbt "project pcs" test
-# Compile only the core project
-sbt "project core" compile
-```
-
-## Testing
-
-Recommended: 
-```bash
-make test
-```
-
-This runs:
-```bash
-sbt "project core" test
 ```
 
 and writes output to:
 ```bash
-modules/nfmac10g/generated/test.rpt
+modules/mac/generated/test.rpt
 ```
 
-## Generating Verilog
+### Generating Verilog
 
-Generate SystemVerilog and synthesis collateral:
+Generate SystemVerilog and synthesis collateral for the MAC core:
 ```bash
-make verilog
+make -f Makefile.mac verilog
 ```
 
-This runs:
+Under the hood, this executes:
 ```bash
-sbt "project core" run
+sbt "project mac" run
 ```
 
 Entrypoint:
 ```bash
-org.chiselware.cores.o01.t001.nfmac10g.Main
+org.chiselware.cores.o01.t001.mac.Main
 ```
 
-If you want to generate using sbt instead of makefile:
-```bash
-sbt "project core" "runMain org.chiselware.cores.o01.t001.nfmac10g.NfMac10gVerilog"
-```
 
-## Full regression Flow
-Run everything end-to-end:
+### Full regression Flow
+Run everything end-to-end (cleans the directory, runs tests with coverage, generates Verilog, synthesizes with Yosys, builds documentation, and checks for errors):
 
 ```bash
-make all
+make -f Makefile.mac all
 ```
 
 ## Project Structure
 ```
 ClockDomainCrew/
 ├── build.sbt
-├── Makefile              # Primary build + verification entry point
-├── docs/                     # Project-level reports and documentation
+├── Makefile.base         # Primary build + verification engine
+├── Makefile.pcs          # Injects PCS variables into Makefile.base
+├── Makefile.mac          # Injects MAC variables into Makefile.base
+├── docs/                 # Project-level reports and documentation
 ├── modules/
 │   ├── mac/              # MAC layer (standalone)
 │   ├── pcs/              # PCS layer (standalone)
-│   └── nfmac10g/         # Reference only
-└── project/
+│   └── nfmac10g/         # Reference only (soon to be removed)
+├── Scapy-Tests/          # Loopback tests using Scapy
+└── project/              # sbt plugins and build config
+```
 
+The following is the structure inside each mac and pcs project directories.
 
-The following is project structure of the 00-000-dff template. This is kept here as a reference for now
+```
+...
+│
 ├── modules/
-│   └── nfmac10g/              # Core hardware module
+│   └── <core_name>/        # Core hardware module (mac or pcs)
 │       ├── docs/
 │       │   └── user-guide/    # LaTeX-based user guide
 │       ├── generated/         # Verilog, reports, coverage, synthesis output
@@ -115,7 +117,6 @@ The following is project structure of the 00-000-dff template. This is kept here
 │       │   ├── main/scala/    # Chisel sources
 │       │   └── test/scala/    # ChiselTest tests
 │       └── target/            # sbt build output
-└── project/                   # sbt plugins and build config
 ```
 
 ## Development Approach

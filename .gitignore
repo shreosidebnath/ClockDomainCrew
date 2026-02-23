@@ -14,6 +14,10 @@ modules/*/generated/*
 modules/*/target/*
 target/*
 
+# Python
+__pycache__/
+*.pyc
+
 # sbt specific
 .bsp
 .bloop

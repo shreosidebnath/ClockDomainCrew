@@ -109,7 +109,7 @@ The following is the structure inside each mac and pcs project directories.
 ...
 │
 ├── modules/
-│   └── <core_name>/        # Core hardware module (mac or pcs)
+│   └── <core_name>/           # Core hardware module (mac or pcs)
 │       ├── docs/
 │       │   └── user-guide/    # LaTeX-based user guide
 │       ├── generated/         # Verilog, reports, coverage, synthesis output

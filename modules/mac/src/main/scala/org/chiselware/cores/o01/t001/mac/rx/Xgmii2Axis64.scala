@@ -1,5 +1,5 @@
 package org.chiselware.cores.o01.t001.mac.rx
-import org.chiselware.cores.o01.t001.Lfsr
+import org.chiselware.cores.o01.t001.mac.Lfsr
 import org.chiselware.cores.o01.t001.mac.AxisInterface
 import org.chiselware.cores.o01.t001.mac.AxisInterfaceParams
 import chisel3._

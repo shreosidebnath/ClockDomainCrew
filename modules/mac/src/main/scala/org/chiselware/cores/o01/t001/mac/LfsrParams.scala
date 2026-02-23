@@ -1,4 +1,4 @@
-package org.chiselware.cores.o01.t001
+package org.chiselware.cores.o01.t001.mac
 import chisel3._
 import chisel3.util._
 import scala.collection.mutable.LinkedHashMap
@@ -74,14 +74,14 @@ object LfsrParams {
   val synConfigs = synConfigMap.keys.mkString(" ")
 }
 
-object sdcFile {
-  def create(sdcFilePath: String): Unit = {
-    val sdcFileData = ""
-    val sdcFileDir = new File(sdcFilePath)
-    sdcFileDir.mkdirs()
-    val sdcFileName = new File(s"$sdcFilePath/Lfsr.sdc")
-    val sdcFile = new PrintWriter(sdcFileName)
-    sdcFile.write(sdcFileData)
-    sdcFile.close()
-  }
-}
+// object sdcFile {
+//   def create(sdcFilePath: String): Unit = {
+//     val sdcFileData = ""
+//     val sdcFileDir = new File(sdcFilePath)
+//     sdcFileDir.mkdirs()
+//     val sdcFileName = new File(s"$sdcFilePath/Lfsr.sdc")
+//     val sdcFile = new PrintWriter(sdcFileName)
+//     sdcFile.write(sdcFileData)
+//     sdcFile.close()
+//   }
+// }

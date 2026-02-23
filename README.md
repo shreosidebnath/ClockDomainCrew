@@ -33,7 +33,7 @@ Not following chiselware standards - do not use as template.
 ## Running the Project
 The primary way to interact with the project is through the provided Makefiles. The build system is split to support the MAC and PCS cores independently.
 
-(Note: You can substitute `Makefile.mac` with `Makefile.pcs` in any of the Make commands below to target the other module.)
+_(Note: You can substitute `Makefile.mac` with `Makefile.pcs` in any of the Make commands below to target the other module.)_
 
 ### Building (via sbt)
 ```bash
@@ -49,10 +49,10 @@ sbt "project pcs" compile
 
 Run the following command to execute the test suite for the MAC core:
 ```bash
-make -f Makefile.mac verilog
+make -f Makefile.mac test
 ```
 
-Which is equivalent to running the following under the hood:
+This is equivalent to running the following under the hood:
 ```bash
 sbt "project mac" test
 ```
@@ -69,7 +69,7 @@ Generate SystemVerilog and synthesis collateral for the MAC core:
 make -f Makefile.mac verilog
 ```
 
-Under the hood, this executes:
+This is equivalent to running the following under the hood:
 ```bash
 sbt "project mac" run
 ```

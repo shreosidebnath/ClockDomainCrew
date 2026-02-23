@@ -106,7 +106,7 @@ object LfsrParams {
       dataW            = 32,
       dataInEn        = true,
       dataOutEn       = false
-    ),
+    )
   )
 
   val simConfigMap = synConfigMap

@@ -1,0 +1,18 @@
+name: "15 - Latency (RAW RTT Measurement)"
+backend: "hw"
+test:
+  type: loopback
+  iface: "ens6"
+  l3: "raw"
+  verify_loopback: true
+  count: 500
+  timeout: 8
+  marker: "CDCREW"
+  payload_len: 256
+  pattern: "inc"
+  include_ts: true
+  inter_gap: 0.001
+  metrics:
+    enable: true
+    json_out: "artifacts/15_latency.json"
+payload: ""

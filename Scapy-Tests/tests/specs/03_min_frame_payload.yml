@@ -1,0 +1,15 @@
+name: "03 - RAW Loopback Min Frame (46B payload)"
+backend: "hw"
+test:
+  type: loopback
+  iface: "ens6"
+  l3: "raw"
+  verify_loopback: true
+  count: 300
+  timeout: 3
+  marker: "CDCREW"
+  payload_len: 46
+  pattern: "inc"
+  arm_delay: 0.2
+  inter_gap: 0.001
+payload: ""

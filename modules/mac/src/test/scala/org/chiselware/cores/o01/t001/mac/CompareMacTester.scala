@@ -114,6 +114,27 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
     beats.toSeq
   }
 
+  private val MinFrameLen = 64                // module param MIN_FRAME_LEN
+  private val MinNoFcs    = MinFrameLen - 4   // = 60 bytes before FCS -> MAC pads anything less to match
+  // helper for calculating expected termlane after padding uses both constants from above
+  private def expectedTermLaneFromPayloadBytes(payloadNoFcsBytes: Int): Int = {
+    val rem = payloadNoFcsBytes % 8
+    val empty = (8 - rem) % 8 // 0..7
+
+    // Maps directly to fcs_output_* cases in taxi_axis_xgmii_tx_64
+    empty match {
+      case 7 => 5
+      case 6 => 6
+      case 5 => 7
+      case 4 => 0
+      case 3 => 1
+      case 2 => 2
+      case 1 => 3
+      case 0 => 4
+    }
+  }
+
+  // helper for termlane checking
   private def keepMask(nBytes: Int): Int = (1 << nBytes) - 1  // nBytes in 1..7 => 0x01..0x7F
 
   // helper forces tuser = 1
@@ -1249,8 +1270,15 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
 
         // 2b) Expected length + terminate lane
         val inputBytesKept = inputBytesFull - (8 - m)
-        val expectedFrameBytes = overhead + inputBytesKept
-        val expectedTermLane = expectedFrameBytes % 8 // if 0 => lane0 terminate word
+
+        // TX pads to at least 60 bytes before FCS
+        val payloadNoFcsBytes = math.max(inputBytesKept, MinNoFcs)
+
+        // Your monitor’s frameBytes includes:
+        // 7 bytes (preamble+SFD in start word lanes1..7) + payloadNoFcsBytes + 4 FCS = overhead + payloadNoFcsBytes
+        val expectedFrameBytes = overhead + payloadNoFcsBytes
+
+        val expectedTermLane = expectedTermLaneFromPayloadBytes(payloadNoFcsBytes)
 
         withClue(
           s"tkeep-last test failed for m=$m bytes valid.\n" +
@@ -1348,8 +1376,10 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
       val axisBytes = mkAxisBytes(64)
       val beats0 = bytesToAxisBeats(axisBytes, id = 2)
 
-      // Put tuser=1 on the first beat (common convention: mark whole frame bad)
-      val beatsBad = beatsWithUser(beats0, userOnBeatIdx = Set(0))
+      // Put tuser=1 on the last beat (marks whole frame bad)
+      val beatsBad = beats0.zipWithIndex.map { case (b, i) =>
+        if (i == beats0.length - 1) b.copy(user = BigInt(1)) else b
+      }
 
       val beforeEvCh = b.chiselTxMon.gotEvents.size
       val beforeEvV  = b.verilogTxMon.gotEvents.size

@@ -10,7 +10,7 @@ lazy val commonSettings = Seq(
 
 lazy val root = (project in file("."))
   .settings(commonSettings)
-  .aggregate(mac, pcs, nfmac10g)
+  .aggregate(mac, pcs)
   .settings(name := "ClockDomainCrew")
 
 lazy val mac = (project in file("modules/mac"))

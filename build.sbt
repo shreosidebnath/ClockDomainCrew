@@ -1,4 +1,6 @@
 val chiselVersion = "3.6.0"
+ThisBuild / scalaVersion := "2.13.10"
+ThisBuild / dependencyOverrides += "org.scala-lang" % "scala-library" % "2.13.10"
 
 lazy val commonSettings = Seq(
   scalaVersion := "2.13.10",
@@ -9,17 +11,15 @@ lazy val commonSettings = Seq(
 lazy val root = (project in file("."))
   .settings(commonSettings)
   .aggregate(mac, pcs, nfmac10g)
-  .settings(
-    name := "ClockDomainCrew"
-  )
+  .settings(name := "ClockDomainCrew")
 
-lazy val mac = (project in file("modules/nfmac10g/src/main/scala/org/chiselware/cores/o01/t001/nfmac10g"))
+lazy val mac = (project in file("modules/mac"))
   .settings(commonSettings)
   .settings(
     name := "mac",
     libraryDependencies ++= Seq(
       "edu.berkeley.cs" %% "chisel3" % chiselVersion,
-      "edu.berkeley.cs" %% "chiseltest" % "0.6.0" % "test"
+      "edu.berkeley.cs" %% "chiseltest" % "0.6.0" % Test
     ),
     scalacOptions ++= Seq(
       "-language:reflectiveCalls",
@@ -27,6 +27,7 @@ lazy val mac = (project in file("modules/nfmac10g/src/main/scala/org/chiselware/
       "-feature",
       "-Xcheckinit"
     ),
+    //addCompilerPlugin("org.chipsalliance" % "chisel-plugin" % "5.3.0" cross CrossVersion.full)
     addCompilerPlugin("edu.berkeley.cs" % "chisel3-plugin" % chiselVersion cross CrossVersion.full)
   )
 
@@ -36,7 +37,7 @@ lazy val pcs = (project in file("modules/pcs"))
     name := "pcs",
     libraryDependencies ++= Seq(
       "edu.berkeley.cs" %% "chisel3" % chiselVersion,
-      "edu.berkeley.cs" %% "chiseltest" % "0.6.0" % "test"
+      "edu.berkeley.cs" %% "chiseltest" % "0.6.0" % Test
     ),
     scalacOptions ++= Seq(
       "-language:reflectiveCalls",
@@ -44,16 +45,17 @@ lazy val pcs = (project in file("modules/pcs"))
       "-feature",
       "-Xcheckinit"
     ),
+    //addCompilerPlugin("org.chipsalliance" % "chisel-plugin" % "5.3.0" cross CrossVersion.full)
     addCompilerPlugin("edu.berkeley.cs" % "chisel3-plugin" % chiselVersion cross CrossVersion.full)
   )
 
-lazy val nfmac10g = (project in file("modules/nfmac10g/src/main/scala/org/chiselware/cores/o01/t001/nfmac10g"))
+lazy val nfmac10g = (project in file("modules/nfmac10g"))
   .settings(commonSettings)
   .settings(
     name := "nfmac10g",
     libraryDependencies ++= Seq(
       "edu.berkeley.cs" %% "chisel3" % chiselVersion,
-      "edu.berkeley.cs" %% "chiseltest" % "0.6.0" % "test"
+      "edu.berkeley.cs" %% "chiseltest" % "0.6.0" % Test
     ),
     scalacOptions ++= Seq(
       "-language:reflectiveCalls",
@@ -61,5 +63,6 @@ lazy val nfmac10g = (project in file("modules/nfmac10g/src/main/scala/org/chisel
       "-feature",
       "-Xcheckinit"
     ),
+    //addCompilerPlugin("org.chipsalliance" % "chisel-plugin" % "5.3.0" cross CrossVersion.full)
     addCompilerPlugin("edu.berkeley.cs" % "chisel3-plugin" % chiselVersion cross CrossVersion.full)
   )

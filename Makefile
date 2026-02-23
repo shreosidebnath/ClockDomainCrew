@@ -2,11 +2,11 @@ MAKEFLAGS += --silent
 	
 SBT = sbt
 SHELL := /bin/bash
-CORE_DIR := "modules/nfmac10g"
+CORE_DIR := "modules/mac"
 GEN_DIR := "${CORE_DIR}/generated"
 ERROR_REP := "${GEN_DIR}/error.rpt"
 TC_DIR := "${GEN_DIR}/synTestCases"
-CORE := "nfmac10g"
+CORE := "mac"
 
 # Run everything and scan for errors
 .PHONY: list
@@ -61,13 +61,13 @@ clean:
 publish: 
 	@echo Publishing libraries locally
 	rm -rf /home/tws/.ivy2/local/org.chiselware/chiselware-syn_2.13
-	$(SBT) "project core" publishLocal | tee docs/publish.rpt
+	$(SBT) "project mac" publishLocal | tee docs/publish.rpt
 
 # Generate the documentation
 .PHONY: docs
 docs:
 	@echo Building API docs
-	$(SBT) "project core" doc | tee docs/doc.rpt
+	$(SBT) "project mac" doc | tee docs/doc.rpt
 	firefox --new-window ${CORE_DIR}/target/scala-2.13/api/org/chiselware/cores/o01/t001/nfmac10g/index.html 2>/dev/null &
 	@echo Building User Guide
 	cd ${CORE_DIR}/docs/user-guide && pdflatex ${CORE}.tex 
@@ -82,7 +82,7 @@ docs:
 verilog:
 	@echo Generate Verilog for synthesis
 	mkdir -p ${CORE_DIR}/generated
-	$(SBT) "project core" run | tee ${CORE_DIR}/generated/verilog.rpt
+	$(SBT) "project mac" run | tee ${CORE_DIR}/generated/verilog.rpt
 	rm -rf *anno.json
 
 # Run the tests
@@ -90,7 +90,7 @@ verilog:
 test:
 	@echo Running tests
 	mkdir -p ${CORE_DIR}/generated
-	$(SBT) "project core" test | tee ${CORE_DIR}/generated/test.rpt
+	$(SBT) "project mac" test | tee ${CORE_DIR}/generated/test.rpt
 	rm -rf *anno.json
 
 # Run the tests with Scala code coverage enables
@@ -100,7 +100,7 @@ cov:
 	mkdir -p ${CORE_DIR}/generated
 	$(SBT) clean \
 	coverageOn \
-	"project core" \
+	"project mac" \
 	test \
 	run  \
 	coverageReport | tee ${CORE_DIR}/generated/test.rpt

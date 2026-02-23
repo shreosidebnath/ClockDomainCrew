@@ -1,0 +1,18 @@
+name: "14 - Functional Throughput (Sustained RAW Burst)"
+backend: "hw"
+test:
+  type: loopback
+  iface: "ens6"
+  l3: "raw"
+  verify_loopback: true
+  count: 2000
+  timeout: 10
+  marker: "CDCREW"
+  payload_len: 512
+  pattern: "prbs"
+  arm_delay: 0.3
+  inter_gap: 0.0002
+  metrics:
+    enable: true
+    json_out: "artifacts/14_throughput.json"
+payload: ""

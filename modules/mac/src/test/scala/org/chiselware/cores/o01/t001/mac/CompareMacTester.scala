@@ -7,8 +7,25 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 import scala.collection.mutable.ArrayBuffer
+import scala.util.Random
 
 class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Matchers {
+
+  // --------------------------------------------------------------------------
+  // Progress printing helpers
+  // --------------------------------------------------------------------------
+  private val TotalTests = 17  // update this if you add/remove tests
+
+  private def pct(n: Int): Int = (n * 100) / TotalTests
+
+  private def progStart(n: Int, name: String): Unit =
+    println(s"\n[${n}/${TotalTests}] (${pct(n)}%)\tSTART:\t$name")
+
+  private def progEnd(n: Int, name: String): Unit =
+    println(s"[${n}/${TotalTests}]\t\tDONE:\t$name")
+
+  private def progInfo(n: Int, msg: String): Unit =
+    println(s"[${n}/${TotalTests}]\t\t\t• $msg")
 
   // --------------------------------------------------------------------------
   // Types / helpers
@@ -145,16 +162,59 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
   }
 
   // -------------------------------------------------------------------------
-  // Coverage test helpers 
+  // TX coverage test helpers 
   // -------------------------------------------------------------------------
   /** Keep stepping until frame event is captured (the event contains which lane the terminate was seen) */
-  private def waitForOneFrameEvent(dut: DualWrapperMac, b: Bfms, before: Int, maxCycles: Int = 20000): Unit = {
+  private def waitForOneFrameEvent(dut: DualWrapperMac, b: Bfms, before: Int, maxCycles: Int = 20000, tn: Int = -1): Unit = {
     var cycles = 0
     while (b.chiselTxMon.gotEvents.size == before && cycles < maxCycles) {
       stepTx(dut, b, 1)   // samples + steps
       cycles += 1
+      if (tn >= 0 && cycles % 2000 == 0) progInfo(tn, s"waiting for TX event... cycles=$cycles")
     }
     assert(b.chiselTxMon.gotEvents.size > before, s"Timed out waiting for TX frame event after $cycles cycles")
+  }
+
+  // -------------------------------------------------------------------------
+  // RX coverage helpers
+  // -------------------------------------------------------------------------
+  /** Find the /T/ lane in an encoded XGMII stream (looks for 0xFD where ctrl bit is 1). */
+  private def findTerminateLane(xgmiiWords: Seq[(BigInt, Int)]): Int = {
+    def laneByte(d: BigInt, i: Int): Int = ((d >> (8 * i)) & 0xff).toInt
+    xgmiiWords.foreach { case (d, c) =>
+      for (i <- 0 until 8) {
+        val isCtrl = ((c >> i) & 1) == 1
+        if (isCtrl && laneByte(d, i) == 0xFD) return i
+      }
+    }
+    -1
+  }
+
+  /**
+    * Pick a payload length >= 46 such that the RX XGMII encoding ends with /T/ in lane targetLane.
+    *
+    * Reason:
+    * - buildEthernetFrame pads payload to at least 46 (we choose >=46 so no surprise padding).
+    * - xgmiiEncode64 puts preamble+SFD in the first 8 bytes, then sends (noPreambleNoFcs + FCS).
+    * - /T/ lane depends on (noPreambleNoFcs + 4) % 8, where noPreambleNoFcs = 14 + payloadLen.
+    * - So /T/ lane depends on (18 + payloadLen) % 8.
+    */
+  private def payloadLenForRxTerminateLane(targetLane: Int): Int = {
+    require(targetLane >= 0 && targetLane < 8)
+    val base = 46
+    val chosen = (0 to 7).map(d => base + d).find { pl =>
+      ((18 + pl) % 8) == targetLane
+    }.getOrElse(base)
+    chosen
+  }
+
+  // -------------------------------------------------------------------------
+  // Random helpers
+  // -------------------------------------------------------------------------
+  private def randBytes(r: Random, n: Int): Array[Byte] = {
+    val a = Array.ofDim[Byte](n)
+    r.nextBytes(a)
+    a
   }
 
   // --------------------------------------------------------------------------
@@ -622,6 +682,8 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
   // --------------------------------------------------------------------------
   // Shared test runner
   // --------------------------------------------------------------------------
+
+  // Helper for tx test case running
   private def drainTxUntilFrame(
     dut: DualWrapperMac,
     b: Bfms,
@@ -636,6 +698,7 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
     }
   }
 
+  // Shared test runner for RX side
   private def runCase(
     dut: DualWrapperMac,
     xgmii: XgmiiRxDriverBfm,
@@ -645,7 +708,8 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
     verilogStatus: StatusCollectorBfm,
     xgmiiWords: Seq[(BigInt, Int)],
     drainMaxCycles: Int = 800,
-    requireLast: Boolean = true
+    requireLast: Boolean = true,
+    prog: String => Unit = _ => ()
   ): (Seq[Array[Byte]], Seq[Array[Byte]]) = {
 
     chiselAxis.clear()
@@ -707,6 +771,8 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
       chiselFrames.map(_.toSeq) shouldBe verilogFrames.map(_.toSeq)
     }
 
+    prog(s"chiselFrames=${chiselFrames.size}, verilogFrames=${verilogFrames.size}")
+
     (chiselFrames, verilogFrames)
   }
 
@@ -714,10 +780,15 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
   // Test cases
   // --------------------------------------------------------------------------
   it should "RX: valid frame passes (tuser==0) and matches expected bytes" in {
+    progInfo(0, "start of MAC testing")
+    val tn = 1
+    val tname = "RX: valid frame passes (tuser==0) and matches expected bytes"
+    progStart(tn, tname)
+    
     test(new DualWrapperMac)
       .withAnnotations(Seq(
         VerilatorBackendAnnotation,
-        VerilatorFlags(Seq("--compiler", "clang")),
+        VerilatorFlags(Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")),
         WriteVcdAnnotation
       )) { dut =>
 
@@ -735,7 +806,7 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
         val (fullBytes, expectedAxisBytes) = buildEthernetFrame(dst, src, ethType, payload)
         val xgmiiWords = xgmiiEncode64(fullBytes)
 
-        val (_, verilogFrames) = runCase(dut, b.xgmii, b.chiselAxis, b.verilogAxis, b.chiselStatus, b.verilogStatus, xgmiiWords)
+        val (_, verilogFrames) = runCase(dut, b.xgmii, b.chiselAxis, b.verilogAxis, b.chiselStatus, b.verilogStatus, xgmiiWords, prog = msg => progInfo(tn, msg))
 
         verilogFrames.size shouldBe 1
         verilogFrames.head.toSeq shouldBe expectedAxisBytes.toSeq
@@ -743,13 +814,19 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
         b.verilogAxis.beats.last.user shouldBe 0
         b.chiselAxis.beats.last.user shouldBe 0
       }
+
+    progEnd(tn, tname)
   }
 
   it should "RX: bad FCS is flagged (tuser==1)" in {
+    val tn = 2
+    val tname = "RX: bad FCS is flagged (tuser==1)"
+    progStart(tn, tname)
+
     test(new DualWrapperMac)
       .withAnnotations(Seq(
         VerilatorBackendAnnotation,
-        VerilatorFlags(Seq("--compiler", "clang")),
+        VerilatorFlags(Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")),
         WriteVcdAnnotation
       )) { dut =>
 
@@ -770,7 +847,7 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
 
         val xgmiiWords = xgmiiEncode64(fullBad)
 
-        runCase(dut, b.xgmii, b.chiselAxis, b.verilogAxis, b.chiselStatus, b.verilogStatus, xgmiiWords)
+        runCase(dut, b.xgmii, b.chiselAxis, b.verilogAxis, b.chiselStatus, b.verilogStatus, xgmiiWords, prog = msg => progInfo(tn, msg))
 
         b.verilogAxis.beats.nonEmpty shouldBe true
         b.verilogAxis.beats.last.user shouldBe 1
@@ -780,13 +857,19 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
         vs.badFcs shouldBe true
         vs.good shouldBe false
       }
+    
+    progEnd(tn, tname)
   }
 
   it should "RX: runt (truncated FCS) is flagged (tuser==1)" in {
+    val tn = 3
+    val tname = "RX: runt (truncated FCS) is flagged (tuser==1)"
+    progStart(tn, tname)
+
     test(new DualWrapperMac)
       .withAnnotations(Seq(
         VerilatorBackendAnnotation,
-        VerilatorFlags(Seq("--compiler", "clang")),
+        VerilatorFlags(Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")),
         WriteVcdAnnotation
       )) { dut =>
 
@@ -806,7 +889,7 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
 
         val xgmiiWords = xgmiiEncode64(fullRunt)
 
-        runCase(dut, b.xgmii, b.chiselAxis, b.verilogAxis, b.chiselStatus, b.verilogStatus, xgmiiWords, requireLast = false)
+        runCase(dut, b.xgmii, b.chiselAxis, b.verilogAxis, b.chiselStatus, b.verilogStatus, xgmiiWords, requireLast = false, prog = msg => progInfo(tn, msg))
 
         val vs = b.verilogStatus.snapshot
         vs.bad shouldBe true
@@ -816,13 +899,19 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
         // if any output exists, it must be marked bad.
         if (b.verilogAxis.beats.nonEmpty) b.verilogAxis.beats.last.user shouldBe 1
       }
+
+    progEnd(tn, tname)
   }
 
-  it should "RX: bad preamble/SFD (corrupted) - detected" in {
+  it should "RX: bad preamble/SFD (corrupted) is detected" in {
+    val tn = 4
+    val tname = "RX: bad preamble/SFD (corrupted) - detected"
+    progStart(tn, tname)
+
     test(new DualWrapperMac)
       .withAnnotations(Seq(
         VerilatorBackendAnnotation,
-        VerilatorFlags(Seq("--compiler", "clang")),
+        VerilatorFlags(Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")),
         WriteVcdAnnotation
       )) { dut =>
 
@@ -847,7 +936,7 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
 
         val xgmiiWords = xgmiiEncode64(fullBytes, startOverride = Some(badStart))
 
-        val (_, verilogFrames) = runCase(dut, b.xgmii, b.chiselAxis, b.verilogAxis, b.chiselStatus, b.verilogStatus, xgmiiWords, requireLast = false)
+        val (_, verilogFrames) = runCase(dut, b.xgmii, b.chiselAxis, b.verilogAxis, b.chiselStatus, b.verilogStatus, xgmiiWords, requireLast = false, prog = msg => progInfo(tn, msg))
 
         val vs = b.verilogStatus.snapshot
 
@@ -857,13 +946,19 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
 
         vs.preamble shouldBe true
       }
+
+    progEnd(tn, tname)
   }
 
   it should "RX: framing error (control inside payload) is flagged (tuser==1)" in {
+    val tn = 5
+    val tname = "RX: framing error (control inside payload) is flagged (tuser==1)"
+    progStart(tn, tname)
+
     test(new DualWrapperMac)
       .withAnnotations(Seq(
         VerilatorBackendAnnotation,
-        VerilatorFlags(Seq("--compiler", "clang")),
+        VerilatorFlags(Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")),
         WriteVcdAnnotation
       )) { dut =>
 
@@ -894,19 +989,25 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
           fail("Not enough words to inject framing error")
         }
 
-        runCase(dut, b.xgmii, b.chiselAxis, b.verilogAxis, b.chiselStatus, b.verilogStatus, words.toSeq)
+        runCase(dut, b.xgmii, b.chiselAxis, b.verilogAxis, b.chiselStatus, b.verilogStatus, words.toSeq, prog = msg => progInfo(tn, msg))
 
         b.verilogAxis.beats.nonEmpty shouldBe true
         b.verilogAxis.beats.last.user shouldBe 1
         b.chiselAxis.beats.last.user shouldBe 1
       }
+
+    progEnd(tn, tname)
   }
 
   it should "RX: oversize is flagged when cfg_rx_max_pkt_len is small" in {
+    val tn = 6
+    val tname = "RX: oversize is flagged when cfg_rx_max_pkt_len is small"
+    progStart(tn, tname)
+
     test(new DualWrapperMac)
       .withAnnotations(Seq(
         VerilatorBackendAnnotation,
-        VerilatorFlags(Seq("--compiler", "clang")),
+        VerilatorFlags(Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")),
         WriteVcdAnnotation
       )) { dut =>
 
@@ -929,7 +1030,7 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
         val xgmiiWords = xgmiiEncode64(fullBytes)
 
         // usually dropped or flagged; don't require tlast
-        runCase(dut, b.xgmii, b.chiselAxis, b.verilogAxis, b.chiselStatus, b.verilogStatus, xgmiiWords, requireLast = false)
+        runCase(dut, b.xgmii, b.chiselAxis, b.verilogAxis, b.chiselStatus, b.verilogStatus, xgmiiWords, requireLast = false, prog = msg => progInfo(tn, msg))
 
         val vs = b.verilogStatus.snapshot
         vs.bad shouldBe true
@@ -939,13 +1040,152 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
         // Optional: if any output exists, it must be marked bad.
         if (b.verilogAxis.beats.nonEmpty) b.verilogAxis.beats.last.user shouldBe 1
       }
-  }
 
-  it should "TX: AXIS -> XGMII produces matching frames (Chisel vs Verilog)" in {
+    progEnd(tn, tname)
+  }
+  
+  it should "RX: terminate-lane coverage hits T0..T7 on good frames (tuser==0), Chisel matches Verilog" in {
+    val tn = 7
+    val tname = "RX: terminate-lane coverage hits T0..T7 on good frames (tuser==0), Chisel matches Verilog"
+    progStart(tn, tname)
+
     test(new DualWrapperMac)
       .withAnnotations(Seq(
         VerilatorBackendAnnotation,
-        VerilatorFlags(Seq("--compiler", "clang")),
+        VerilatorFlags(Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")),
+        WriteVcdAnnotation
+      )) { dut =>
+
+        dut.clock.setTimeout(0)
+        dut.io.rx_ready.poke(true.B)
+        dut.io.cfg_rx_max_pkt_len.poke(1518.U)
+
+        val b = mkBfms(dut)
+
+        val dst = Array[Byte](1,2,3,4,5,6).map(_.toByte)
+        val src = Array[Byte](0x0a,0x0b,0x0c,0x0d,0x0e,0x0f).map(_.toByte)
+        val ethType = 0x0800
+
+        val termSeen = Array.fill(8)(false)
+
+        for (k <- 0 until 8) {
+          val payloadLen = payloadLenForRxTerminateLane(k)
+          val payload = Array.tabulate(payloadLen)(i => ((0xA0 + (i & 0x0F)) & 0xFF).toByte)
+
+          val (fullBytes, expectedAxisBytes) = buildEthernetFrame(dst, src, ethType, payload)
+          val xgmiiWords = xgmiiEncode64(fullBytes)
+
+          val termLane = findTerminateLane(xgmiiWords)
+          withClue(s"Could not find /T/ in generated xgmiiWords for target k=$k (payloadLen=$payloadLen)\n") {
+            termLane shouldBe k
+          }
+          termSeen(termLane) = true
+
+          progInfo(tn, s"RX /T/ sweep: target=$k payloadLen=$payloadLen termLaneFound=$termLane")
+
+          val (_, verilogFrames) =
+            runCase(
+              dut,
+              b.xgmii,
+              b.chiselAxis, b.verilogAxis,
+              b.chiselStatus, b.verilogStatus,
+              xgmiiWords,
+              requireLast = true,
+              prog = msg => progInfo(tn, msg)
+            )
+
+          // Must pass + match expected (RX strips FCS)
+          verilogFrames.size shouldBe 1
+          verilogFrames.head.toSeq shouldBe expectedAxisBytes.toSeq
+
+          // Must be good (tuser=0)
+          b.verilogAxis.beats.last.user shouldBe 0
+          b.chiselAxis.beats.last.user shouldBe 0
+
+          val vs = b.verilogStatus.snapshot
+          withClue(s"Expected good RX status for target k=$k but got: $vs\n") {
+            vs.good shouldBe true
+            vs.bad shouldBe false
+          }
+        }
+
+        assert(termSeen.forall(_ == true), s"Not all RX terminate lanes seen: ${termSeen.toList}")
+      }
+
+    progEnd(tn, tname)
+  }
+
+  it should "RX: 500 random frames (payload/len/data) match expected and Chisel==Verilog" in {
+    val tn = 8
+    val tname = "RX: 500 random frames (payload/len/data) match expected and Chisel==Verilog"
+    progStart(tn, tname)
+
+    test(new DualWrapperMac)
+      .withAnnotations(Seq(
+        VerilatorBackendAnnotation,
+        VerilatorFlags(Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")),
+        WriteVcdAnnotation
+      )) { dut =>
+
+        dut.clock.setTimeout(0)
+        dut.io.rx_ready.poke(true.B)
+        dut.io.cfg_rx_max_pkt_len.poke(1518.U)
+
+        val b = mkBfms(dut)
+
+        val dst = Array[Byte](1,2,3,4,5,6).map(_.toByte)
+        val src = Array[Byte](0x0a,0x0b,0x0c,0x0d,0x0e,0x0f).map(_.toByte)
+        val ethType = 0x0800
+
+        val r = new Random(20260224) // deterministic
+
+        for (i <- 0 until 500) {
+          val payloadLen = r.nextInt(512) // 0..511 (buildEthernetFrame pads to >=46)
+          val payload = randBytes(r, payloadLen)
+
+          val (fullBytes, expectedAxisBytes) = buildEthernetFrame(dst, src, ethType, payload)
+          val xgmiiWords = xgmiiEncode64(fullBytes)
+
+          val (_, verilogFrames) =
+            runCase(
+              dut,
+              b.xgmii,
+              b.chiselAxis, b.verilogAxis,
+              b.chiselStatus, b.verilogStatus,
+              xgmiiWords,
+              requireLast = true,
+              prog = _ => ()
+            )
+
+          withClue(s"[RX rand $i] payloadLen=$payloadLen\n") {
+            verilogFrames.size shouldBe 1
+            verilogFrames.head.toSeq shouldBe expectedAxisBytes.toSeq
+
+            b.verilogAxis.beats.last.user shouldBe 0
+            b.chiselAxis.beats.last.user shouldBe 0
+
+            val vs = b.verilogStatus.snapshot
+            vs.good shouldBe true
+            vs.bad shouldBe false
+          }
+
+          if (i % 25 == 0) progInfo(tn, s"RX random progress: i=$i payloadLen=$payloadLen")
+        }
+      }
+
+    progEnd(tn, tname)
+    progInfo(tn, s"RX tests completed, TX tests starting...")
+  }
+  
+  it should "TX: AXIS -> XGMII produces matching frames (Chisel vs Verilog)" in {
+    val tn = 9
+    val tname = "TX: AXIS -> XGMII produces matching frames (Chisel vs Verilog)"
+    progStart(tn, tname)
+
+    test(new DualWrapperMac)
+      .withAnnotations(Seq(
+        VerilatorBackendAnnotation,
+        VerilatorFlags(Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")),
         WriteVcdAnnotation
       )) { dut =>
 
@@ -993,14 +1233,23 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
         ) {
           chFrames shouldBe vFrames
         }
+
+        progInfo(tn, s"chiselTxFrames=${b.chiselTxMon.gotFrames.size}, verilogTxFrames=${b.verilogTxMon.gotFrames.size}")
+        progInfo(tn, s"chiselTxEvents=${b.chiselTxMon.gotEvents.size}, verilogTxEvents=${b.verilogTxMon.gotEvents.size}")
       }
+
+    progEnd(tn, tname)
   }
 
   it should "TX: back-to-back frames preserve ordering and match (Chisel vs Verilog)" in {
+    val tn = 10
+    val tname = "TX: back-to-back frames preserve ordering and match (Chisel vs Verilog)"
+    progStart(tn, tname)
+
     test(new DualWrapperMac)
       .withAnnotations(Seq(
         VerilatorBackendAnnotation,
-        VerilatorFlags(Seq("--compiler", "clang")),
+        VerilatorFlags(Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")),
         WriteVcdAnnotation
       )) { dut =>
 
@@ -1049,14 +1298,23 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
         ) {
           ch shouldBe vg
         }
+
+        progInfo(tn, s"chiselTxFrames=${b.chiselTxMon.gotFrames.size}, verilogTxFrames=${b.verilogTxMon.gotFrames.size}")
+        progInfo(tn, s"chiselTxEvents=${b.chiselTxMon.gotEvents.size}, verilogTxEvents=${b.verilogTxMon.gotEvents.size}")
       }
+
+    progEnd(tn, tname)
   }
 
   it should "TX: terminate-lane coverage hits T0..T7 (Chisel vs Verilog match)" in {
+    val tn = 11
+    val tname = "TX: terminate-lane coverage hits T0..T7 (Chisel vs Verilog match)"
+    progStart(tn, tname)
+
     test(new DualWrapperMac)
       .withAnnotations(Seq(
         VerilatorBackendAnnotation,
-        VerilatorFlags(Seq("--compiler", "clang")),
+        VerilatorFlags(Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")),
         WriteVcdAnnotation
       )) { dut =>
 
@@ -1106,7 +1364,7 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
         sendAxisFrame(dut, b, mkAxisBytes(baselineLen), tid = 1)
 
         // wait for event (don’t use raw clock.step)
-        waitForOneFrameEvent(dut, b, before0)
+        waitForOneFrameEvent(dut, b, before0, tn=tn)
 
         val ev0 = b.chiselTxMon.gotEvents.last
         updateCoverageFrom(ev0)
@@ -1119,9 +1377,11 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
           val d = deltaForTargetTermLane(n0, s0, k)
           val len = baselineLen + d
 
+          progInfo(tn, s"terminate-lane sweep: target k=$k (len=$len)")
+
           val before = b.chiselTxMon.gotEvents.size
           sendAxisFrame(dut, b, mkAxisBytes(len), tid = 10 + k)
-          waitForOneFrameEvent(dut, b, before)
+          waitForOneFrameEvent(dut, b, before, tn=tn)
 
           val evCh = b.chiselTxMon.gotEvents.last
           val evV  = b.verilogTxMon.gotEvents.last
@@ -1147,13 +1407,22 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
         val chFrames = b.chiselTxMon.gotFrames.map(_.toSeq)
         val vFrames  = b.verilogTxMon.gotFrames.map(_.toSeq)
         chFrames shouldBe vFrames
+
+        progInfo(tn, s"chiselTxFrames=${b.chiselTxMon.gotFrames.size}, verilogTxFrames=${b.verilogTxMon.gotFrames.size}")
+        progInfo(tn, s"chiselTxEvents=${b.chiselTxMon.gotEvents.size}, verilogTxEvents=${b.verilogTxMon.gotEvents.size}")
       }
+
+    progEnd(tn, tname)
   }
 
   it should "TX: IFG between frames is >= cfg_tx_ifg (bytes)" in {
+    val tn = 12
+    val tname = "TX: IFG between frames is >= cfg_tx_ifg (bytes)"
+    progStart(tn, tname)
+
     test(new DualWrapperMac).withAnnotations(Seq(
       VerilatorBackendAnnotation,
-      VerilatorFlags(Seq("--compiler", "clang")),
+      VerilatorFlags(Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")),
       WriteVcdAnnotation
     )) { dut =>
 
@@ -1184,11 +1453,11 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
       // send two frames
       val before0 = b.chiselTxMon.gotEvents.size
       sendAxisFrame(dut, b, mkAxisBytes(120), tid = 1)
-      waitForOneFrameEvent(dut, b, before0)
+      waitForOneFrameEvent(dut, b, before0, tn=tn)
 
       val before1 = b.chiselTxMon.gotEvents.size
       sendAxisFrame(dut, b, mkAxisBytes(120), tid = 2)
-      waitForOneFrameEvent(dut, b, before1)
+      waitForOneFrameEvent(dut, b, before1, tn=tn)
 
       withClue(
         s"IFG check failed.\n" +
@@ -1201,13 +1470,22 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
         val ifgBytes = b.chiselTxMon.lastIfgBytes
         ifgBytes should be >= 12
       }
+
+      progInfo(tn, s"chiselTxFrames=${b.chiselTxMon.gotFrames.size}, verilogTxFrames=${b.verilogTxMon.gotFrames.size}")
+      progInfo(tn, s"chiselTxEvents=${b.chiselTxMon.gotEvents.size}, verilogTxEvents=${b.verilogTxMon.gotEvents.size}")
     }
+
+    progEnd(tn, tname)
   }
 
   it should "TX: partial tkeep on last beat (1..7) changes length and terminate lane correctly" in {
+    val tn = 13
+    val tname = "TX: partial tkeep on last beat (1..7) changes length and terminate lane correctly"
+    progStart(tn, tname)
+
     test(new DualWrapperMac).withAnnotations(Seq(
       VerilatorBackendAnnotation,
-      VerilatorFlags(Seq("--compiler", "clang")),
+      VerilatorFlags(Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")),
       WriteVcdAnnotation
     )) { dut =>
 
@@ -1238,7 +1516,7 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
       // 1) Baseline full-keep send
       val before0 = b.chiselTxMon.gotEvents.size
       sendAxisFrame(dut, b, axisBytes, tid = 1)
-      waitForOneFrameEvent(dut, b, before0)
+      waitForOneFrameEvent(dut, b, before0, tn=tn)
 
       val evFullCh = b.chiselTxMon.gotEvents.last
       val evFullV  = b.verilogTxMon.gotEvents.last
@@ -1253,12 +1531,13 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
 
       // 2) Partial last keep cases: 1..7 bytes valid
       for (m <- 1 to 7) {
+        progInfo(tn, s"tkeep-last sweep: m=$m keep=0x${keepMask(m).toHexString}")
         val lastKeep = keepMask(m)
         val beats = bytesToAxisBeatsOverrideLastKeep(axisBytes, id = 10 + m, lastKeep = lastKeep)
 
         val before = b.chiselTxMon.gotEvents.size
         sendAxisBeats(dut, b, beats)
-        waitForOneFrameEvent(dut, b, before)
+        waitForOneFrameEvent(dut, b, before, tn=tn)
 
         val evCh = b.chiselTxMon.gotEvents.last
         val evV  = b.verilogTxMon.gotEvents.last
@@ -1290,13 +1569,22 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
           evCh.termLane shouldBe expectedTermLane
         }
       }
+
+      progInfo(tn, s"chiselTxFrames=${b.chiselTxMon.gotFrames.size}, verilogTxFrames=${b.verilogTxMon.gotFrames.size}")
+      progInfo(tn, s"chiselTxEvents=${b.chiselTxMon.gotEvents.size}, verilogTxEvents=${b.verilogTxMon.gotEvents.size}")
     }
+
+    progEnd(tn, tname)
   }
 
   it should "TX: tuser=0 produces a good packet (tx status all good)" in {
+    val tn = 14
+    val tname = "TX: tuser=0 produces a good packet (tx status all good)"
+    progStart(tn, tname)
+
     test(new DualWrapperMac).withAnnotations(Seq(
       VerilatorBackendAnnotation,
-      VerilatorFlags(Seq("--compiler", "clang")),
+      VerilatorFlags(Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")),
       WriteVcdAnnotation
     )) { dut =>
 
@@ -1325,7 +1613,7 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
 
       val before = b.chiselTxMon.gotEvents.size
       sendAxisFrame(dut, b, axisBytes, tid = 1)
-      waitForOneFrameEvent(dut, b, before)
+      waitForOneFrameEvent(dut, b, before, tn=tn)
 
       // Give status pulses a little time to appear
       stepTx(dut, b, 50)
@@ -1342,13 +1630,22 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
         stCh.pktBad  shouldBe false
         stCh.errUser shouldBe false
       }
+
+      progInfo(tn, s"chiselTxFrames=${b.chiselTxMon.gotFrames.size}, verilogTxFrames=${b.verilogTxMon.gotFrames.size}")
+      progInfo(tn, s"chiselTxEvents=${b.chiselTxMon.gotEvents.size}, verilogTxEvents=${b.verilogTxMon.gotEvents.size}")
     }
+
+    progEnd(tn, tname)
   }
 
   it should "TX: tuser=1 triggers user-error behavior (drop or mark bad), Chisel matches Verilog" in {
+    val tn = 15
+    val tname = "TX: tuser=1 triggers user-error behavior (drop or mark bad), Chisel matches Verilog"
+    progStart(tn, tname)
+
     test(new DualWrapperMac).withAnnotations(Seq(
       VerilatorBackendAnnotation,
-      VerilatorFlags(Seq("--compiler", "clang")),
+      VerilatorFlags(Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")),
       WriteVcdAnnotation
     )) { dut =>
 
@@ -1429,6 +1726,72 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
           stCh.pktBad  shouldBe true
         }
       }
+
+      progInfo(tn, s"chiselTxFrames=${b.chiselTxMon.gotFrames.size}, verilogTxFrames=${b.verilogTxMon.gotFrames.size}")
+      progInfo(tn, s"chiselTxEvents=${b.chiselTxMon.gotEvents.size}, verilogTxEvents=${b.verilogTxMon.gotEvents.size}")
     }
+
+    progEnd(tn, tname)
+  }
+
+  it should "TX: 500 random AXIS frames (len/data) produce identical XGMII (Chisel==Verilog)" in {
+    val tn = 16
+    val tname = "TX: 500 random AXIS frames (len/data) produce identical XGMII (Chisel==Verilog)"
+    progStart(tn, tname)
+
+    test(new DualWrapperMac)
+      .withAnnotations(Seq(
+        VerilatorBackendAnnotation,
+        VerilatorFlags(Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")),
+        WriteVcdAnnotation
+      )) { dut =>
+
+        dut.clock.setTimeout(0)
+        dut.io.rx_ready.poke(true.B)
+        dut.io.cfg_rx_max_pkt_len.poke(1518.U)
+
+        val b = mkBfms(dut)
+        b.axisTx.idle()
+
+        b.chiselTxMon.clear(); b.verilogTxMon.clear()
+        b.chiselTxStatus.clear(); b.verilogTxStatus.clear()
+
+        stepTx(dut, b, 10)
+
+        val r = new Random(20260224) // deterministic
+
+        // We'll send raw AXIS bytes (dst+src+ethType+payload+pad maybe).
+        // Easiest: reuse buildEthernetFrame to get "axisBytes" (no preamble/FCS),
+        // but randomize payload length + payload data.
+        val dst = Array[Byte](1,2,3,4,5,6).map(_.toByte)
+        val src = Array[Byte](0x0a,0x0b,0x0c,0x0d,0x0e,0x0f).map(_.toByte)
+        val ethType = 0x0800
+
+        for (i <- 0 until 500) {
+          val payloadLen = r.nextInt(512) // 0..511
+          val payload = randBytes(r, payloadLen)
+          val (_, axisBytes) = buildEthernetFrame(dst, src, ethType, payload)
+
+          val beforeEv = b.chiselTxMon.gotEvents.size
+          sendAxisFrame(dut, b, axisBytes, tid = (i & 0xff))
+
+          // Wait until we see one more event (frame) on TX side
+          waitForOneFrameEvent(dut, b, beforeEv, tn = tn)
+
+          // Drain a bit so both monitors fully close the frame
+          stepTx(dut, b, 50)
+
+          val chFrames = b.chiselTxMon.gotFrames.map(_.toSeq)
+          val vFrames  = b.verilogTxMon.gotFrames.map(_.toSeq)
+
+          withClue(s"[TX rand $i] payloadLen=$payloadLen axisBytesLen=${axisBytes.length}\n") {
+            chFrames shouldBe vFrames
+          }
+
+          if (i % 25 == 0) progInfo(tn, s"TX random progress: i=$i payloadLen=$payloadLen axisBytesLen=${axisBytes.length}")
+        }
+      }
+
+    progEnd(tn, tname)
   }
 }

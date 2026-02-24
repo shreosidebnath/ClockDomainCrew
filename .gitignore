@@ -13,12 +13,14 @@ project/*
 modules/*/generated/*
 modules/*/target/*
 target/*
-**/target/
+
+# Python
+__pycache__/
+*.pyc
 
 # sbt specific
-.bsp/
-.metals/
-.bloop/
+.bsp
+.bloop
 metals.sbt
 .metals
 
@@ -36,19 +38,23 @@ metals.sbt
 out/
 
 # VS Code
-.vscode/
+.vscode
 
 # Mac
 .DS_Store
 
 # Generated files
 *.v
+*.sv
 *.fir
 *.anno.json
 test_run_dir/
 
-# Old structure (ignore if still present)
-src/src/
+# Blackbox files (Don't ignore the source files for blackboxes)
+!modules/pcs/src/main/resources/**/*.v
+!modules/pcs/src/main/resources/**/*.sv
+!modules/mac/src/main/resources/**/*.v
+!modules/mac/src/main/resources/**/*.sv
 
 *.rpt
 generated/*.rpt

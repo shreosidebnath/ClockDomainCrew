@@ -1,0 +1,7 @@
+CORE_DIR    := "modules/mac"
+CORE        := "Mac"
+SBT_PROJECT := mac
+API_PATH    := org/chiselware/cores/o01/t001/mac
+
+# Include the main build logic
+include Makefile.base

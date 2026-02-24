@@ -1,0 +1,20 @@
+name: "11b - PAUSE Behaviour (NIC -> DUT, expect DUT to throttle TX)"
+backend: "hw"
+test:
+  type: loopback
+  iface: "ens6"
+  l3: "pause_frame"
+  marker: "CDCREW"
+  data_count: 400
+  data_payload_len: 256
+  data_pattern: "inc"
+  data_inter_gap: 0.0005     # 0.5 ms between frames (tune if needed)
+  inject_after: 80           
+  pause_quanta: 65535
+  pause_count: 10
+  pause_inter_gap: 0.01
+  observe_window_s: 0.5     # look for a quiet period within this window after pause
+  require_gap_s: 0.05        # "honored" if no returned frames for >= this long
+  arm_delay: 0.05
+  timeout: 2
+payload: ""

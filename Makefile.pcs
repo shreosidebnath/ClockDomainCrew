@@ -1,0 +1,7 @@
+CORE_DIR    := "modules/pcs"
+CORE        := "Pcs"
+SBT_PROJECT := pcs
+API_PATH    := org/chiselware/cores/o01/t001/pcs
+
+# Include the main build logic
+include Makefile.base

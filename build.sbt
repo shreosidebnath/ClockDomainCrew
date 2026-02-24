@@ -7,7 +7,7 @@ Compile / doc / scalacOptions ++= Seq("-groups", "-implicits")
 
 Test / parallelExecution := false
 
-val chiselVersion = "5.3.0"
+val chiselVersion = "5.3.0" // old version 3.6.0
 val chiselTestVer = "5.0.2"
 val scalafmtVersion = "2.5.0"
 val scalaTestVer = "3.2.18"

@@ -14,7 +14,7 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
   // --------------------------------------------------------------------------
   // Progress printing helpers
   // --------------------------------------------------------------------------
-  private val TotalTests = 17  // update this if you add/remove tests
+  private val TotalTests = 16  // update this if you add/remove tests
 
   private def pct(n: Int): Int = (n * 100) / TotalTests
 
@@ -22,7 +22,7 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
     println(s"\n[${n}/${TotalTests}] (${pct(n)}%)\tSTART:\t$name")
 
   private def progEnd(n: Int, name: String): Unit =
-    println(s"[${n}/${TotalTests}]\t\tDONE:\t$name")
+    println(s"[${n}/${TotalTests}] (${pct(n)}%)\tDONE:\t$name")
 
   private def progInfo(n: Int, msg: String): Unit =
     println(s"[${n}/${TotalTests}]\t\t\t• $msg")
@@ -781,7 +781,7 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
   // --------------------------------------------------------------------------
   it should "RX: valid frame passes (tuser==0) and matches expected bytes" in {
     progInfo(0, "start of MAC testing")
-    val tn = 1
+    val tn = 0
     val tname = "RX: valid frame passes (tuser==0) and matches expected bytes"
     progStart(tn, tname)
     
@@ -815,11 +815,11 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
         b.chiselAxis.beats.last.user shouldBe 0
       }
 
-    progEnd(tn, tname)
+    progEnd(tn+1, tname)
   }
 
   it should "RX: bad FCS is flagged (tuser==1)" in {
-    val tn = 2
+    val tn = 1
     val tname = "RX: bad FCS is flagged (tuser==1)"
     progStart(tn, tname)
 
@@ -858,11 +858,11 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
         vs.good shouldBe false
       }
     
-    progEnd(tn, tname)
+    progEnd(tn+1, tname)
   }
 
   it should "RX: runt (truncated FCS) is flagged (tuser==1)" in {
-    val tn = 3
+    val tn = 2
     val tname = "RX: runt (truncated FCS) is flagged (tuser==1)"
     progStart(tn, tname)
 
@@ -900,11 +900,11 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
         if (b.verilogAxis.beats.nonEmpty) b.verilogAxis.beats.last.user shouldBe 1
       }
 
-    progEnd(tn, tname)
+    progEnd(tn+1, tname)
   }
 
   it should "RX: bad preamble/SFD (corrupted) is detected" in {
-    val tn = 4
+    val tn = 3
     val tname = "RX: bad preamble/SFD (corrupted) - detected"
     progStart(tn, tname)
 
@@ -947,11 +947,11 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
         vs.preamble shouldBe true
       }
 
-    progEnd(tn, tname)
+    progEnd(tn+1, tname)
   }
 
   it should "RX: framing error (control inside payload) is flagged (tuser==1)" in {
-    val tn = 5
+    val tn = 4
     val tname = "RX: framing error (control inside payload) is flagged (tuser==1)"
     progStart(tn, tname)
 
@@ -996,11 +996,11 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
         b.chiselAxis.beats.last.user shouldBe 1
       }
 
-    progEnd(tn, tname)
+    progEnd(tn+1, tname)
   }
 
   it should "RX: oversize is flagged when cfg_rx_max_pkt_len is small" in {
-    val tn = 6
+    val tn = 5
     val tname = "RX: oversize is flagged when cfg_rx_max_pkt_len is small"
     progStart(tn, tname)
 
@@ -1041,11 +1041,11 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
         if (b.verilogAxis.beats.nonEmpty) b.verilogAxis.beats.last.user shouldBe 1
       }
 
-    progEnd(tn, tname)
+    progEnd(tn+1, tname)
   }
   
   it should "RX: terminate-lane coverage hits T0..T7 on good frames (tuser==0), Chisel matches Verilog" in {
-    val tn = 7
+    val tn = 6
     val tname = "RX: terminate-lane coverage hits T0..T7 on good frames (tuser==0), Chisel matches Verilog"
     progStart(tn, tname)
 
@@ -1112,11 +1112,11 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
         assert(termSeen.forall(_ == true), s"Not all RX terminate lanes seen: ${termSeen.toList}")
       }
 
-    progEnd(tn, tname)
+    progEnd(tn+1, tname)
   }
 
   it should "RX: 500 random frames (payload/len/data) match expected and Chisel==Verilog" in {
-    val tn = 8
+    val tn = 7
     val tname = "RX: 500 random frames (payload/len/data) match expected and Chisel==Verilog"
     progStart(tn, tname)
 
@@ -1173,12 +1173,12 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
         }
       }
 
-    progEnd(tn, tname)
-    progInfo(tn, s"RX tests completed, TX tests starting...")
+    progEnd(tn+1, tname)
+    progInfo(tn+1, s"RX tests completed, TX tests starting...")
   }
   
   it should "TX: AXIS -> XGMII produces matching frames (Chisel vs Verilog)" in {
-    val tn = 9
+    val tn = 8
     val tname = "TX: AXIS -> XGMII produces matching frames (Chisel vs Verilog)"
     progStart(tn, tname)
 
@@ -1238,11 +1238,11 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
         progInfo(tn, s"chiselTxEvents=${b.chiselTxMon.gotEvents.size}, verilogTxEvents=${b.verilogTxMon.gotEvents.size}")
       }
 
-    progEnd(tn, tname)
+    progEnd(tn+1, tname)
   }
 
   it should "TX: back-to-back frames preserve ordering and match (Chisel vs Verilog)" in {
-    val tn = 10
+    val tn = 9
     val tname = "TX: back-to-back frames preserve ordering and match (Chisel vs Verilog)"
     progStart(tn, tname)
 
@@ -1303,11 +1303,11 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
         progInfo(tn, s"chiselTxEvents=${b.chiselTxMon.gotEvents.size}, verilogTxEvents=${b.verilogTxMon.gotEvents.size}")
       }
 
-    progEnd(tn, tname)
+    progEnd(tn+1, tname)
   }
 
   it should "TX: terminate-lane coverage hits T0..T7 (Chisel vs Verilog match)" in {
-    val tn = 11
+    val tn = 10
     val tname = "TX: terminate-lane coverage hits T0..T7 (Chisel vs Verilog match)"
     progStart(tn, tname)
 
@@ -1412,11 +1412,11 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
         progInfo(tn, s"chiselTxEvents=${b.chiselTxMon.gotEvents.size}, verilogTxEvents=${b.verilogTxMon.gotEvents.size}")
       }
 
-    progEnd(tn, tname)
+    progEnd(tn+1, tname)
   }
 
   it should "TX: IFG between frames is >= cfg_tx_ifg (bytes)" in {
-    val tn = 12
+    val tn = 11
     val tname = "TX: IFG between frames is >= cfg_tx_ifg (bytes)"
     progStart(tn, tname)
 
@@ -1475,11 +1475,11 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
       progInfo(tn, s"chiselTxEvents=${b.chiselTxMon.gotEvents.size}, verilogTxEvents=${b.verilogTxMon.gotEvents.size}")
     }
 
-    progEnd(tn, tname)
+    progEnd(tn+1, tname)
   }
 
   it should "TX: partial tkeep on last beat (1..7) changes length and terminate lane correctly" in {
-    val tn = 13
+    val tn = 12
     val tname = "TX: partial tkeep on last beat (1..7) changes length and terminate lane correctly"
     progStart(tn, tname)
 
@@ -1574,11 +1574,11 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
       progInfo(tn, s"chiselTxEvents=${b.chiselTxMon.gotEvents.size}, verilogTxEvents=${b.verilogTxMon.gotEvents.size}")
     }
 
-    progEnd(tn, tname)
+    progEnd(tn+1, tname)
   }
 
   it should "TX: tuser=0 produces a good packet (tx status all good)" in {
-    val tn = 14
+    val tn = 13
     val tname = "TX: tuser=0 produces a good packet (tx status all good)"
     progStart(tn, tname)
 
@@ -1635,11 +1635,11 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
       progInfo(tn, s"chiselTxEvents=${b.chiselTxMon.gotEvents.size}, verilogTxEvents=${b.verilogTxMon.gotEvents.size}")
     }
 
-    progEnd(tn, tname)
+    progEnd(tn+1, tname)
   }
 
   it should "TX: tuser=1 triggers user-error behavior (drop or mark bad), Chisel matches Verilog" in {
-    val tn = 15
+    val tn = 14
     val tname = "TX: tuser=1 triggers user-error behavior (drop or mark bad), Chisel matches Verilog"
     progStart(tn, tname)
 
@@ -1731,11 +1731,11 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
       progInfo(tn, s"chiselTxEvents=${b.chiselTxMon.gotEvents.size}, verilogTxEvents=${b.verilogTxMon.gotEvents.size}")
     }
 
-    progEnd(tn, tname)
+    progEnd(tn+1, tname)
   }
 
   it should "TX: 500 random AXIS frames (len/data) produce identical XGMII (Chisel==Verilog)" in {
-    val tn = 16
+    val tn = 15
     val tname = "TX: 500 random AXIS frames (len/data) produce identical XGMII (Chisel==Verilog)"
     progStart(tn, tname)
 
@@ -1792,6 +1792,7 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
         }
       }
 
-    progEnd(tn, tname)
+    progEnd(tn+1, tname)
+    progInfo(tn+1, s"TX tests completed, MAC testing complete!")
   }
 }

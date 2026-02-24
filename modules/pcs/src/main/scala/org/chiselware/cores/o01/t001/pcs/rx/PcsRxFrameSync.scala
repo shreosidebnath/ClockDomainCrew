@@ -1,99 +1,66 @@
 package org.chiselware.cores.o01.t001.pcs.rx
 import chisel3._
 import chisel3.util._
-import _root_.circt.stage.ChiselStage
-import org.chiselware.syn.{YosysTclFile, StaTclFile, RunScriptFile}
-import java.io.{File, PrintWriter}
 
 class PcsRxFrameSync(
-  hdrW: Int = 2, // correct
-  bitslipHighCycles: Int = 1, // Should be 0
-  bitslipLowCycles: Int = 7 // correct
-) extends Module {
-  
-  // --------------------------------------------------------
-  // Check Configuration
-  // --------------------------------------------------------
-  // SystemVerilog: if (HDR_W != 2) $fatal(0, "Error: HDR_W must be 2");
+    hdrW: Int = 2,
+    bitslipHighCycles: Int = 1,
+    bitslipLowCycles: Int = 7
+  ) extends Module {
+
   require(hdrW == 2, "Error: HDR_W must be 2")
 
-  // --------------------------------------------------------
-  // IO Interface
-  // --------------------------------------------------------
   val io = IO(new Bundle {
-    /*
-     * SERDES interface
-     */
-    val serdesRxHdr       = Input(UInt(hdrW.W))
-    val serdesRxHdrValid  = Input(Bool())
-    val serdesRxBitslip   = Output(Bool())
+    // SERDES interface
+    val serdesRxHdr = Input(UInt(hdrW.W))
+    val serdesRxHdrValid = Input(Bool())
+    val serdesRxBitslip = Output(Bool())
 
-    /*
-     * Status
-     */
-    val rxBlockLock       = Output(Bool())
+    // Status
+    val rxBlockLock = Output(Bool())
   })
 
-  // --------------------------------------------------------
-  // Local Constants & Parameters
-  // --------------------------------------------------------
-  val bitslipMaxCycles = if (bitslipHighCycles > bitslipLowCycles) bitslipHighCycles else bitslipLowCycles
-  
-  // SystemVerilog: localparam BITSLIP_COUNT_W = $clog2(BITSLIP_MAX_CYCLES);
-  // We add 1 to allow strictly 'bitslipMaxCycles' value storage without overflow if it's a power of 2
-  val bitslipCountW    = log2Ceil(bitslipMaxCycles + 1) 
+  val bitslipMaxCycles =
+    if (bitslipHighCycles > bitslipLowCycles)
+      bitslipHighCycles
+    else
+      bitslipLowCycles
 
-  val syncData = "b10".U(2.W)
-  val syncCtrl = "b01".U(2.W)
+  val bitslipCountW = log2Ceil(bitslipMaxCycles + 1)
 
-  // --------------------------------------------------------
   // Registers
-  // --------------------------------------------------------
-  // SystemVerilog: logic [5:0] sh_count_reg = 6'd0;
-  val shCountReg        = RegInit(0.U(6.W))
-  
-  // SystemVerilog: logic [3:0] sh_invalid_count_reg = 4'd0;
+  val shCountReg = RegInit(0.U(6.W))
   val shInvalidCountReg = RegInit(0.U(4.W))
-  
-  // SystemVerilog: logic [BITSLIP_COUNT_W-1:0] bitslip_count_reg = '0;
-  val bitslipCountReg   = RegInit(0.U(bitslipCountW.W))
-  
-  // SystemVerilog: logic serdes_rx_bitslip_reg = 1'b0;
+  val bitslipCountReg = RegInit(0.U(bitslipCountW.W))
   val serdesRxBitslipReg = RegInit(false.B)
-  
-  // SystemVerilog: logic rx_block_lock_reg = 1'b0;
-  val rxBlockLockReg     = RegInit(false.B)
+  val rxBlockLockReg = RegInit(false.B)
 
-  // --------------------------------------------------------
-  // Next State Logic (Combinational)
-  // --------------------------------------------------------
-  // Initialize 'next' signals to current register values (default behavior)
-  val shCountNext         = WireDefault(shCountReg)
-  val shInvalidCountNext  = WireDefault(shInvalidCountReg)
-  val bitslipCountNext    = WireDefault(bitslipCountReg)
+  // Next State Logic
+  val shCountNext = WireDefault(shCountReg)
+  val shInvalidCountNext = WireDefault(shInvalidCountReg)
+  val bitslipCountNext = WireDefault(bitslipCountReg)
   val serdesRxBitslipNext = WireDefault(serdesRxBitslipReg)
-  val rxBlockLockNext     = WireDefault(rxBlockLockReg)
+  val rxBlockLockNext = WireDefault(rxBlockLockReg)
 
-  // Helper values for reduction operators (&sh_count_reg)
-  val shCountAllOnes        = shCountReg.andR
+  val shCountAllOnes = shCountReg.andR
   val shInvalidCountAllOnes = shInvalidCountReg.andR
 
-  // Logic
   when(bitslipCountReg =/= 0.U) {
     bitslipCountNext := bitslipCountReg - 1.U
   }.elsewhen(serdesRxBitslipReg) {
     serdesRxBitslipNext := false.B
-    bitslipCountNext    := bitslipLowCycles.U(bitslipCountW.W)
+    bitslipCountNext := bitslipLowCycles.U(bitslipCountW.W)
   }.elsewhen(!io.serdesRxHdrValid) {
     // wait for header - do nothing (defaults hold)
-  }.elsewhen(io.serdesRxHdr === syncCtrl || io.serdesRxHdr === syncData) {
+  }.elsewhen(
+    io.serdesRxHdr === PcsRxFrameSync.SyncCtrl ||
+    io.serdesRxHdr === PcsRxFrameSync.SyncData
+  ) {
     // valid header
     shCountNext := shCountReg + 1.U
-    
-    // Check for &sh_count_reg (Overflow)
+
     when(shCountAllOnes) {
-      // valid count overflow, reset
-      shCountNext        := 0.U
+      shCountNext := 0.U
       shInvalidCountNext := 0.U
       when(shInvalidCountReg === 0.U) {
         rxBlockLockNext := true.B
@@ -101,53 +68,48 @@ class PcsRxFrameSync(
     }
   }.otherwise {
     // invalid header
-    shCountNext        := shCountReg + 1.U
+    shCountNext := shCountReg + 1.U
     shInvalidCountNext := shInvalidCountReg + 1.U
 
     when(!rxBlockLockReg || shInvalidCountAllOnes) {
-      // invalid count overflow, lost block lock
-      shCountNext        := 0.U
+      shCountNext := 0.U
       shInvalidCountNext := 0.U
-      rxBlockLockNext    := false.B
-
-      // slip one bit
+      rxBlockLockNext := false.B
       serdesRxBitslipNext := true.B
-      bitslipCountNext    := bitslipHighCycles.U(bitslipCountW.W)
+      bitslipCountNext := bitslipHighCycles.U(bitslipCountW.W)
     }.elsewhen(shCountAllOnes) {
-      // valid count overflow, reset
-      shCountNext        := 0.U
+      shCountNext := 0.U
       shInvalidCountNext := 0.U
     }
   }
 
-  // --------------------------------------------------------
   // Register Updates
-  // --------------------------------------------------------
-  // In Chisel, assigning to a Reg automatically creates the FF behavior.
-  // The RegInit handles the reset logic defined in the SV `if(rst)` block.
-  shCountReg        := shCountNext
+  shCountReg := shCountNext
   shInvalidCountReg := shInvalidCountNext
-  bitslipCountReg   := bitslipCountNext
+  bitslipCountReg := bitslipCountNext
   serdesRxBitslipReg := serdesRxBitslipNext
-  rxBlockLockReg    := rxBlockLockNext
+  rxBlockLockReg := rxBlockLockNext
 
-  // --------------------------------------------------------
   // Output Assignments
-  // --------------------------------------------------------
   io.serdesRxBitslip := serdesRxBitslipReg
-  io.rxBlockLock     := rxBlockLockReg
+  io.rxBlockLock := rxBlockLockReg
 }
 
 object PcsRxFrameSync {
+  val SyncData = "b10".U(2.W)
+  val SyncCtrl = "b01".U(2.W)
+
   def apply(p: PcsRxFrameSyncParams): PcsRxFrameSync = Module(new PcsRxFrameSync(
-    hdrW = p.hdrW, bitslipHighCycles = p.bitslipHighCycles, bitslipLowCycles = p.bitslipLowCycles
+    hdrW = p.hdrW,
+    bitslipHighCycles = p.bitslipHighCycles,
+    bitslipLowCycles = p.bitslipLowCycles
   ))
 }
 
 // object Main extends App {
-//   val mainClassName = "Pcs"
-//   val coreDir = s"modules/${mainClassName.toLowerCase()}"
-//   PcsRxFrameSyncParams.synConfigMap.foreach { case (configName, p) =>
+//   val MainClassName = "Pcs"
+//   val coreDir = s"modules/${MainClassName.toLowerCase()}"
+//   PcsRxFrameSyncParams.SynConfigMap.foreach { case (configName, p) =>
 //     println(s"Generating Verilog for config: $configName")
 //     ChiselStage.emitSystemVerilog(
 //       new PcsRxFrameSync(
@@ -161,10 +123,9 @@ object PcsRxFrameSync {
 //         s"-o=${coreDir}/generated/synTestCases/$configName"
 //       )
 //     )
-//     // Synthesis collateral generation
-//     sdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-//     YosysTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
-//     StaTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
-//     RunScriptFile.create(mainClassName, PcsRxWatchdogParams.synConfigs, s"${coreDir}/generated/synTestCases")
+//     SdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
+//     YosysTclFile.create(mainClassName = MainClassName, outputDir = s"${coreDir}/generated/synTestCases/$configName")
+//     StaTclFile.create(mainClassName = MainClassName, outputDir = s"${coreDir}/generated/synTestCases/$configName")
+//     RunScriptFile.create(mainClassName = MainClassName, synConfigs = PcsRxFrameSyncParams.SynConfigs, outputDir = s"${coreDir}/generated/synTestCases")
 //   }
 // }

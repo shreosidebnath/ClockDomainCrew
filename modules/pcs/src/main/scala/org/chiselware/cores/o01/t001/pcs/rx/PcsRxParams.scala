@@ -1,44 +1,41 @@
 package org.chiselware.cores.o01.t001.pcs.rx
-import chisel3._
-import chisel3.util._
+import java.io.{ File, PrintWriter }
 import scala.collection.mutable.LinkedHashMap
-import java.io.{File, PrintWriter}
 
 case class PcsRxParams(
-  val dataW: Int = 64,
-  val ctrlW: Int = 8,
-  val hdrW: Int = 2,
-  val gbxIfEn: Boolean = true,
-  val bitReverse: Boolean = true,
-  val scramblerDisable: Boolean = false,
-  val prbs31En: Boolean = false,
-  val serdesPipeline: Int = 1,
-  val bitslipHighCycles: Int = 0,
-  val bitslipLowCycles: Int = 7,
-  val count125Us: Double = 125000.0/6.4
-)
+    dataW: Int = 64,
+    ctrlW: Int = 8,
+    hdrW: Int = 2,
+    gbxIfEn: Boolean = true,
+    bitReverse: Boolean = true,
+    scramblerDisable: Boolean = false,
+    prbs31En: Boolean = false,
+    serdesPipeline: Int = 1,
+    bitslipHighCycles: Int = 0,
+    bitslipLowCycles: Int = 7,
+    count125Us: Double = 125000.0 / 6.4)
 
 object PcsRxParams {
 
-    val simConfigMap = LinkedHashMap[String, PcsRxParams](
-        "config" -> PcsRxParams()
-    )
+  val SimConfigMap = LinkedHashMap[String, PcsRxParams](
+    "config" -> PcsRxParams()
+  )
 
-    val synConfigMap = LinkedHashMap[String, PcsRxParams](
-        "pcs_rx_inst" -> PcsRxParams()
-    )
+  val SynConfigMap = LinkedHashMap[String, PcsRxParams](
+    "pcs_rx_inst" -> PcsRxParams()
+  )
 
-    val synConfigs = synConfigMap.keys.mkString(" ")
+  val SynConfigs = SynConfigMap.keys.mkString(" ")
 }
 
-object sdcFile {
+object SdcFile {
   def create(sdcFilePath: String): Unit = {
     val sdcFileData = ""
     val sdcFileDir = new File(sdcFilePath)
     sdcFileDir.mkdirs()
     val sdcFileName = new File(s"$sdcFilePath/PcsRx.sdc")
-    val sdcFile = new PrintWriter(sdcFileName)
-    sdcFile.write(sdcFileData)
-    sdcFile.close()
+    val sdcFileWriter = new PrintWriter(sdcFileName)
+    sdcFileWriter.write(sdcFileData)
+    sdcFileWriter.close()
   }
 }

@@ -1,204 +1,212 @@
 package org.chiselware.cores.o01.t001.mac.rx
-import org.chiselware.cores.o01.t001.mac.Lfsr
-import org.chiselware.cores.o01.t001.mac.AxisInterface
-import org.chiselware.cores.o01.t001.mac.AxisInterfaceParams
+import _root_.circt.stage.ChiselStage
 import chisel3._
 import chisel3.util._
-import _root_.circt.stage.ChiselStage
-import org.chiselware.syn.{YosysTclFile, StaTclFile, RunScriptFile}
-import java.io.{File, PrintWriter}
+import org.chiselware.cores.o01.t001.mac.{
+  AxisInterface, AxisInterfaceParams, Lfsr
+}
+import org.chiselware.syn.{ RunScriptFile, StaTclFile, YosysTclFile }
 
 class Xgmii2Axis64(
-  val dataW: Int = 64,
-  val ctrlW: Int = 8,
-  val gbxIfEn: Boolean = false,
-  val ptpTsEn: Boolean = false,
-  val ptpTsFmtTod: Boolean = true,
-  val ptpTsW: Int = 96
-) extends Module {
+    val dataW: Int = 64,
+    val ctrlW: Int = 8,
+    val gbxIfEn: Boolean = false,
+    val ptpTsEn: Boolean = false,
+    val ptpTsFmtTod: Boolean = true,
+    val ptpTsW: Int = 96) extends Module {
 
   val keepW = dataW / 8
-  val userW = (if (ptpTsEn) ptpTsW else 0) + 1
+  val userW =
+    (if (ptpTsEn)
+       ptpTsW
+     else
+       0) + 1
 
-  // Elaborative configuration checks
-  require(dataW == 64, s"Error: Interface width must be 64 (instance dataW=$dataW)")
-  require(keepW * 8 == dataW && ctrlW * 8 == dataW, "Error: Interface requires byte (8-bit) granularity")
+  require(
+    dataW == 64,
+    s"Error: Interface width must be 64 (instance dataW=$dataW)"
+  )
+  require(
+    keepW * 8 == dataW && ctrlW * 8 == dataW,
+    "Error: Interface requires byte (8-bit) granularity"
+  )
 
   val io = IO(new Bundle {
     // XGMII input
-    val xgmii_rxd = Input(UInt(dataW.W))
-    val xgmii_rxc = Input(UInt(ctrlW.W))
-    val xgmii_rx_valid = Input(Bool())
+    val xgmiiRxd = Input(UInt(dataW.W))
+    val xgmiiRxc = Input(UInt(ctrlW.W))
+    val xgmiiRxValid = Input(Bool())
 
-
-    val m_axis_rx = new AxisInterface(AxisInterfaceParams(
-      dataW = dataW, keepW = keepW, userEn = true, userW = userW
-    ))
+    val mAxisRx =
+      new AxisInterface(AxisInterfaceParams(
+        dataW = dataW,
+        keepW = keepW,
+        userEn = true,
+        userW = userW
+      ))
 
     // PTP
-    val ptp_ts = Input(UInt(ptpTsW.W))
+    val ptpTs = Input(UInt(ptpTsW.W))
 
     // Configuration
-    val cfg_rx_max_pkt_len = Input(UInt(16.W))
-    val cfg_rx_enable = Input(Bool())
+    val cfgRxMaxPktLen = Input(UInt(16.W))
+    val cfgRxEnable = Input(Bool())
 
     // Status
-    val rx_start_packet = Output(UInt(2.W))
-    val stat_rx_byte = Output(UInt(4.W))
-    val stat_rx_pkt_len = Output(UInt(16.W))
-    val stat_rx_pkt_fragment = Output(Bool())
-    val stat_rx_pkt_jabber = Output(Bool())
-    val stat_rx_pkt_ucast = Output(Bool())
-    val stat_rx_pkt_mcast = Output(Bool())
-    val stat_rx_pkt_bcast = Output(Bool())
-    val stat_rx_pkt_vlan = Output(Bool())
-    val stat_rx_pkt_good = Output(Bool())
-    val stat_rx_pkt_bad = Output(Bool())
-    val stat_rx_err_oversize = Output(Bool())
-    val stat_rx_err_bad_fcs = Output(Bool())
-    val stat_rx_err_bad_block = Output(Bool())
-    val stat_rx_err_framing = Output(Bool())
-    val stat_rx_err_preamble = Output(Bool())
+    val rxStartPacket = Output(UInt(2.W))
+    val statRxByte = Output(UInt(4.W))
+    val statRxPktLen = Output(UInt(16.W))
+    val statRxPktFragment = Output(Bool())
+    val statRxPktJabber = Output(Bool())
+    val statRxPktUcast = Output(Bool())
+    val statRxPktMcast = Output(Bool())
+    val statRxPktBcast = Output(Bool())
+    val statRxPktVlan = Output(Bool())
+    val statRxPktGood = Output(Bool())
+    val statRxPktBad = Output(Bool())
+    val statRxErrOversize = Output(Bool())
+    val statRxErrBadFcs = Output(Bool())
+    val statRxErrBadBlock = Output(Bool())
+    val statRxErrFraming = Output(Bool())
+    val statRxErrPreamble = Output(Bool())
   })
 
   // Constants
-  val ETH_PRE = "h55".U(8.W)
-  val ETH_SFD = "hD5".U(8.W)
-  val XGMII_IDLE = "h07".U(8.W)
-  val XGMII_START = "hfb".U(8.W)
-  val XGMII_TERM = "hfd".U(8.W)
-  val XGMII_ERROR = "hfe".U(8.W)
+  val EthPre = "h55".U(8.W)
+  val EthSfd = "hD5".U(8.W)
+  val XgmiiIdle = "h07".U(8.W)
+  val XgmiiStart = "hfb".U(8.W)
+  val XgmiiTerm = "hfd".U(8.W)
+  val XgmiiError = "hfe".U(8.W)
 
-  val STATE_IDLE = 0.U(2.W)
-  val STATE_PAYLOAD = 1.U(2.W)
-  val STATE_LAST = 2.U(2.W)
+  val StateIdle = 0.U(2.W)
+  val StatePayload = 1.U(2.W)
+  val StateLast = 2.U(2.W)
 
   // Registers
-  val state_reg = RegInit(STATE_IDLE)
-  val lanes_swapped_reg = RegInit(false.B)
-  val lanes_swapped_d1_reg = RegInit(false.B)
-  val swap_rxd_reg = RegInit(0.U(32.W))
-  val swap_rxc_reg = RegInit(0.U(4.W))
-  val swap_rxc_term_reg = RegInit(0.U(4.W))
+  val stateReg = RegInit(StateIdle)
+  val lanesSwappedReg = RegInit(false.B)
+  val lanesSwappedD1Reg = RegInit(false.B)
+  val swapRxdReg = RegInit(0.U(32.W))
+  val swapRxcReg = RegInit(0.U(4.W))
+  val swapRxcTermReg = RegInit(0.U(4.W))
 
-  val term_present_reg = RegInit(false.B)
-  val term_first_cycle_reg = RegInit(false.B)
-  val term_lane_reg = RegInit(0.U(3.W))
-  val term_lane_d0_reg = RegInit(0.U(3.W))
-  val framing_error_reg = RegInit(false.B)
-  val framing_error_d0_reg = RegInit(false.B)
+  val termPresentReg = RegInit(false.B)
+  val termFirstCycleReg = RegInit(false.B)
+  val termLaneReg = RegInit(0.U(3.W))
+  val termLaneD0Reg = RegInit(0.U(3.W))
+  val framingErrorReg = RegInit(false.B)
+  val framingErrorD0Reg = RegInit(false.B)
 
-  val xgmii_rxd_d0_reg = RegInit(0.U(dataW.W))
-  val xgmii_rxd_d1_reg = RegInit(0.U(dataW.W))
+  val xgmiiRxdD0Reg = RegInit(0.U(dataW.W))
+  val xgmiiRxdD1Reg = RegInit(0.U(dataW.W))
 
-  val xgmii_start_swap_reg = RegInit(false.B)
-  val xgmii_start_d0_reg = RegInit(false.B)
-  val xgmii_start_d1_reg = RegInit(false.B)
+  val xgmiiStartSwapReg = RegInit(false.B)
+  val xgmiiStartD0Reg = RegInit(false.B)
+  val xgmiiStartD1Reg = RegInit(false.B)
 
-  val frame_oversize_reg = RegInit(false.B)
-  val pre_ok_reg = RegInit(false.B)
-  val hdr_ptr_reg = RegInit(0.U(2.W))
-  val is_mcast_reg = RegInit(false.B)
-  val is_bcast_reg = RegInit(false.B)
-  val is_8021q_reg = RegInit(false.B)
-  val frame_len_reg = RegInit(0.U(16.W))
-  val frame_len_lim_cyc_reg = RegInit(0.U(13.W))
-  val frame_len_lim_last_reg = RegInit(0.U(3.W))
-  val frame_len_lim_check_reg = RegInit(false.B)
+  val frameOversizeReg = RegInit(false.B)
+  val preOkReg = RegInit(false.B)
+  val hdrPtrReg = RegInit(0.U(2.W))
+  val isMcastReg = RegInit(false.B)
+  val isBcastReg = RegInit(false.B)
+  val is8021qReg = RegInit(false.B)
+  val frameLenReg = RegInit(0.U(16.W))
+  val frameLenLimCycReg = RegInit(0.U(13.W))
+  val frameLenLimLastReg = RegInit(0.U(3.W))
+  val frameLenLimCheckReg = RegInit(false.B)
 
-  val m_axis_rx_tdata_reg = RegInit(0.U(dataW.W))
-  val m_axis_rx_tkeep_reg = RegInit(0.U(keepW.W))
-  val m_axis_rx_tvalid_reg = RegInit(false.B)
-  val m_axis_rx_tlast_reg = RegInit(false.B)
-  val m_axis_rx_tuser_reg = RegInit(false.B)
+  val mAxisRxTdataReg = RegInit(0.U(dataW.W))
+  val mAxisRxTkeepReg = RegInit(0.U(keepW.W))
+  val mAxisRxTvalidReg = RegInit(false.B)
+  val mAxisRxTlastReg = RegInit(false.B)
+  val mAxisRxTuserReg = RegInit(false.B)
 
-  val start_packet_reg = RegInit(0.U(2.W))
+  val startPacketReg = RegInit(0.U(2.W))
 
-  val stat_rx_byte_reg = RegInit(0.U(4.W))
-  val stat_rx_pkt_len_reg = RegInit(0.U(16.W))
-  val stat_rx_pkt_fragment_reg = RegInit(false.B)
-  val stat_rx_pkt_jabber_reg = RegInit(false.B)
-  val stat_rx_pkt_ucast_reg = RegInit(false.B)
-  val stat_rx_pkt_mcast_reg = RegInit(false.B)
-  val stat_rx_pkt_bcast_reg = RegInit(false.B)
-  val stat_rx_pkt_vlan_reg = RegInit(false.B)
-  val stat_rx_pkt_good_reg = RegInit(false.B)
-  val stat_rx_pkt_bad_reg = RegInit(false.B)
-  val stat_rx_err_oversize_reg = RegInit(false.B)
-  val stat_rx_err_bad_fcs_reg = RegInit(false.B)
-  val stat_rx_err_bad_block_reg = RegInit(false.B)
-  val stat_rx_err_framing_reg = RegInit(false.B)
-  val stat_rx_err_preamble_reg = RegInit(false.B)
+  val statRxByteReg = RegInit(0.U(4.W))
+  val statRxPktLenReg = RegInit(0.U(16.W))
+  val statRxPktFragmentReg = RegInit(false.B)
+  val statRxPktJabberReg = RegInit(false.B)
+  val statRxPktUcastReg = RegInit(false.B)
+  val statRxPktMcastReg = RegInit(false.B)
+  val statRxPktBcastReg = RegInit(false.B)
+  val statRxPktVlanReg = RegInit(false.B)
+  val statRxPktGoodReg = RegInit(false.B)
+  val statRxPktBadReg = RegInit(false.B)
+  val statRxErrOversizeReg = RegInit(false.B)
+  val statRxErrBadFcsReg = RegInit(false.B)
+  val statRxErrBadBlockReg = RegInit(false.B)
+  val statRxErrFramingReg = RegInit(false.B)
+  val statRxErrPreambleReg = RegInit(false.B)
 
-  val ptp_ts_reg = RegInit(0.U(ptpTsW.W))
-  val ptp_ts_out_reg = RegInit(0.U(ptpTsW.W))
-  
-  // Handled differently because it's partially assigned conditionally
-  val ptp_ts_adj_reg = RegInit(0.U(ptpTsW.W))
-  val ptp_ts_borrow_reg = RegInit(false.B)
+  val ptpTsReg = RegInit(0.U(ptpTsW.W))
+  val ptpTsOutReg = RegInit(0.U(ptpTsW.W))
+  val ptpTsAdjReg = RegInit(0.U(ptpTsW.W))
+  val ptpTsBorrowReg = RegInit(false.B)
 
-  val crc_state_reg = RegInit("hffffffff".U(32.W)) // '1 in SV
-  val crc_valid_reg = RegInit(0.U(8.W))
+  val crcStateReg = RegInit("hffffffff".U(32.W))
+  val crcValidReg = RegInit(0.U(8.W))
 
-  val last_ts_reg = RegInit(0.U(20.W))
-  val ts_inc_reg = RegInit(0.U(20.W))
+  val lastTsReg = RegInit(0.U(20.W))
+  val tsIncReg = RegInit(0.U(20.W))
 
   // Wires for _next state
-  val state_next = WireDefault(STATE_IDLE)
-  val frame_oversize_next = WireDefault(frame_oversize_reg)
-  val pre_ok_next = WireDefault(pre_ok_reg)
-  val hdr_ptr_next = WireDefault(hdr_ptr_reg)
-  val is_mcast_next = WireDefault(is_mcast_reg)
-  val is_bcast_next = WireDefault(is_bcast_reg)
-  val is_8021q_next = WireDefault(is_8021q_reg)
-  val frame_len_next = WireDefault(frame_len_reg)
-  val frame_len_lim_cyc_next = WireDefault(frame_len_lim_cyc_reg)
-  val frame_len_lim_last_next = WireDefault(frame_len_lim_last_reg)
-  val frame_len_lim_check_next = WireDefault(frame_len_lim_check_reg)
+  val stateNext = WireDefault(StateIdle)
+  val frameOversizeNext = WireDefault(frameOversizeReg)
+  val preOkNext = WireDefault(preOkReg)
+  val hdrPtrNext = WireDefault(hdrPtrReg)
+  val isMcastNext = WireDefault(isMcastReg)
+  val isBcastNext = WireDefault(isBcastReg)
+  val is8021qNext = WireDefault(is8021qReg)
+  val frameLenNext = WireDefault(frameLenReg)
+  val frameLenLimCycNext = WireDefault(frameLenLimCycReg)
+  val frameLenLimLastNext = WireDefault(frameLenLimLastReg)
+  val frameLenLimCheckNext = WireDefault(frameLenLimCheckReg)
 
-  val m_axis_rx_tdata_next = WireDefault(xgmii_rxd_d1_reg)
-  val m_axis_rx_tkeep_next = WireDefault(((1 << keepW) - 1).U(keepW.W))
-  val m_axis_rx_tvalid_next = WireDefault(false.B)
-  val m_axis_rx_tlast_next = WireDefault(false.B)
-  val m_axis_rx_tuser_next = WireDefault(false.B)
+  val mAxisRxTdataNext = WireDefault(xgmiiRxdD1Reg)
+  val mAxisRxTkeepNext = WireDefault(((1 << keepW) - 1).U(keepW.W))
+  val mAxisRxTvalidNext = WireDefault(false.B)
+  val mAxisRxTlastNext = WireDefault(false.B)
+  val mAxisRxTuserNext = WireDefault(false.B)
 
-  val ptp_ts_out_next = WireDefault(ptp_ts_out_reg)
+  val ptpTsOutNext = WireDefault(ptpTsOutReg)
 
-  val stat_rx_byte_next = WireDefault(0.U(4.W))
-  val stat_rx_pkt_len_next = WireDefault(0.U(16.W))
-  val stat_rx_pkt_fragment_next = WireDefault(false.B)
-  val stat_rx_pkt_jabber_next = WireDefault(false.B)
-  val stat_rx_pkt_ucast_next = WireDefault(false.B)
-  val stat_rx_pkt_mcast_next = WireDefault(false.B)
-  val stat_rx_pkt_bcast_next = WireDefault(false.B)
-  val stat_rx_pkt_vlan_next = WireDefault(false.B)
-  val stat_rx_pkt_good_next = WireDefault(false.B)
-  val stat_rx_pkt_bad_next = WireDefault(false.B)
-  val stat_rx_err_oversize_next = WireDefault(false.B)
-  val stat_rx_err_bad_fcs_next = WireDefault(false.B)
-  val stat_rx_err_bad_block_next = WireDefault(false.B)
-  val stat_rx_err_framing_next = WireDefault(false.B)
-  val stat_rx_err_preamble_next = WireDefault(false.B)
+  val statRxByteNext = WireDefault(0.U(4.W))
+  val statRxPktLenNext = WireDefault(0.U(16.W))
+  val statRxPktFragmentNext = WireDefault(false.B)
+  val statRxPktJabberNext = WireDefault(false.B)
+  val statRxPktUcastNext = WireDefault(false.B)
+  val statRxPktMcastNext = WireDefault(false.B)
+  val statRxPktBcastNext = WireDefault(false.B)
+  val statRxPktVlanNext = WireDefault(false.B)
+  val statRxPktGoodNext = WireDefault(false.B)
+  val statRxPktBadNext = WireDefault(false.B)
+  val statRxErrOversizeNext = WireDefault(false.B)
+  val statRxErrBadFcsNext = WireDefault(false.B)
+  val statRxErrBadBlockNext = WireDefault(false.B)
+  val statRxErrFramingNext = WireDefault(false.B)
+  val statRxErrPreambleNext = WireDefault(false.B)
 
   // Mask input data
-  val xgmii_rxd_masked_vec = Wire(Vec(ctrlW, UInt(8.W)))
-  val xgmii_term_vec = Wire(Vec(ctrlW, Bool()))
+  val xgmiiRxdMaskedVec = Wire(Vec(ctrlW, UInt(8.W)))
+  val xgmiiTermVec = Wire(Vec(ctrlW, Bool()))
 
   for (n <- 0 until ctrlW) {
-    val rxd_byte = io.xgmii_rxd((n * 8) + 7, n * 8)
+    val rxdByte = io.xgmiiRxd((n * 8) + 7, n * 8)
     if (n > 0) {
-      xgmii_rxd_masked_vec(n) := Mux(io.xgmii_rxc(n), 0.U, rxd_byte)
+      xgmiiRxdMaskedVec(n) := Mux(io.xgmiiRxc(n), 0.U, rxdByte)
     } else {
-      xgmii_rxd_masked_vec(n) := rxd_byte
+      xgmiiRxdMaskedVec(n) := rxdByte
     }
-    xgmii_term_vec(n) := io.xgmii_rxc(n) && (rxd_byte === XGMII_TERM)
+    xgmiiTermVec(n) := io.xgmiiRxc(n) && (rxdByte === XgmiiTerm)
   }
-  
-  val xgmii_rxd_masked = xgmii_rxd_masked_vec.asUInt
-  val xgmii_term = xgmii_term_vec.asUInt
+
+  val xgmiiRxdMasked = xgmiiRxdMaskedVec.asUInt
+  val xgmiiTerm = xgmiiTermVec.asUInt
 
   // CRC Instantiation
-  val crc_inst = Module(new Lfsr(
+  val crcInst = Module(new Lfsr(
     lfsrW = 32,
     lfsrPoly = BigInt("4c11db7", 16),
     lfsrGalois = true,
@@ -208,370 +216,387 @@ class Xgmii2Axis64(
     dataInEn = true,
     dataOutEn = false
   ))
-  crc_inst.io.data_in := Mux(xgmii_start_swap_reg, Cat(xgmii_rxd_masked(63, 32), 0.U(32.W)), xgmii_rxd_masked)
-  crc_inst.io.state_in := crc_state_reg
-  val crc_state = crc_inst.io.state_out
+  crcInst.io.dataIn := Mux(
+    xgmiiStartSwapReg,
+    Cat(xgmiiRxdMasked(63, 32), 0.U(32.W)),
+    xgmiiRxdMasked
+  )
+  crcInst.io.stateIn := crcStateReg
+  val crcState = crcInst.io.stateOut
 
   // CRC valid checks
-  val crc_valid = Wire(Vec(8, Bool()))
-  crc_valid(7) := crc_state_reg === (~"h2144df1c".U(32.W)).asUInt
-  crc_valid(6) := crc_state_reg === (~"hc622f71d".U(32.W)).asUInt
-  crc_valid(5) := crc_state_reg === (~"hb1c2a1a3".U(32.W)).asUInt
-  crc_valid(4) := crc_state_reg === (~"h9d6cdf7e".U(32.W)).asUInt
-  crc_valid(3) := crc_state_reg === (~"h6522df69".U(32.W)).asUInt
-  crc_valid(2) := crc_state_reg === (~"he60914ae".U(32.W)).asUInt
-  crc_valid(1) := crc_state_reg === (~"he38a6876".U(32.W)).asUInt
-  crc_valid(0) := crc_state_reg === (~"h6b87b1ec".U(32.W)).asUInt
+  val crcValid = Wire(Vec(8, Bool()))
+  crcValid(7) := crcStateReg === (~"h2144df1c".U(32.W)).asUInt
+  crcValid(6) := crcStateReg === (~"hc622f71d".U(32.W)).asUInt
+  crcValid(5) := crcStateReg === (~"hb1c2a1a3".U(32.W)).asUInt
+  crcValid(4) := crcStateReg === (~"h9d6cdf7e".U(32.W)).asUInt
+  crcValid(3) := crcStateReg === (~"h6522df69".U(32.W)).asUInt
+  crcValid(2) := crcStateReg === (~"he60914ae".U(32.W)).asUInt
+  crcValid(1) := crcStateReg === (~"he38a6876".U(32.W)).asUInt
+  crcValid(0) := crcStateReg === (~"h6b87b1ec".U(32.W)).asUInt
 
   // AXI Output Assignments
-  io.m_axis_rx.tdata := m_axis_rx_tdata_reg
-  io.m_axis_rx.tkeep := m_axis_rx_tkeep_reg
-  io.m_axis_rx.tstrb := m_axis_rx_tkeep_reg
-  io.m_axis_rx.tvalid := m_axis_rx_tvalid_reg
-  io.m_axis_rx.tlast := m_axis_rx_tlast_reg
-  io.m_axis_rx.tid := 0.U
-  io.m_axis_rx.tdest := 0.U
-  
+  io.mAxisRx.tdata := mAxisRxTdataReg
+  io.mAxisRx.tkeep := mAxisRxTkeepReg
+  io.mAxisRx.tstrb := mAxisRxTkeepReg
+  io.mAxisRx.tvalid := mAxisRxTvalidReg
+  io.mAxisRx.tlast := mAxisRxTlastReg
+  io.mAxisRx.tid := 0.U
+  io.mAxisRx.tdest := 0.U
+
   if (ptpTsEn) {
-    io.m_axis_rx.tuser := Cat(ptp_ts_out_reg, m_axis_rx_tuser_reg)
+    io.mAxisRx.tuser := Cat(ptpTsOutReg, mAxisRxTuserReg)
   } else {
-    io.m_axis_rx.tuser := m_axis_rx_tuser_reg
+    io.mAxisRx.tuser := mAxisRxTuserReg
   }
 
   // Status Output Assignments
-  io.rx_start_packet := start_packet_reg
-  io.stat_rx_byte := stat_rx_byte_reg
-  io.stat_rx_pkt_len := stat_rx_pkt_len_reg
-  io.stat_rx_pkt_fragment := stat_rx_pkt_fragment_reg
-  io.stat_rx_pkt_jabber := stat_rx_pkt_jabber_reg
-  io.stat_rx_pkt_ucast := stat_rx_pkt_ucast_reg
-  io.stat_rx_pkt_mcast := stat_rx_pkt_mcast_reg
-  io.stat_rx_pkt_bcast := stat_rx_pkt_bcast_reg
-  io.stat_rx_pkt_vlan := stat_rx_pkt_vlan_reg
-  io.stat_rx_pkt_good := stat_rx_pkt_good_reg
-  io.stat_rx_pkt_bad := stat_rx_pkt_bad_reg
-  io.stat_rx_err_oversize := stat_rx_err_oversize_reg
-  io.stat_rx_err_bad_fcs := stat_rx_err_bad_fcs_reg
-  io.stat_rx_err_bad_block := stat_rx_err_bad_block_reg
-  io.stat_rx_err_framing := stat_rx_err_framing_reg
-  io.stat_rx_err_preamble := stat_rx_err_preamble_reg
+  io.rxStartPacket := startPacketReg
+  io.statRxByte := statRxByteReg
+  io.statRxPktLen := statRxPktLenReg
+  io.statRxPktFragment := statRxPktFragmentReg
+  io.statRxPktJabber := statRxPktJabberReg
+  io.statRxPktUcast := statRxPktUcastReg
+  io.statRxPktMcast := statRxPktMcastReg
+  io.statRxPktBcast := statRxPktBcastReg
+  io.statRxPktVlan := statRxPktVlanReg
+  io.statRxPktGood := statRxPktGoodReg
+  io.statRxPktBad := statRxPktBadReg
+  io.statRxErrOversize := statRxErrOversizeReg
+  io.statRxErrBadFcs := statRxErrBadFcsReg
+  io.statRxErrBadBlock := statRxErrBadBlockReg
+  io.statRxErrFraming := statRxErrFramingReg
+  io.statRxErrPreamble := statRxErrPreambleReg
 
   // Combinational State Logic
-  when(gbxIfEn.B && !io.xgmii_rx_valid) {
-    state_next := state_reg
+  when(gbxIfEn.B && !io.xgmiiRxValid) {
+    stateNext := stateReg
   }.otherwise {
-    // frame len
-    when(!frame_len_reg(15, 3).andR) {
-      when(term_present_reg) {
-        frame_len_next := frame_len_reg + term_lane_reg
+    when(!frameLenReg(15, 3).andR) {
+      when(termPresentReg) {
+        frameLenNext := frameLenReg + termLaneReg
       }.otherwise {
-        frame_len_next := frame_len_reg + ctrlW.U
+        frameLenNext := frameLenReg + ctrlW.U
       }
     }.otherwise {
-      frame_len_next := "hffff".U
+      frameLenNext := "hffff".U
     }
 
-    when(frame_len_lim_cyc_reg =/= 0.U) {
-      frame_len_lim_cyc_next := frame_len_lim_cyc_reg - 1.U
+    when(frameLenLimCycReg =/= 0.U) {
+      frameLenLimCycNext := frameLenLimCycReg - 1.U
     }.otherwise {
-      frame_len_lim_cyc_next := 0.U
+      frameLenLimCycNext := 0.U
     }
 
-    when(frame_len_lim_cyc_reg === 2.U) {
-      frame_len_lim_check_next := true.B
+    when(frameLenLimCycReg === 2.U) {
+      frameLenLimCheckNext := true.B
     }
 
-    when(!hdr_ptr_reg.andR) {
-      hdr_ptr_next := hdr_ptr_reg + 1.U
+    when(!hdrPtrReg.andR) {
+      hdrPtrNext := hdrPtrReg + 1.U
     }
 
-    switch(hdr_ptr_reg) {
+    switch(hdrPtrReg) {
       is(0.U) {
-        is_mcast_next := xgmii_rxd_d1_reg(0)
-        is_bcast_next := xgmii_rxd_d1_reg(47, 0).andR
+        isMcastNext := xgmiiRxdD1Reg(0)
+        isBcastNext := xgmiiRxdD1Reg(47, 0).andR
       }
       is(1.U) {
-        is_8021q_next := Cat(xgmii_rxd_d1_reg(39, 32), xgmii_rxd_d1_reg(47, 40)) === "h8100".U
+        is8021qNext :=
+          Cat(xgmiiRxdD1Reg(39, 32), xgmiiRxdD1Reg(47, 40)) === "h8100".U
       }
     }
 
-    switch(state_reg) {
-      is(STATE_IDLE) {
-        frame_oversize_next := false.B
-        frame_len_next := ctrlW.U
-        frame_len_lim_cyc_next := io.cfg_rx_max_pkt_len(15, 3)
-        frame_len_lim_last_next := io.cfg_rx_max_pkt_len(2, 0)
-        frame_len_lim_check_next := false.B
-        hdr_ptr_next := 0.U
+    switch(stateReg) {
+      is(StateIdle) {
+        frameOversizeNext := false.B
+        frameLenNext := ctrlW.U
+        frameLenLimCycNext := io.cfgRxMaxPktLen(15, 3)
+        frameLenLimLastNext := io.cfgRxMaxPktLen(2, 0)
+        frameLenLimCheckNext := false.B
+        hdrPtrNext := 0.U
 
-        pre_ok_next := xgmii_rxd_d1_reg(63, 8) === "hD5555555555555".U
+        preOkNext := xgmiiRxdD1Reg(63, 8) === "hD5555555555555".U
 
-        when(xgmii_start_d1_reg && io.cfg_rx_enable) {
-          stat_rx_byte_next := ctrlW.U
-          state_next := STATE_PAYLOAD
+        when(xgmiiStartD1Reg && io.cfgRxEnable) {
+          statRxByteNext := ctrlW.U
+          stateNext := StatePayload
         }.otherwise {
-          state_next := STATE_IDLE
+          stateNext := StateIdle
         }
       }
-      is(STATE_PAYLOAD) {
-        m_axis_rx_tdata_next := xgmii_rxd_d1_reg
-        m_axis_rx_tvalid_next := true.B
-        
+      is(StatePayload) {
+        mAxisRxTdataNext := xgmiiRxdD1Reg
+        mAxisRxTvalidNext := true.B
+
         if (ptpTsEn) {
-          ptp_ts_out_next := Mux(!ptpTsFmtTod.B || ptp_ts_borrow_reg, ptp_ts_reg, ptp_ts_adj_reg)
+          ptpTsOutNext :=
+            Mux(!ptpTsFmtTod.B || ptpTsBorrowReg, ptpTsReg, ptpTsAdjReg)
         }
 
-        when(term_present_reg) {
-          stat_rx_byte_next := term_lane_reg
-          when(frame_len_lim_check_reg && (frame_len_lim_last_reg < term_lane_reg)) {
-            frame_oversize_next := true.B
+        when(termPresentReg) {
+          statRxByteNext := termLaneReg
+          when(frameLenLimCheckReg &&
+            (frameLenLimLastReg < termLaneReg)) {
+            frameOversizeNext := true.B
           }
         }.otherwise {
-          stat_rx_byte_next := ctrlW.U
-          when(frame_len_lim_check_reg) {
-            frame_oversize_next := true.B
+          statRxByteNext := ctrlW.U
+          when(frameLenLimCheckReg) {
+            frameOversizeNext := true.B
           }
         }
 
-        when(framing_error_reg || framing_error_d0_reg) {
-          m_axis_rx_tlast_next := true.B
-          m_axis_rx_tuser_next := true.B
-          stat_rx_pkt_bad_next := true.B
-          stat_rx_pkt_len_next := frame_len_next
-          stat_rx_pkt_ucast_next := !is_mcast_reg
-          stat_rx_pkt_mcast_next := is_mcast_reg && !is_bcast_reg
-          stat_rx_pkt_bcast_next := is_bcast_reg
-          stat_rx_pkt_vlan_next := is_8021q_reg
-          stat_rx_err_oversize_next := frame_oversize_next
-          stat_rx_err_framing_next := true.B
-          stat_rx_err_preamble_next := !pre_ok_reg
-          stat_rx_pkt_fragment_next := frame_len_next(15, 6) === 0.U
-          stat_rx_pkt_jabber_next := frame_oversize_next
-          state_next := STATE_IDLE
-        }.elsewhen(term_first_cycle_reg) {
-          m_axis_rx_tkeep_next := ((1 << keepW) - 1).U(keepW.W) >> (ctrlW.U - 4.U - term_lane_reg)
-          m_axis_rx_tlast_next := true.B
+        when(framingErrorReg || framingErrorD0Reg) {
+          mAxisRxTlastNext := true.B
+          mAxisRxTuserNext := true.B
+          statRxPktBadNext := true.B
+          statRxPktLenNext := frameLenNext
+          statRxPktUcastNext := !isMcastReg
+          statRxPktMcastNext := isMcastReg && !isBcastReg
+          statRxPktBcastNext := isBcastReg
+          statRxPktVlanNext := is8021qReg
+          statRxErrOversizeNext := frameOversizeNext
+          statRxErrFramingNext := true.B
+          statRxErrPreambleNext := !preOkReg
+          statRxPktFragmentNext := frameLenNext(15, 6) === 0.U
+          statRxPktJabberNext := frameOversizeNext
+          stateNext := StateIdle
+        }.elsewhen(termFirstCycleReg) {
+          mAxisRxTkeepNext :=
+            ((1 << keepW) - 1).U(keepW.W) >> (ctrlW.U - 4.U - termLaneReg)
+          mAxisRxTlastNext := true.B
 
-          val crc_is_valid = (term_lane_reg === 0.U && Mux(lanes_swapped_d1_reg, crc_valid_reg(3), crc_valid_reg(7))) ||
-                             (term_lane_reg === 1.U && Mux(lanes_swapped_d1_reg, crc_valid_reg(4), crc_valid(0))) ||
-                             (term_lane_reg === 2.U && Mux(lanes_swapped_d1_reg, crc_valid_reg(5), crc_valid(1))) ||
-                             (term_lane_reg === 3.U && Mux(lanes_swapped_d1_reg, crc_valid_reg(6), crc_valid(2))) ||
-                             (term_lane_reg === 4.U && Mux(lanes_swapped_d1_reg, crc_valid_reg(7), crc_valid(3)))
+          val crcIsValid =
+            (termLaneReg === 0.U &&
+              Mux(lanesSwappedD1Reg, crcValidReg(3), crcValidReg(7))) ||
+              (termLaneReg === 1.U &&
+                Mux(lanesSwappedD1Reg, crcValidReg(4), crcValid(0))) ||
+              (termLaneReg === 2.U &&
+                Mux(lanesSwappedD1Reg, crcValidReg(5), crcValid(1))) ||
+              (termLaneReg === 3.U &&
+                Mux(lanesSwappedD1Reg, crcValidReg(6), crcValid(2))) ||
+              (termLaneReg === 4.U &&
+                Mux(lanesSwappedD1Reg, crcValidReg(7), crcValid(3)))
 
-          when(crc_is_valid) {
-            when(frame_oversize_next) {
-              m_axis_rx_tuser_next := true.B
-              stat_rx_pkt_bad_next := true.B
+          when(crcIsValid) {
+            when(frameOversizeNext) {
+              mAxisRxTuserNext := true.B
+              statRxPktBadNext := true.B
             }.otherwise {
-              m_axis_rx_tuser_next := false.B
-              stat_rx_pkt_good_next := true.B
+              mAxisRxTuserNext := false.B
+              statRxPktGoodNext := true.B
             }
           }.otherwise {
-            m_axis_rx_tuser_next := true.B
-            stat_rx_pkt_fragment_next := frame_len_next(15, 6) === 0.U
-            stat_rx_pkt_jabber_next := frame_oversize_next
-            stat_rx_pkt_bad_next := true.B
-            stat_rx_err_bad_fcs_next := true.B
+            mAxisRxTuserNext := true.B
+            statRxPktFragmentNext := frameLenNext(15, 6) === 0.U
+            statRxPktJabberNext := frameOversizeNext
+            statRxPktBadNext := true.B
+            statRxErrBadFcsNext := true.B
           }
 
-          stat_rx_pkt_len_next := frame_len_next
-          stat_rx_pkt_ucast_next := !is_mcast_reg
-          stat_rx_pkt_mcast_next := is_mcast_reg && !is_bcast_reg
-          stat_rx_pkt_bcast_next := is_bcast_reg
-          stat_rx_pkt_vlan_next := is_8021q_reg
-          stat_rx_err_oversize_next := frame_oversize_next
-          stat_rx_err_preamble_next := !pre_ok_reg
-          state_next := STATE_IDLE
+          statRxPktLenNext := frameLenNext
+          statRxPktUcastNext := !isMcastReg
+          statRxPktMcastNext := isMcastReg && !isBcastReg
+          statRxPktBcastNext := isBcastReg
+          statRxPktVlanNext := is8021qReg
+          statRxErrOversizeNext := frameOversizeNext
+          statRxErrPreambleNext := !preOkReg
+          stateNext := StateIdle
 
-        }.elsewhen(term_present_reg) {
-          state_next := STATE_LAST
+        }.elsewhen(termPresentReg) {
+          stateNext := StateLast
         }.otherwise {
-          state_next := STATE_PAYLOAD
+          stateNext := StatePayload
         }
       }
-      is(STATE_LAST) {
-        m_axis_rx_tdata_next := xgmii_rxd_d1_reg
-        m_axis_rx_tkeep_next := ((1 << keepW) - 1).U(keepW.W) >> (ctrlW.U + 4.U - term_lane_d0_reg)
-        m_axis_rx_tvalid_next := true.B
-        m_axis_rx_tlast_next := true.B
+      is(StateLast) {
+        mAxisRxTdataNext := xgmiiRxdD1Reg
+        mAxisRxTkeepNext :=
+          ((1 << keepW) - 1).U(keepW.W) >> (ctrlW.U + 4.U - termLaneD0Reg)
+        mAxisRxTvalidNext := true.B
+        mAxisRxTlastNext := true.B
 
-        val crc_is_valid = (term_lane_d0_reg === 5.U && Mux(lanes_swapped_d1_reg, crc_valid_reg(0), crc_valid_reg(4))) ||
-                           (term_lane_d0_reg === 6.U && Mux(lanes_swapped_d1_reg, crc_valid_reg(1), crc_valid_reg(5))) ||
-                           (term_lane_d0_reg === 7.U && Mux(lanes_swapped_d1_reg, crc_valid_reg(2), crc_valid_reg(6)))
+        val crcIsValid =
+          (termLaneD0Reg === 5.U &&
+            Mux(lanesSwappedD1Reg, crcValidReg(0), crcValidReg(4))) ||
+            (termLaneD0Reg === 6.U &&
+              Mux(lanesSwappedD1Reg, crcValidReg(1), crcValidReg(5))) ||
+            (termLaneD0Reg === 7.U &&
+              Mux(lanesSwappedD1Reg, crcValidReg(2), crcValidReg(6)))
 
-        when(crc_is_valid) {
-          when(frame_oversize_reg) {
-            m_axis_rx_tuser_next := true.B
-            stat_rx_pkt_bad_next := true.B
+        when(crcIsValid) {
+          when(frameOversizeReg) {
+            mAxisRxTuserNext := true.B
+            statRxPktBadNext := true.B
           }.otherwise {
-            m_axis_rx_tuser_next := false.B
-            stat_rx_pkt_good_next := true.B
+            mAxisRxTuserNext := false.B
+            statRxPktGoodNext := true.B
           }
         }.otherwise {
-          m_axis_rx_tuser_next := true.B
-          stat_rx_pkt_fragment_next := frame_len_reg(15, 6) === 0.U
-          stat_rx_pkt_jabber_next := frame_oversize_reg
-          stat_rx_pkt_bad_next := true.B
-          stat_rx_err_bad_fcs_next := true.B
+          mAxisRxTuserNext := true.B
+          statRxPktFragmentNext := frameLenReg(15, 6) === 0.U
+          statRxPktJabberNext := frameOversizeReg
+          statRxPktBadNext := true.B
+          statRxErrBadFcsNext := true.B
         }
 
-        stat_rx_pkt_len_next := frame_len_reg
-        stat_rx_pkt_ucast_next := !is_mcast_reg
-        stat_rx_pkt_mcast_next := is_mcast_reg && !is_bcast_reg
-        stat_rx_pkt_bcast_next := is_bcast_reg
-        stat_rx_pkt_vlan_next := is_8021q_reg
-        stat_rx_err_oversize_next := frame_oversize_reg
-        stat_rx_err_preamble_next := !pre_ok_reg
+        statRxPktLenNext := frameLenReg
+        statRxPktUcastNext := !isMcastReg
+        statRxPktMcastNext := isMcastReg && !isBcastReg
+        statRxPktBcastNext := isBcastReg
+        statRxPktVlanNext := is8021qReg
+        statRxErrOversizeNext := frameOversizeReg
+        statRxErrPreambleNext := !preOkReg
 
-        when(xgmii_start_d1_reg && io.cfg_rx_enable) {
-          state_next := STATE_PAYLOAD
+        when(xgmiiStartD1Reg && io.cfgRxEnable) {
+          stateNext := StatePayload
         }.otherwise {
-          state_next := STATE_IDLE
+          stateNext := StateIdle
         }
       }
     }
   }
 
   // Sequential Logic Block
-  state_reg := state_next
-  frame_oversize_reg := frame_oversize_next
-  pre_ok_reg := pre_ok_next
-  hdr_ptr_reg := hdr_ptr_next
-  is_mcast_reg := is_mcast_next
-  is_bcast_reg := is_bcast_next
-  is_8021q_reg := is_8021q_next
-  frame_len_reg := frame_len_next
-  frame_len_lim_cyc_reg := frame_len_lim_cyc_next
-  frame_len_lim_last_reg := frame_len_lim_last_next
-  frame_len_lim_check_reg := frame_len_lim_check_next
+  stateReg := stateNext
+  frameOversizeReg := frameOversizeNext
+  preOkReg := preOkNext
+  hdrPtrReg := hdrPtrNext
+  isMcastReg := isMcastNext
+  isBcastReg := isBcastNext
+  is8021qReg := is8021qNext
+  frameLenReg := frameLenNext
+  frameLenLimCycReg := frameLenLimCycNext
+  frameLenLimLastReg := frameLenLimLastNext
+  frameLenLimCheckReg := frameLenLimCheckNext
 
-  m_axis_rx_tdata_reg := m_axis_rx_tdata_next
-  m_axis_rx_tkeep_reg := m_axis_rx_tkeep_next
-  m_axis_rx_tvalid_reg := m_axis_rx_tvalid_next
-  m_axis_rx_tlast_reg := m_axis_rx_tlast_next
-  m_axis_rx_tuser_reg := m_axis_rx_tuser_next
+  mAxisRxTdataReg := mAxisRxTdataNext
+  mAxisRxTkeepReg := mAxisRxTkeepNext
+  mAxisRxTvalidReg := mAxisRxTvalidNext
+  mAxisRxTlastReg := mAxisRxTlastNext
+  mAxisRxTuserReg := mAxisRxTuserNext
 
-  ptp_ts_out_reg := ptp_ts_out_next
-  start_packet_reg := 0.U
+  ptpTsOutReg := ptpTsOutNext
+  startPacketReg := 0.U
 
-  stat_rx_byte_reg := stat_rx_byte_next
-  stat_rx_pkt_len_reg := stat_rx_pkt_len_next
-  stat_rx_pkt_fragment_reg := stat_rx_pkt_fragment_next
-  stat_rx_pkt_jabber_reg := stat_rx_pkt_jabber_next
-  stat_rx_pkt_ucast_reg := stat_rx_pkt_ucast_next
-  stat_rx_pkt_mcast_reg := stat_rx_pkt_mcast_next
-  stat_rx_pkt_bcast_reg := stat_rx_pkt_bcast_next
-  stat_rx_pkt_vlan_reg := stat_rx_pkt_vlan_next
-  stat_rx_pkt_good_reg := stat_rx_pkt_good_next
-  stat_rx_pkt_bad_reg := stat_rx_pkt_bad_next
-  stat_rx_err_oversize_reg := stat_rx_err_oversize_next
-  stat_rx_err_bad_fcs_reg := stat_rx_err_bad_fcs_next
-  stat_rx_err_bad_block_reg := stat_rx_err_bad_block_next
-  stat_rx_err_framing_reg := stat_rx_err_framing_next
-  stat_rx_err_preamble_reg := stat_rx_err_preamble_next
+  statRxByteReg := statRxByteNext
+  statRxPktLenReg := statRxPktLenNext
+  statRxPktFragmentReg := statRxPktFragmentNext
+  statRxPktJabberReg := statRxPktJabberNext
+  statRxPktUcastReg := statRxPktUcastNext
+  statRxPktMcastReg := statRxPktMcastNext
+  statRxPktBcastReg := statRxPktBcastNext
+  statRxPktVlanReg := statRxPktVlanNext
+  statRxPktGoodReg := statRxPktGoodNext
+  statRxPktBadReg := statRxPktBadNext
+  statRxErrOversizeReg := statRxErrOversizeNext
+  statRxErrBadFcsReg := statRxErrBadFcsNext
+  statRxErrBadBlockReg := statRxErrBadBlockNext
+  statRxErrFramingReg := statRxErrFramingNext
+  statRxErrPreambleReg := statRxErrPreambleNext
 
-  when(!gbxIfEn.B || io.xgmii_rx_valid) {
-    swap_rxd_reg := xgmii_rxd_masked(63, 32)
-    swap_rxc_reg := io.xgmii_rxc(7, 4)
-    swap_rxc_term_reg := xgmii_term(7, 4)
+  when(!gbxIfEn.B || io.xgmiiRxValid) {
+    swapRxdReg := xgmiiRxdMasked(63, 32)
+    swapRxcReg := io.xgmiiRxc(7, 4)
+    swapRxcTermReg := xgmiiTerm(7, 4)
 
-    xgmii_start_swap_reg := false.B
-    xgmii_start_d0_reg := xgmii_start_swap_reg
+    xgmiiStartSwapReg := false.B
+    xgmiiStartD0Reg := xgmiiStartSwapReg
 
     if (ptpTsEn && ptpTsFmtTod) {
-      ptp_ts_adj_reg(15, 0) := ptp_ts_reg(15, 0)
-      
-      // $signed({1'b0, ptp_ts_reg[45:16]}) - $signed(31'd1000000000)
-      val ts_sub = Cat(0.U(1.W), ptp_ts_reg(45, 16)).asSInt - 1000000000.S(32.W)
-      ptp_ts_borrow_reg := ts_sub(31) // Extract sign bit
-      
-      // We manually construct the fields since partial assignments to regs aren't direct in Chisel
-      val ptp_adj_mid = ts_sub(29, 0).asUInt 
-      val ptp_adj_high = ptp_ts_reg(95, 48) + 1.U
-      
-      ptp_ts_adj_reg := Cat(ptp_adj_high, 0.U(2.W), ptp_adj_mid, ptp_ts_reg(15, 0))
+      ptpTsAdjReg(15, 0) := ptpTsReg(15, 0)
+
+      val tsSub = Cat(0.U(1.W), ptpTsReg(45, 16)).asSInt - 1000000000.S(32.W)
+      ptpTsBorrowReg := tsSub(31)
+
+      val ptpAdjMid = tsSub(29, 0).asUInt
+      val ptpAdjHigh = ptpTsReg(95, 48) + 1.U
+
+      ptpTsAdjReg :=
+        Cat(ptpAdjHigh, 0.U(2.W), ptpAdjMid, ptpTsReg(15, 0))
     }
 
-    when(lanes_swapped_reg) {
-      xgmii_rxd_d0_reg := Cat(xgmii_rxd_masked(31, 0), swap_rxd_reg)
-      term_present_reg := false.B
-      term_first_cycle_reg := false.B
-      term_lane_reg := 0.U
-      framing_error_reg := Cat(io.xgmii_rxc(3, 0), swap_rxc_reg) =/= 0.U
+    when(lanesSwappedReg) {
+      xgmiiRxdD0Reg := Cat(xgmiiRxdMasked(31, 0), swapRxdReg)
+      termPresentReg := false.B
+      termFirstCycleReg := false.B
+      termLaneReg := 0.U
+      framingErrorReg := Cat(io.xgmiiRxc(3, 0), swapRxcReg) =/= 0.U
 
       for (i <- ctrlW - 1 to 0 by -1) {
-        val term_cond = Cat(xgmii_term(3, 0), swap_rxc_term_reg)(i)
-        when(term_cond) {
-          term_present_reg := true.B
-          term_first_cycle_reg := (i <= 4).B
-          term_lane_reg := i.U
-          
+        val termCond = Cat(xgmiiTerm(3, 0), swapRxcTermReg)(i)
+        when(termCond) {
+          termPresentReg := true.B
+          termFirstCycleReg := (i <= 4).B
+          termLaneReg := i.U
+
           val mask = ((1 << ctrlW) - 1).U >> (ctrlW - i)
-          framing_error_reg := (Cat(io.xgmii_rxc(3, 0), swap_rxc_reg) & mask) =/= 0.U
+          framingErrorReg :=
+            (Cat(io.xgmiiRxc(3, 0), swapRxcReg) & mask) =/= 0.U
         }
       }
     }.otherwise {
-      xgmii_rxd_d0_reg := xgmii_rxd_masked
-      term_present_reg := false.B
-      term_first_cycle_reg := false.B
-      term_lane_reg := 0.U
-      framing_error_reg := io.xgmii_rxc =/= 0.U
+      xgmiiRxdD0Reg := xgmiiRxdMasked
+      termPresentReg := false.B
+      termFirstCycleReg := false.B
+      termLaneReg := 0.U
+      framingErrorReg := io.xgmiiRxc =/= 0.U
 
       for (i <- ctrlW - 1 to 0 by -1) {
-        when(xgmii_term(i)) {
-          term_present_reg := true.B
-          term_first_cycle_reg := (i <= 4).B
-          term_lane_reg := i.U
-          
+        when(xgmiiTerm(i)) {
+          termPresentReg := true.B
+          termFirstCycleReg := (i <= 4).B
+          termLaneReg := i.U
+
           val mask = ((1 << ctrlW) - 1).U >> (ctrlW - i)
-          framing_error_reg := (io.xgmii_rxc & mask) =/= 0.U
+          framingErrorReg := (io.xgmiiRxc & mask) =/= 0.U
         }
       }
     }
 
-    crc_state_reg := crc_state
-    
-    when(io.xgmii_rxc(0) && io.xgmii_rxd(7, 0) === XGMII_START) {
-      lanes_swapped_reg := false.B
-      xgmii_start_d0_reg := true.B
-      xgmii_rxd_d0_reg := xgmii_rxd_masked
-      crc_state_reg := "hffffffff".U(32.W)
-      framing_error_reg := io.xgmii_rxc(7, 1) =/= 0.U
-    }.elsewhen(io.xgmii_rxc(4) && io.xgmii_rxd(39, 32) === XGMII_START) {
-      lanes_swapped_reg := true.B
-      xgmii_start_swap_reg := true.B
-      crc_state_reg := (~"h6dd90a9d".U(32.W)).asUInt
-      framing_error_reg := io.xgmii_rxc(7, 5) =/= 0.U
+    crcStateReg := crcState
+
+    when(io.xgmiiRxc(0) && io.xgmiiRxd(7, 0) === XgmiiStart) {
+      lanesSwappedReg := false.B
+      xgmiiStartD0Reg := true.B
+      xgmiiRxdD0Reg := xgmiiRxdMasked
+      crcStateReg := "hffffffff".U(32.W)
+      framingErrorReg := io.xgmiiRxc(7, 1) =/= 0.U
+    }.elsewhen(io.xgmiiRxc(4) && io.xgmiiRxd(39, 32) === XgmiiStart) {
+      lanesSwappedReg := true.B
+      xgmiiStartSwapReg := true.B
+      crcStateReg := (~"h6dd90a9d".U(32.W)).asUInt
+      framingErrorReg := io.xgmiiRxc(7, 5) =/= 0.U
     }
 
-    when(xgmii_start_swap_reg) {
-      start_packet_reg := 2.U
+    when(xgmiiStartSwapReg) {
+      startPacketReg := 2.U
       if (ptpTsFmtTod) {
-        val ptp_low = io.ptp_ts(45, 0) + (ts_inc_reg >> 1)
-        ptp_ts_reg := Cat(io.ptp_ts(95, 48), ptp_low(45, 0))
+        val ptpLow = io.ptpTs(45, 0) + (tsIncReg >> 1)
+        ptpTsReg := Cat(io.ptpTs(95, 48), ptpLow(45, 0))
       } else {
-        ptp_ts_reg := io.ptp_ts + (ts_inc_reg >> 1)
+        ptpTsReg := io.ptpTs + (tsIncReg >> 1)
       }
     }
 
-    when(xgmii_start_d0_reg && !lanes_swapped_reg) {
-      start_packet_reg := 1.U
-      ptp_ts_reg := io.ptp_ts
+    when(xgmiiStartD0Reg && !lanesSwappedReg) {
+      startPacketReg := 1.U
+      ptpTsReg := io.ptpTs
     }
 
-    lanes_swapped_d1_reg := lanes_swapped_reg
-    term_lane_d0_reg := term_lane_reg
-    framing_error_d0_reg := framing_error_reg
-    crc_valid_reg := crc_valid.asUInt
+    lanesSwappedD1Reg := lanesSwappedReg
+    termLaneD0Reg := termLaneReg
+    framingErrorD0Reg := framingErrorReg
+    crcValidReg := crcValid.asUInt
 
-    xgmii_rxd_d1_reg := xgmii_rxd_d0_reg
-    xgmii_start_d1_reg := xgmii_start_d0_reg
+    xgmiiRxdD1Reg := xgmiiRxdD0Reg
+    xgmiiStartD1Reg := xgmiiStartD0Reg
   }
 
-  last_ts_reg := io.ptp_ts(19, 0) // Truncates to 20 bits safely
-  ts_inc_reg := io.ptp_ts(19, 0) - last_ts_reg
+  lastTsReg := io.ptpTs(19, 0)
+  tsIncReg := io.ptpTs(19, 0) - lastTsReg
 }
-
 
 object Xgmii2Axis64 {
   def apply(p: Xgmii2Axis64Params): Xgmii2Axis64 = Module(new Xgmii2Axis64(
@@ -585,9 +610,9 @@ object Xgmii2Axis64 {
 }
 
 object Main extends App {
-  val mainClassName = "Mac"
-  val coreDir = s"modules/${mainClassName.toLowerCase()}"
-  Xgmii2Axis64Params.synConfigMap.foreach { case (configName, p) =>
+  val MainClassName = "Mac"
+  val coreDir = s"modules/${MainClassName.toLowerCase()}"
+  Xgmii2Axis64Params.SynConfigMap.foreach { case (configName, p) =>
     println(s"Generating Verilog for config: $configName")
     ChiselStage.emitSystemVerilog(
       new Xgmii2Axis64(
@@ -606,10 +631,19 @@ object Main extends App {
         s"-o=${coreDir}/generated/synTestCases/$configName"
       )
     )
-    // Synthesis collateral generation
-    sdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-    YosysTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
-    StaTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
-    RunScriptFile.create(mainClassName, Xgmii2Axis64Params.synConfigs, s"${coreDir}/generated/synTestCases")
+    SdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
+    YosysTclFile.create(
+      mainClassName = MainClassName,
+      outputDir = s"${coreDir}/generated/synTestCases/$configName"
+    )
+    StaTclFile.create(
+      mainClassName = MainClassName,
+      outputDir = s"${coreDir}/generated/synTestCases/$configName"
+    )
+    RunScriptFile.create(
+      mainClassName = MainClassName,
+      synConfigs = Xgmii2Axis64Params.SynConfigs,
+      outputDir = s"${coreDir}/generated/synTestCases"
+    )
   }
 }

@@ -2,24 +2,23 @@ package org.chiselware.cores.o01.t001.mac.bfm
 
 import chisel3._
 import chiseltest._
+
 import scala.util.Random
 
-/**
-  * AXI-Stream SOURCE BFM (acts like a sender):
-  * - drives tvalid/tdata/tkeep/tlast/tuser
-  * - waits for handshake (tvalid && tready) before advancing
+/** AXI-Stream SOURCE BFM (acts like a sender):
+  *   - drives tvalid/tdata/tkeep/tlast/tuser
+  *   - waits for handshake (tvalid && tready) before advancing
   */
 class AxisSourceBfm(
-  tvalid: Bool,
-  tready: Bool,
-  tdata: UInt,
-  tkeep: UInt,
-  tlast: Bool,
-  tuser: UInt,
-  clock: Clock,
-  bubbleProbability: Double = 0.0,  // 0.0 = no bubbles
-  rng: Random = new Random(0xC0FFEE)
-) {
+    tvalid: Bool,
+    tready: Bool,
+    tdata: UInt,
+    tkeep: UInt,
+    tlast: Bool,
+    tuser: UInt,
+    clock: Clock,
+    bubbleProbability: Double = 0.0, // 0.0 = no bubbles
+    rng: Random = new Random(0xc0ffee)) {
 
   /** Call once at start */
   def init(): Unit = {

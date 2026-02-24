@@ -2,29 +2,28 @@ package org.chiselware.cores.o01.t001.mac.bfm
 
 import chisel3._
 import chiseltest._
+
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 
-/**
-  * AXI-Stream SINK BFM (acts like a receiver):
-  * - drives tready (optionally with stalls)
-  * - captures beats on handshake
-  * - can return completed frames (based on tlast)
+/** AXI-Stream SINK BFM (acts like a receiver):
+  *   - drives tready (optionally with stalls)
+  *   - captures beats on handshake
+  *   - can return completed frames (based on tlast)
   *
-  * This expects DUT signals to look like:
-  *   tvalid: Bool, tready: Bool, tdata: UInt, tkeep: UInt, tlast: Bool, tuser: UInt
+  * This expects DUT signals to look like: tvalid: Bool, tready: Bool, tdata:
+  * UInt, tkeep: UInt, tlast: Bool, tuser: UInt
   */
 class AxisSinkBfm(
-  tvalid: Bool,
-  tready: Bool,
-  tdata: UInt,
-  tkeep: UInt,
-  tlast: Bool,
-  tuser: UInt,
-  clock: Clock,
-  stallProbability: Double = 0.0,   // 0.0 = always ready
-  rng: Random = new Random(0xBEEF)
-) {
+    tvalid: Bool,
+    tready: Bool,
+    tdata: UInt,
+    tkeep: UInt,
+    tlast: Bool,
+    tuser: UInt,
+    clock: Clock,
+    stallProbability: Double = 0.0, // 0.0 = always ready
+    rng: Random = new Random(0xbeef)) {
   private val completedFrames = ArrayBuffer.empty[AxisFrame]
   private val curBeats = ArrayBuffer.empty[AxisBeat]
 
@@ -36,7 +35,11 @@ class AxisSinkBfm(
   /** Step 1 cycle: drive ready + capture if handshake */
   def step(): Unit = {
     // Drive backpressure (optional)
-    val readyNow = if (stallProbability <= 0.0) true else rng.nextDouble() >= stallProbability
+    val readyNow =
+      if (stallProbability <= 0.0)
+        true
+      else
+        rng.nextDouble() >= stallProbability
     tready.poke(readyNow.B)
 
     // Capture only on handshake

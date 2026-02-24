@@ -1,25 +1,20 @@
 package org.chiselware.cores.o01.t001.mac
 import chisel3._
-import chisel3.util._
-import _root_.circt.stage.ChiselStage
-import org.chiselware.syn.{YosysTclFile, StaTclFile, RunScriptFile}
-import java.io.{File, PrintWriter}
 
 class Lfsr(
-  val lfsrW: Int = 31,
-  val lfsrPoly: BigInt = BigInt("10000001", 16),
-  val lfsrGalois: Boolean = false,
-  val lfsrFeedForward: Boolean = false,
-  val reverse: Boolean = false,
-  val dataW: Int = 8,
-  val dataInEn: Boolean = true,
-  val dataOutEn: Boolean = true
-) extends RawModule {
+    val lfsrW: Int = 31,
+    val lfsrPoly: BigInt = BigInt("10000001", 16),
+    val lfsrGalois: Boolean = false,
+    val lfsrFeedForward: Boolean = false,
+    val reverse: Boolean = false,
+    val dataW: Int = 8,
+    val dataInEn: Boolean = true,
+    val dataOutEn: Boolean = true) extends RawModule {
   val io = IO(new Bundle {
-    val data_in = Input(UInt(dataW.W))
-    val state_in = Input(UInt(lfsrW.W))
-    val data_out = Output(UInt(dataW.W))
-    val state_out = Output(UInt(lfsrW.W))
+    val dataIn  = Input(UInt(dataW.W))
+    val stateIn = Input(UInt(lfsrW.W))
+    val dataOut  = Output(UInt(dataW.W))
+    val stateOut = Output(UInt(lfsrW.W))
   })
 
   // --- Procedural Generation of Next State Logic (Matrix Calculation) ---
@@ -27,152 +22,154 @@ class Lfsr(
   // to build the XOR dependencies for the hardware.
 
   // 1. Initialize dependency trackers
-  // v_state[i] tracks which input state bits affect bit i
-  // v_data[i] tracks which input data bits affect bit i
-  var v_state = Array.tabulate(lfsrW)(i => (BigInt(1) << i)) 
-  var v_data  = Array.fill(lfsrW)(BigInt(0)) 
-  
-  // Output trackers
-  var v_out_state = Array.fill(dataW)(BigInt(0))
-  var v_out_data  = Array.fill(dataW)(BigInt(0))
+  // vState[i] tracks which input state bits affect bit i
+  // vData[i] tracks which input data bits affect bit i
+  case class LfsrSimState(
+      vState: Array[BigInt],
+      vData: Array[BigInt],
+      vOutState: Array[BigInt],
+      vOutData: Array[BigInt])
+
+  val initState = LfsrSimState(
+    vState    = Array.tabulate(lfsrW)(i => (BigInt(1) << i)),
+    vData     = Array.fill(lfsrW)(BigInt(0)),
+    vOutState = Array.fill(dataW)(BigInt(0)),
+    vOutData  = Array.fill(dataW)(BigInt(0))
+  )
 
   // 2. Simulate the LFSR shifting loop 'dataW' times
-  for (k <- 0 until dataW) {
-     val data_idx = if (reverse) k else dataW - 1 - k 
-     
-     // Current MSB used for feedback
-     var state_val = v_state(lfsrW - 1)
-     var data_val_eq  = v_data(lfsrW - 1)
+  val simResult = (0 until dataW).foldLeft(initState) { (s, k) =>
+    val dataIdx = if (reverse) k else dataW - 1 - k
 
-     // Add input data dependency (XOR)
-     data_val_eq = data_val_eq ^ (BigInt(1) << data_idx)
+    val stateVal0  = s.vState(lfsrW - 1)
+    val dataValEq0 = s.vData(lfsrW - 1) ^ (BigInt(1) << dataIdx)
 
-     if (lfsrGalois) {
-       // --- Galois Configuration ---
-       // Shift registers
-       for (j <- lfsrW - 1 until 0 by -1) {
-         v_state(j) = v_state(j-1)
-         v_data(j)  = v_data(j-1)
-       }
-       // Shift output capture
-       for (j <- dataW - 1 until 0 by -1) {
-         v_out_state(j) = v_out_state(j-1)
-         v_out_data(j)  = v_out_data(j-1)
-       }
-       
-       // Output logic
-       v_out_state(0) = state_val
-       v_out_data(0)  = data_val_eq 
+    if (lfsrGalois) {
+      // --- Galois Configuration ---
+      // Shift registers
+      val newVState = Array.tabulate(lfsrW)(j => if (j == 0) stateVal0 else s.vState(j - 1))
+      val newVData  = Array.tabulate(lfsrW)(j => if (j == 0) dataValEq0 else s.vData(j - 1))
+      // Shift output capture
+      val newVOutState = Array.tabulate(dataW)(j => if (j == 0) stateVal0 else s.vOutState(j - 1))
+      val newVOutData  = Array.tabulate(dataW)(j => if (j == 0) dataValEq0 else s.vOutData(j - 1))
 
-       if (lfsrFeedForward) {
-         // In Feed Forward, state clears, input drives next state
-         state_val = 0
-         data_val_eq = (BigInt(1) << data_idx) 
-       }
+      // Output logic
+      val (ffStateVal, ffDataValEq) =
+        if (lfsrFeedForward) (BigInt(0), BigInt(1) << dataIdx)
+        else (stateVal0, dataValEq0)
 
-       v_state(0) = state_val
-       v_data(0)  = data_val_eq
+      // Galois Taps
+      val tappedVState = newVState.clone()
+      val tappedVData  = newVData.clone()
+      for (j <- 1 until lfsrW) {
+        if (((lfsrPoly >> j) & 1) == 1) {
+          tappedVState(j) = tappedVState(j) ^ ffStateVal
+          tappedVData(j)  = tappedVData(j) ^ ffDataValEq
+        }
+      }
+      tappedVState(0) = ffStateVal
+      tappedVData(0)  = ffDataValEq
 
-       // Galois Taps
-       for (j <- 1 until lfsrW) {
-         if (((lfsrPoly >> j) & 1) == 1) {
-           v_state(j) = v_state(j) ^ state_val
-           v_data(j)  = v_data(j) ^ data_val_eq
-         }
-       }
+      LfsrSimState(tappedVState, tappedVData, newVOutState, newVOutData)
 
-     } else {
-       // --- Fibonacci Configuration ---
-       // Calculate feedback from taps
-       for (j <- 1 until lfsrW) {
-         if (((lfsrPoly >> j) & 1) == 1) {
-           state_val = state_val ^ v_state(j-1)
-           data_val_eq = data_val_eq ^ v_data(j-1)
-         }
-       }
+    } else {
+      // --- Fibonacci Configuration ---
+      // Calculate feedback from taps
+      val (fbStateVal, fbDataValEq) = (1 until lfsrW).foldLeft((stateVal0, dataValEq0)) {
+        case ((sv, dv), j) =>
+          if (((lfsrPoly >> j) & 1) == 1)
+            (sv ^ s.vState(j - 1), dv ^ s.vData(j - 1))
+          else
+            (sv, dv)
+      }
 
-       // Shift
-       for (j <- lfsrW - 1 until 0 by -1) {
-         v_state(j) = v_state(j-1)
-         v_data(j)  = v_data(j-1)
-       }
-       for (j <- dataW - 1 until 0 by -1) {
-         v_out_state(j) = v_out_state(j-1)
-         v_out_data(j)  = v_out_data(j-1)
-       }
+      // Shift
+      val newVOutState = Array.tabulate(dataW)(j => if (j == 0) fbStateVal else s.vOutState(j - 1))
+      val newVOutData  = Array.tabulate(dataW)(j => if (j == 0) fbDataValEq else s.vOutData(j - 1))
 
-       v_out_state(0) = state_val
-       v_out_data(0)  = data_val_eq
+      val (ffStateVal, ffDataValEq) =
+        if (lfsrFeedForward) (BigInt(0), BigInt(1) << dataIdx)
+        else (fbStateVal, fbDataValEq)
 
-       if (lfsrFeedForward) {
-         state_val = 0
-         data_val_eq = (BigInt(1) << data_idx)
-       }
+      val newVState = Array.tabulate(lfsrW)(j => if (j == 0) ffStateVal else s.vState(j - 1))
+      val newVData  = Array.tabulate(lfsrW)(j => if (j == 0) ffDataValEq else s.vData(j - 1))
 
-       v_state(0) = state_val
-       v_data(0)  = data_val_eq
-     }
+      LfsrSimState(newVState, newVData, newVOutState, newVOutData)
+    }
   }
 
   // --- 3. Generate Hardware Logic from Masks ---
-  
+
   // State Output
-  val next_state = Wire(Vec(lfsrW, Bool()))
+  val nextState = Wire(Vec(n = lfsrW, gen = Bool()))
   for (i <- 0 until lfsrW) {
     // If reverse is true, we need to map to the inverted mask index
-    val mask_i = if (reverse) lfsrW - 1 - i else i
-    
-    val state_contrib = (0 until lfsrW)
-      .filter(b => ((v_state(mask_i) >> b) & 1) == 1)
+    val maskI = if (reverse) lfsrW - 1 - i else i
+
+    val stateContrib = (0 until lfsrW)
+      .filter(b => ((simResult.vState(maskI) >> b) & 1) == 1)
       // Mirror the state_in pin mapping if reversed
-      .map(b => io.state_in(if (reverse) lfsrW - 1 - b else b))
-      
-    val data_contrib  = (0 until dataW)
-      .filter(b => ((v_data(mask_i) >> b) & 1) == 1)
-      // data_in does NOT need mirroring here because data_idx was flipped in the sim loop
-      .map(b => io.data_in(b)) 
-      
-    val all_contribs = state_contrib ++ (if (dataInEn) data_contrib else Seq())
-    
-    if (all_contribs.nonEmpty) next_state(i) := all_contribs.reduce(_ ^ _) 
-    else next_state(i) := false.B
+      .map(b => io.stateIn(if (reverse) lfsrW - 1 - b else b))
+
+    val dataContrib = (0 until dataW)
+      .filter(b => ((simResult.vData(maskI) >> b) & 1) == 1)
+      // dataIn does NOT need mirroring here because dataIdx was flipped in the sim loop
+      .map(b => io.dataIn(b))
+
+    val allContribs =
+      stateContrib ++
+        (if (dataInEn) dataContrib else Seq())
+
+    if (allContribs.nonEmpty)
+      nextState(i) := allContribs.reduce(_ ^ _)
+    else
+      nextState(i) := false.B
   }
-  io.state_out := next_state.asUInt
+  io.stateOut := nextState.asUInt
 
   // Data Output
-  val data_out_wire = Wire(Vec(dataW, Bool()))
+  val dataOutWire = Wire(Vec(n = dataW, gen = Bool()))
   for (i <- 0 until dataW) {
-    val mask_idx = if (reverse) dataW - 1 - i else i
-    
-    val s_mask = v_out_state(mask_idx)
-    val d_mask = v_out_data(mask_idx)
-    
-    val state_contrib = (0 until lfsrW)
-      .filter(b => ((s_mask >> b) & 1) == 1)
+    val maskIdx = if (reverse) dataW - 1 - i else i
+
+    val sMask = simResult.vOutState(maskIdx)
+    val dMask = simResult.vOutData(maskIdx)
+
+    val stateContrib = (0 until lfsrW)
+      .filter(b => ((sMask >> b) & 1) == 1)
       // Mirror the state_in pin mapping if reversed
-      .map(b => io.state_in(if (reverse) lfsrW - 1 - b else b))
-      
-    val data_contrib  = (0 until dataW)
-      .filter(b => ((d_mask >> b) & 1) == 1)
-      .map(b => io.data_in(b))
-    
-    val all_contribs = state_contrib ++ (if (dataInEn) data_contrib else Seq())
-    
+      .map(b => io.stateIn(if (reverse) lfsrW - 1 - b else b))
+
+    val dataContrib = (0 until dataW)
+      .filter(b => ((dMask >> b) & 1) == 1)
+      .map(b => io.dataIn(b))
+
+    val allContribs =
+      stateContrib ++
+        (if (dataInEn) dataContrib else Seq())
+
     if (dataOutEn) {
-       if (all_contribs.nonEmpty) data_out_wire(i) := all_contribs.reduce(_ ^ _) 
-       else data_out_wire(i) := false.B
+      if (allContribs.nonEmpty)
+        dataOutWire(i) := allContribs.reduce(_ ^ _)
+      else
+        dataOutWire(i) := false.B
     } else {
-       data_out_wire(i) := false.B
+      dataOutWire(i) := false.B
     }
   }
-  io.data_out := data_out_wire.asUInt
+  io.dataOut := dataOutWire.asUInt
 }
 
 object Lfsr {
   def apply(p: LfsrParams): Lfsr = Module(new Lfsr(
-    lfsrW = p.lfsrW, lfsrPoly = p.lfsrPoly, lfsrGalois = p.lfsrGalois,
-    lfsrFeedForward = p.lfsrFeedForward, reverse = p.reverse, dataW = p.dataW,
-    dataInEn = p.dataInEn, dataOutEn = p.dataOutEn
+    lfsrW           = p.lfsrW,
+    lfsrPoly        = p.lfsrPoly,
+    lfsrGalois      = p.lfsrGalois,
+    lfsrFeedForward = p.lfsrFeedForward,
+    reverse         = p.reverse,
+    dataW           = p.dataW,
+    dataInEn        = p.dataInEn,
+    dataOutEn       = p.dataOutEn
   ))
 }
 

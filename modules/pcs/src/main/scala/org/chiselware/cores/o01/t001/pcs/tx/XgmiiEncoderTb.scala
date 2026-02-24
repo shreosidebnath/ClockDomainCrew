@@ -1,6 +1,5 @@
 package org.chiselware.cores.o01.t001.pcs.tx
 import chisel3._
-import chisel3.util._
 
 class XgmiiEncoderTb(val p: XgmiiEncoderParams) extends Module {
   val io = IO(new Bundle {

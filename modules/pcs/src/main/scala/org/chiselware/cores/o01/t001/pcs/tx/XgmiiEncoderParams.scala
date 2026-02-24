@@ -1,16 +1,12 @@
 package org.chiselware.cores.o01.t001.pcs.tx
-import chisel3._
-import chisel3.util._
 import scala.collection.mutable.LinkedHashMap
-import java.io.{File, PrintWriter}
 
 case class XgmiiEncoderParams(
     dataW: Int = 64,
     ctrlW: Int = 8,
     hdrW: Int = 2,
     gbxIfEn: Boolean = true,
-    gbxCnt: Int = 1
-)
+    gbxCnt: Int = 1)
 
 object XgmiiEncoderParams {
   val simConfigMap = LinkedHashMap[String, XgmiiEncoderParams](

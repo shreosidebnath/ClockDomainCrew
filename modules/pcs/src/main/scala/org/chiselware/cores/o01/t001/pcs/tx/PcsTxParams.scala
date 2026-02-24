@@ -1,8 +1,6 @@
 package org.chiselware.cores.o01.t001.pcs.tx
-import chisel3._
-import chisel3.util._
+import java.io.{ File, PrintWriter }
 import scala.collection.mutable.LinkedHashMap
-import java.io.{File, PrintWriter}
 
 case class PcsTxParams(
     dataW: Int = 64,
@@ -12,8 +10,7 @@ case class PcsTxParams(
     bitReverse: Boolean = true,
     scramblerDisable: Boolean = false,
     prbs31En: Boolean = false,
-    serdesPipeline: Int = 1
-)
+    serdesPipeline: Int = 1)
 
 object PcsTxParams {
   val simConfigMap = LinkedHashMap[String, PcsTxParams](

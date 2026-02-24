@@ -1,6 +1,5 @@
 package org.chiselware.cores.o01.t001.pcs.tx
 import chisel3._
-import chisel3.util._
 
 class PcsTxInterfaceTb(val p: PcsTxInterfaceParams) extends Module {
   val io = IO(new Bundle {
@@ -24,12 +23,12 @@ class PcsTxInterfaceTb(val p: PcsTxInterfaceParams) extends Module {
   })
 
   val dut = Module(new PcsTxInterface(
-    dataW = p.dataW, 
-    hdrW = p.hdrW, 
-    gbxIfEn = p.gbxIfEn, 
+    dataW = p.dataW,
+    hdrW = p.hdrW,
+    gbxIfEn = p.gbxIfEn,
     bitReverse = p.bitReverse,
-    scramblerDisable = p.scramblerDisable, 
-    prbs31En = p.prbs31En, 
+    scramblerDisable = p.scramblerDisable,
+    prbs31En = p.prbs31En,
     serdesPipeline = p.serdesPipeline
   ))
 

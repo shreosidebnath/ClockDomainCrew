@@ -1,24 +1,21 @@
 package org.chiselware.cores.o01.t001.mac
-import chisel3._
-import chisel3.util._
+import java.io.{ File, PrintWriter }
 import scala.collection.mutable.LinkedHashMap
-import java.io.{File, PrintWriter}
 
 case class MacParams(
-  val dataW: Int = 64,
-  val ctrlW: Int = 8,
-  val txGbxIfEn: Boolean = true,
-  val rxGbxIfEn: Boolean = true,
-  val gbxCnt: Int = 1,
-  val paddingEn: Boolean = true,
-  val dicEn: Boolean = true,
-  val minFrameLen: Int = 64,
-  val ptpTsEn: Boolean = false,
-  val ptpTsFmtTod: Boolean = true,
-  val ptpTsW: Int = 96,
-  val pfcEn: Boolean = false,
-  val pauseEn: Boolean = false
-)
+    dataW: Int = 64,
+    ctrlW: Int = 8,
+    txGbxIfEn: Boolean = true,
+    rxGbxIfEn: Boolean = true,
+    gbxCnt: Int = 1,
+    paddingEn: Boolean = true,
+    dicEn: Boolean = true,
+    minFrameLen: Int = 64,
+    ptpTsEn: Boolean = false,
+    ptpTsFmtTod: Boolean = true,
+    ptpTsW: Int = 96,
+    pfcEn: Boolean = false,
+    pauseEn: Boolean = false)
 
 object MacParams {
   val simConfigMap = LinkedHashMap[String, MacParams](

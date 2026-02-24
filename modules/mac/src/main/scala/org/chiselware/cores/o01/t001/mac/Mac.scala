@@ -1,200 +1,231 @@
 package org.chiselware.cores.o01.t001.mac
-import org.chiselware.cores.o01.t001.mac.tx.Axis2Xgmii64
-import org.chiselware.cores.o01.t001.mac.rx.Xgmii2Axis64
-import chisel3._
-import chisel3.util._
 import _root_.circt.stage.ChiselStage
-import org.chiselware.syn.{YosysTclFile, StaTclFile, RunScriptFile}
-import java.io.{File, PrintWriter}
+import chisel3._
+import org.chiselware.cores.o01.t001.mac.rx.Xgmii2Axis64
+import org.chiselware.cores.o01.t001.mac.tx.Axis2Xgmii64
+import org.chiselware.syn.{ RunScriptFile, StaTclFile, YosysTclFile }
 
 class Mac(
-  val dataW: Int = 64,
-  val ctrlW: Int = 8,
-  val txGbxIfEn: Boolean = false,
-  val rxGbxIfEn: Boolean = false,
-  val gbxCnt: Int = 1,
-  val paddingEn: Boolean = true,
-  val dicEn: Boolean = true,
-  val minFrameLen: Int = 64,
-  val ptpTsEn: Boolean = false,
-  val ptpTsFmtTod: Boolean = true,
-  val ptpTsW: Int = 96,
-  val pfcEn: Boolean = false,
-  val pauseEn: Boolean = false
-) extends RawModule { 
+    val dataW: Int = 64,
+    val ctrlW: Int = 8,
+    val txGbxIfEn: Boolean = false,
+    val rxGbxIfEn: Boolean = false,
+    val gbxCnt: Int = 1,
+    val paddingEn: Boolean = true,
+    val dicEn: Boolean = true,
+    val minFrameLen: Int = 64,
+    val ptpTsEn: Boolean = false,
+    val ptpTsFmtTod: Boolean = true,
+    val ptpTsW: Int = 96,
+    val pfcEn: Boolean = false,
+    val pauseEn: Boolean = false) extends RawModule {
 
   val keepW = dataW / 8
   val macCtrlEn = pauseEn || pfcEn
   val txUserW = 1
-  val rxUserW = (if (ptpTsEn) ptpTsW else 0) + 1
-  val txUserWInt = (if (macCtrlEn) 1 else 0) + txUserW
+  val rxUserW =
+    (if (ptpTsEn)
+       ptpTsW
+     else
+       0) + 1
+  val txUserWInt =
+    (if (macCtrlEn)
+       1
+     else
+       0) + txUserW
   val txTagW = 8 // Extracted from s_axis_tx.ID_W
 
   // Check configuration
-  require(dataW == 64, s"Error: Interface width must be 64 (instance dataW=$dataW)")
-  require(keepW * 8 == dataW && ctrlW * 8 == dataW, "Error: Interface requires byte (8-bit) granularity")
+  require(
+    dataW == 64,
+    s"Error: Interface width must be 64 (instance dataW=$dataW)"
+  )
+  require(
+    keepW * 8 == dataW && ctrlW * 8 == dataW,
+    "Error: Interface requires byte (8-bit) granularity"
+  )
 
   val io = IO(new Bundle {
     // Explicit Clocks and Resets
-    val rx_clk = Input(Clock())
-    val rx_rst = Input(Bool())
-    val tx_clk = Input(Clock())
-    val tx_rst = Input(Bool())
+    val rxClk = Input(Clock())
+    val rxRst = Input(Bool())
+    val txClk = Input(Clock())
+    val txRst = Input(Bool())
 
     // Transmit interface (AXI stream)
-    val s_axis_tx = Flipped(new AxisInterface(AxisInterfaceParams(
-      dataW = dataW, keepW = keepW, idEn = true, idW = txTagW, userEn = true, userW = txUserW
+    val sAxisTx = Flipped(new AxisInterface(AxisInterfaceParams(
+      dataW = dataW,
+      keepW = keepW,
+      idEn = true,
+      idW = txTagW,
+      userEn = true,
+      userW = txUserW
     )))
-    val m_axis_tx_cpl = new AxisInterface(AxisInterfaceParams( // Defined in fpga_core wrapper
-      dataW = 96, keepW = 1, idW = 8
-    ))
+    val mAxisTxCpl =
+      new AxisInterface(AxisInterfaceParams(
+        dataW = 96,
+        keepW = 1,
+        idW = 8
+      ))
 
     // Receive interface (AXI stream)
-    val m_axis_rx = new AxisInterface(AxisInterfaceParams(
-      dataW = dataW, keepW = keepW, userEn = true, userW = rxUserW
-    ))
+    val mAxisRx =
+      new AxisInterface(AxisInterfaceParams(
+        dataW = dataW,
+        keepW = keepW,
+        userEn = true,
+        userW = rxUserW
+      ))
 
     // XGMII interface
-    val xgmii_rxd = Input(UInt(dataW.W))
-    val xgmii_rxc = Input(UInt(ctrlW.W))
-    val xgmii_rx_valid = Input(Bool())
-    val xgmii_txd = Output(UInt(dataW.W))
-    val xgmii_txc = Output(UInt(ctrlW.W))
-    val xgmii_tx_valid = Output(Bool())
-    
-    val tx_gbx_req_sync = Input(UInt(gbxCnt.W))
-    val tx_gbx_req_stall = Input(Bool())
-    val tx_gbx_sync = Output(UInt(gbxCnt.W))
+    val xgmiiRxd = Input(UInt(dataW.W))
+    val xgmiiRxc = Input(UInt(ctrlW.W))
+    val xgmiiRxValid = Input(Bool())
+    val xgmiiTxd = Output(UInt(dataW.W))
+    val xgmiiTxc = Output(UInt(ctrlW.W))
+    val xgmiiTxValid = Output(Bool())
+
+    val txGbxReqSync = Input(UInt(gbxCnt.W))
+    val txGbxReqStall = Input(Bool())
+    val txGbxSync = Output(UInt(gbxCnt.W))
 
     // PTP
-    val tx_ptp_ts = Input(UInt(ptpTsW.W))
-    val rx_ptp_ts = Input(UInt(ptpTsW.W))
+    val txPtpTs = Input(UInt(ptpTsW.W))
+    val rxPtpTs = Input(UInt(ptpTsW.W))
 
     // Link-level Flow Control (LFC)
-    val tx_lfc_req = Input(Bool())
-    val tx_lfc_resend = Input(Bool())
-    val rx_lfc_en = Input(Bool())
-    val rx_lfc_req = Output(Bool())
-    val rx_lfc_ack = Input(Bool())
+    val txLfcReq = Input(Bool())
+    val txLfcResend = Input(Bool())
+    val rxLfcEn = Input(Bool())
+    val rxLfcReq = Output(Bool())
+    val rxLfcAck = Input(Bool())
 
     // Priority Flow Control (PFC)
-    val tx_pfc_req = Input(UInt(8.W))
-    val tx_pfc_resend = Input(Bool())
-    val rx_pfc_en = Input(UInt(8.W))
-    val rx_pfc_req = Output(UInt(8.W))
-    val rx_pfc_ack = Input(UInt(8.W))
+    val txPfcReq = Input(UInt(8.W))
+    val txPfcResend = Input(Bool())
+    val rxPfcEn = Input(UInt(8.W))
+    val rxPfcReq = Output(UInt(8.W))
+    val rxPfcAck = Input(UInt(8.W))
 
     // Pause interface
-    val tx_lfc_pause_en = Input(Bool())
-    val tx_pause_req = Input(Bool())
-    val tx_pause_ack = Output(Bool())
+    val txLfcPauseEn = Input(Bool())
+    val txPauseReq = Input(Bool())
+    val txPauseAck = Output(Bool())
 
     // Status
-    val tx_start_packet = Output(UInt(2.W))
-    val stat_tx_byte = Output(UInt(4.W))
-    val stat_tx_pkt_len = Output(UInt(16.W))
-    val stat_tx_pkt_ucast = Output(Bool())
-    val stat_tx_pkt_mcast = Output(Bool())
-    val stat_tx_pkt_bcast = Output(Bool())
-    val stat_tx_pkt_vlan = Output(Bool())
-    val stat_tx_pkt_good = Output(Bool())
-    val stat_tx_pkt_bad = Output(Bool())
-    val stat_tx_err_oversize = Output(Bool())
-    val stat_tx_err_user = Output(Bool())
-    val stat_tx_err_underflow = Output(Bool())
-    
-    val rx_start_packet = Output(UInt(2.W))
-    val stat_rx_byte = Output(UInt(4.W))
-    val stat_rx_pkt_len = Output(UInt(16.W))
-    val stat_rx_pkt_fragment = Output(Bool())
-    val stat_rx_pkt_jabber = Output(Bool())
-    val stat_rx_pkt_ucast = Output(Bool())
-    val stat_rx_pkt_mcast = Output(Bool())
-    val stat_rx_pkt_bcast = Output(Bool())
-    val stat_rx_pkt_vlan = Output(Bool())
-    val stat_rx_pkt_good = Output(Bool())
-    val stat_rx_pkt_bad = Output(Bool())
-    val stat_rx_err_oversize = Output(Bool())
-    val stat_rx_err_bad_fcs = Output(Bool())
-    val stat_rx_err_bad_block = Output(Bool())
-    val stat_rx_err_framing = Output(Bool())
-    val stat_rx_err_preamble = Output(Bool())
-    
-    val stat_tx_mcf = Output(Bool())
-    val stat_rx_mcf = Output(Bool())
-    val stat_tx_lfc_pkt = Output(Bool())
-    val stat_tx_lfc_xon = Output(Bool())
-    val stat_tx_lfc_xoff = Output(Bool())
-    val stat_tx_lfc_paused = Output(Bool())
-    val stat_tx_pfc_pkt = Output(Bool())
-    val stat_tx_pfc_xon = Output(UInt(8.W))
-    val stat_tx_pfc_xoff = Output(UInt(8.W))
-    val stat_tx_pfc_paused = Output(UInt(8.W))
-    val stat_rx_lfc_pkt = Output(Bool())
-    val stat_rx_lfc_xon = Output(Bool())
-    val stat_rx_lfc_xoff = Output(Bool())
-    val stat_rx_lfc_paused = Output(Bool())
-    val stat_rx_pfc_pkt = Output(Bool())
-    val stat_rx_pfc_xon = Output(UInt(8.W))
-    val stat_rx_pfc_xoff = Output(UInt(8.W))
-    val stat_rx_pfc_paused = Output(UInt(8.W))
+    val txStartPacket = Output(UInt(2.W))
+    val statTxByte = Output(UInt(4.W))
+    val statTxPktLen = Output(UInt(16.W))
+    val statTxPktUcast = Output(Bool())
+    val statTxPktMcast = Output(Bool())
+    val statTxPktBcast = Output(Bool())
+    val statTxPktVlan = Output(Bool())
+    val statTxPktGood = Output(Bool())
+    val statTxPktBad = Output(Bool())
+    val statTxErrOversize = Output(Bool())
+    val statTxErrUser = Output(Bool())
+    val statTxErrUnderflow = Output(Bool())
+
+    val rxStartPacket = Output(UInt(2.W))
+    val statRxByte = Output(UInt(4.W))
+    val statRxPktLen = Output(UInt(16.W))
+    val statRxPktFragment = Output(Bool())
+    val statRxPktJabber = Output(Bool())
+    val statRxPktUcast = Output(Bool())
+    val statRxPktMcast = Output(Bool())
+    val statRxPktBcast = Output(Bool())
+    val statRxPktVlan = Output(Bool())
+    val statRxPktGood = Output(Bool())
+    val statRxPktBad = Output(Bool())
+    val statRxErrOversize = Output(Bool())
+    val statRxErrBadFcs = Output(Bool())
+    val statRxErrBadBlock = Output(Bool())
+    val statRxErrFraming = Output(Bool())
+    val statRxErrPreamble = Output(Bool())
+
+    val statTxMcf = Output(Bool())
+    val statRxMcf = Output(Bool())
+    val statTxLfcPkt = Output(Bool())
+    val statTxLfcXon = Output(Bool())
+    val statTxLfcXoff = Output(Bool())
+    val statTxLfcPaused = Output(Bool())
+    val statTxPfcPkt = Output(Bool())
+    val statTxPfcXon = Output(UInt(8.W))
+    val statTxPfcXoff = Output(UInt(8.W))
+    val statTxPfcPaused = Output(UInt(8.W))
+    val statRxLfcPkt = Output(Bool())
+    val statRxLfcXon = Output(Bool())
+    val statRxLfcXoff = Output(Bool())
+    val statRxLfcPaused = Output(Bool())
+    val statRxPfcPkt = Output(Bool())
+    val statRxPfcXon = Output(UInt(8.W))
+    val statRxPfcXoff = Output(UInt(8.W))
+    val statRxPfcPaused = Output(UInt(8.W))
 
     // Configuration
-    val cfg_tx_max_pkt_len = Input(UInt(16.W))
-    val cfg_tx_ifg = Input(UInt(8.W))
-    val cfg_tx_enable = Input(Bool())
-    val cfg_rx_max_pkt_len = Input(UInt(16.W))
-    val cfg_rx_enable = Input(Bool())
-    
-    val cfg_mcf_rx_eth_dst_mcast = Input(UInt(48.W))
-    val cfg_mcf_rx_check_eth_dst_mcast = Input(Bool())
-    val cfg_mcf_rx_eth_dst_ucast = Input(UInt(48.W))
-    val cfg_mcf_rx_check_eth_dst_ucast = Input(Bool())
-    val cfg_mcf_rx_eth_src = Input(UInt(48.W))
-    val cfg_mcf_rx_check_eth_src = Input(Bool())
-    val cfg_mcf_rx_eth_type = Input(UInt(16.W))
-    val cfg_mcf_rx_opcode_lfc = Input(UInt(16.W))
-    val cfg_mcf_rx_check_opcode_lfc = Input(Bool())
-    val cfg_mcf_rx_opcode_pfc = Input(UInt(16.W))
-    val cfg_mcf_rx_check_opcode_pfc = Input(Bool())
-    val cfg_mcf_rx_forward = Input(Bool())
-    val cfg_mcf_rx_enable = Input(Bool())
-    
-    val cfg_tx_lfc_eth_dst = Input(UInt(48.W))
-    val cfg_tx_lfc_eth_src = Input(UInt(48.W))
-    val cfg_tx_lfc_eth_type = Input(UInt(16.W))
-    val cfg_tx_lfc_opcode = Input(UInt(16.W))
-    val cfg_tx_lfc_en = Input(Bool())
-    val cfg_tx_lfc_quanta = Input(UInt(16.W))
-    val cfg_tx_lfc_refresh = Input(UInt(16.W))
-    
-    val cfg_tx_pfc_eth_dst = Input(UInt(48.W))
-    val cfg_tx_pfc_eth_src = Input(UInt(48.W))
-    val cfg_tx_pfc_eth_type = Input(UInt(16.W))
-    val cfg_tx_pfc_opcode = Input(UInt(16.W))
-    val cfg_tx_pfc_en = Input(Bool())
-    val cfg_tx_pfc_quanta = Input(Vec(8, UInt(16.W)))
-    val cfg_tx_pfc_refresh = Input(Vec(8, UInt(16.W)))
-    
-    val cfg_rx_lfc_opcode = Input(UInt(16.W))
-    val cfg_rx_lfc_en = Input(Bool())
-    val cfg_rx_pfc_opcode = Input(UInt(16.W))
-    val cfg_rx_pfc_en = Input(Bool())
+    val cfgTxMaxPktLen = Input(UInt(16.W))
+    val cfgTxIfg = Input(UInt(8.W))
+    val cfgTxEnable = Input(Bool())
+    val cfgRxMaxPktLen = Input(UInt(16.W))
+    val cfgRxEnable = Input(Bool())
+
+    val cfgMcfRxEthDstMcast = Input(UInt(48.W))
+    val cfgMcfRxCheckEthDstMcast = Input(Bool())
+    val cfgMcfRxEthDstUcast = Input(UInt(48.W))
+    val cfgMcfRxCheckEthDstUcast = Input(Bool())
+    val cfgMcfRxEthSrc = Input(UInt(48.W))
+    val cfgMcfRxCheckEthSrc = Input(Bool())
+    val cfgMcfRxEthType = Input(UInt(16.W))
+    val cfgMcfRxOpcodeLfc = Input(UInt(16.W))
+    val cfgMcfRxCheckOpcodeLfc = Input(Bool())
+    val cfgMcfRxOpcodePfc = Input(UInt(16.W))
+    val cfgMcfRxCheckOpcodePfc = Input(Bool())
+    val cfgMcfRxForward = Input(Bool())
+    val cfgMcfRxEnable = Input(Bool())
+
+    val cfgTxLfcEthDst = Input(UInt(48.W))
+    val cfgTxLfcEthSrc = Input(UInt(48.W))
+    val cfgTxLfcEthType = Input(UInt(16.W))
+    val cfgTxLfcOpcode = Input(UInt(16.W))
+    val cfgTxLfcEn = Input(Bool())
+    val cfgTxLfcQuanta = Input(UInt(16.W))
+    val cfgTxLfcRefresh = Input(UInt(16.W))
+
+    val cfgTxPfcEthDst = Input(UInt(48.W))
+    val cfgTxPfcEthSrc = Input(UInt(48.W))
+    val cfgTxPfcEthType = Input(UInt(16.W))
+    val cfgTxPfcOpcode = Input(UInt(16.W))
+    val cfgTxPfcEn = Input(Bool())
+    val cfgTxPfcQuanta = Input(Vec(8, UInt(16.W)))
+    val cfgTxPfcRefresh = Input(Vec(8, UInt(16.W)))
+
+    val cfgRxLfcOpcode = Input(UInt(16.W))
+    val cfgRxLfcEn = Input(Bool())
+    val cfgRxPfcOpcode = Input(UInt(16.W))
+    val cfgRxPfcEn = Input(Bool())
   })
 
   // Internal Interface declarations
-  val axis_tx_int = Wire(new AxisInterface(AxisInterfaceParams(
-    dataW = dataW, keepW = keepW, idEn = true, idW = txTagW, userEn = true, userW = txUserWInt
+  val axisTxInt = Wire(new AxisInterface(AxisInterfaceParams(
+    dataW = dataW,
+    keepW = keepW,
+    idEn = true,
+    idW = txTagW,
+    userEn = true,
+    userW = txUserWInt
   )))
-  val axis_rx_int = Wire(new AxisInterface(AxisInterfaceParams(
-    dataW = dataW, keepW = keepW, userEn = true, userW = rxUserW
+  val axisRxInt = Wire(new AxisInterface(AxisInterfaceParams(
+    dataW = dataW,
+    keepW = keepW,
+    userEn = true,
+    userW = rxUserW
   )))
 
   // -------------------------------------------------------------
-  // RX MAC Submodule (Mapped to rx_clk domain)
+  // RX MAC Submodule (Mapped to rxClk domain)
   // -------------------------------------------------------------
-  withClockAndReset(io.rx_clk, io.rx_rst) {
-    val axis_xgmii_rx_inst = Module(new Xgmii2Axis64(
+  withClockAndReset(io.rxClk, io.rxRst) {
+    val axisXgmiiRxInst = Module(new Xgmii2Axis64(
       dataW = dataW,
       ctrlW = ctrlW,
       gbxIfEn = rxGbxIfEn,
@@ -204,39 +235,39 @@ class Mac(
     ))
 
     // Inputs
-    axis_xgmii_rx_inst.io.xgmii_rxd := io.xgmii_rxd
-    axis_xgmii_rx_inst.io.xgmii_rxc := io.xgmii_rxc
-    axis_xgmii_rx_inst.io.xgmii_rx_valid := io.xgmii_rx_valid
-    axis_xgmii_rx_inst.io.ptp_ts := io.rx_ptp_ts
-    axis_xgmii_rx_inst.io.cfg_rx_max_pkt_len := io.cfg_rx_max_pkt_len
-    axis_xgmii_rx_inst.io.cfg_rx_enable := io.cfg_rx_enable
+    axisXgmiiRxInst.io.xgmiiRxd := io.xgmiiRxd
+    axisXgmiiRxInst.io.xgmiiRxc := io.xgmiiRxc
+    axisXgmiiRxInst.io.xgmiiRxValid := io.xgmiiRxValid
+    axisXgmiiRxInst.io.ptpTs := io.rxPtpTs
+    axisXgmiiRxInst.io.cfgRxMaxPktLen := io.cfgRxMaxPktLen
+    axisXgmiiRxInst.io.cfgRxEnable := io.cfgRxEnable
 
     // Outputs
-    axis_rx_int <> axis_xgmii_rx_inst.io.m_axis_rx // Connect interface directly
+    axisRxInt <> axisXgmiiRxInst.io.mAxisRx
 
-    io.rx_start_packet := axis_xgmii_rx_inst.io.rx_start_packet
-    io.stat_rx_byte := axis_xgmii_rx_inst.io.stat_rx_byte
-    io.stat_rx_pkt_len := axis_xgmii_rx_inst.io.stat_rx_pkt_len
-    io.stat_rx_pkt_fragment := axis_xgmii_rx_inst.io.stat_rx_pkt_fragment
-    io.stat_rx_pkt_jabber := axis_xgmii_rx_inst.io.stat_rx_pkt_jabber
-    io.stat_rx_pkt_ucast := axis_xgmii_rx_inst.io.stat_rx_pkt_ucast
-    io.stat_rx_pkt_mcast := axis_xgmii_rx_inst.io.stat_rx_pkt_mcast
-    io.stat_rx_pkt_bcast := axis_xgmii_rx_inst.io.stat_rx_pkt_bcast
-    io.stat_rx_pkt_vlan := axis_xgmii_rx_inst.io.stat_rx_pkt_vlan
-    io.stat_rx_pkt_good := axis_xgmii_rx_inst.io.stat_rx_pkt_good
-    io.stat_rx_pkt_bad := axis_xgmii_rx_inst.io.stat_rx_pkt_bad
-    io.stat_rx_err_oversize := axis_xgmii_rx_inst.io.stat_rx_err_oversize
-    io.stat_rx_err_bad_fcs := axis_xgmii_rx_inst.io.stat_rx_err_bad_fcs
-    io.stat_rx_err_bad_block := axis_xgmii_rx_inst.io.stat_rx_err_bad_block
-    io.stat_rx_err_framing := axis_xgmii_rx_inst.io.stat_rx_err_framing
-    io.stat_rx_err_preamble := axis_xgmii_rx_inst.io.stat_rx_err_preamble
+    io.rxStartPacket := axisXgmiiRxInst.io.rxStartPacket
+    io.statRxByte := axisXgmiiRxInst.io.statRxByte
+    io.statRxPktLen := axisXgmiiRxInst.io.statRxPktLen
+    io.statRxPktFragment := axisXgmiiRxInst.io.statRxPktFragment
+    io.statRxPktJabber := axisXgmiiRxInst.io.statRxPktJabber
+    io.statRxPktUcast := axisXgmiiRxInst.io.statRxPktUcast
+    io.statRxPktMcast := axisXgmiiRxInst.io.statRxPktMcast
+    io.statRxPktBcast := axisXgmiiRxInst.io.statRxPktBcast
+    io.statRxPktVlan := axisXgmiiRxInst.io.statRxPktVlan
+    io.statRxPktGood := axisXgmiiRxInst.io.statRxPktGood
+    io.statRxPktBad := axisXgmiiRxInst.io.statRxPktBad
+    io.statRxErrOversize := axisXgmiiRxInst.io.statRxErrOversize
+    io.statRxErrBadFcs := axisXgmiiRxInst.io.statRxErrBadFcs
+    io.statRxErrBadBlock := axisXgmiiRxInst.io.statRxErrBadBlock
+    io.statRxErrFraming := axisXgmiiRxInst.io.statRxErrFraming
+    io.statRxErrPreamble := axisXgmiiRxInst.io.statRxErrPreamble
   }
 
   // -------------------------------------------------------------
-  // TX MAC Submodule (Mapped to tx_clk domain)
+  // TX MAC Submodule (Mapped to txClk domain)
   // -------------------------------------------------------------
-  withClockAndReset(io.tx_clk, io.tx_rst) {
-    val axis_xgmii_tx_inst = Module(new Axis2Xgmii64(
+  withClockAndReset(io.txClk, io.txRst) {
+    val axisXgmiiTxInst = Module(new Axis2Xgmii64(
       dataW = dataW,
       ctrlW = ctrlW,
       gbxIfEn = txGbxIfEn,
@@ -251,34 +282,34 @@ class Mac(
     ))
 
     // Inputs
-    axis_xgmii_tx_inst.io.s_axis_tx <> axis_tx_int // Receive from tie/mac_ctrl
-    
-    io.tx_gbx_sync := axis_xgmii_tx_inst.io.tx_gbx_sync
-    axis_xgmii_tx_inst.io.tx_gbx_req_sync := io.tx_gbx_req_sync
-    axis_xgmii_tx_inst.io.tx_gbx_req_stall := io.tx_gbx_req_stall
-    axis_xgmii_tx_inst.io.ptp_ts := io.tx_ptp_ts
-    axis_xgmii_tx_inst.io.cfg_tx_max_pkt_len := io.cfg_tx_max_pkt_len
-    axis_xgmii_tx_inst.io.cfg_tx_ifg := io.cfg_tx_ifg
-    axis_xgmii_tx_inst.io.cfg_tx_enable := io.cfg_tx_enable
+    axisXgmiiTxInst.io.sAxisTx <> axisTxInt
+
+    io.txGbxSync := axisXgmiiTxInst.io.txGbxSync
+    axisXgmiiTxInst.io.txGbxReqSync := io.txGbxReqSync
+    axisXgmiiTxInst.io.txGbxReqStall := io.txGbxReqStall
+    axisXgmiiTxInst.io.ptpTs := io.txPtpTs
+    axisXgmiiTxInst.io.cfgTxMaxPktLen := io.cfgTxMaxPktLen
+    axisXgmiiTxInst.io.cfgTxIfg := io.cfgTxIfg
+    axisXgmiiTxInst.io.cfgTxEnable := io.cfgTxEnable
 
     // Outputs
-    io.m_axis_tx_cpl <> axis_xgmii_tx_inst.io.m_axis_tx_cpl
-    io.xgmii_txd := axis_xgmii_tx_inst.io.xgmii_txd
-    io.xgmii_txc := axis_xgmii_tx_inst.io.xgmii_txc
-    io.xgmii_tx_valid := axis_xgmii_tx_inst.io.xgmii_tx_valid
+    io.mAxisTxCpl <> axisXgmiiTxInst.io.mAxisTxCpl
+    io.xgmiiTxd := axisXgmiiTxInst.io.xgmiiTxd
+    io.xgmiiTxc := axisXgmiiTxInst.io.xgmiiTxc
+    io.xgmiiTxValid := axisXgmiiTxInst.io.xgmiiTxValid
 
-    io.tx_start_packet := axis_xgmii_tx_inst.io.tx_start_packet
-    io.stat_tx_byte := axis_xgmii_tx_inst.io.stat_tx_byte
-    io.stat_tx_pkt_len := axis_xgmii_tx_inst.io.stat_tx_pkt_len
-    io.stat_tx_pkt_ucast := axis_xgmii_tx_inst.io.stat_tx_pkt_ucast
-    io.stat_tx_pkt_mcast := axis_xgmii_tx_inst.io.stat_tx_pkt_mcast
-    io.stat_tx_pkt_bcast := axis_xgmii_tx_inst.io.stat_tx_pkt_bcast
-    io.stat_tx_pkt_vlan := axis_xgmii_tx_inst.io.stat_tx_pkt_vlan
-    io.stat_tx_pkt_good := axis_xgmii_tx_inst.io.stat_tx_pkt_good
-    io.stat_tx_pkt_bad := axis_xgmii_tx_inst.io.stat_tx_pkt_bad
-    io.stat_tx_err_oversize := axis_xgmii_tx_inst.io.stat_tx_err_oversize
-    io.stat_tx_err_user := axis_xgmii_tx_inst.io.stat_tx_err_user
-    io.stat_tx_err_underflow := axis_xgmii_tx_inst.io.stat_tx_err_underflow
+    io.txStartPacket := axisXgmiiTxInst.io.txStartPacket
+    io.statTxByte := axisXgmiiTxInst.io.statTxByte
+    io.statTxPktLen := axisXgmiiTxInst.io.statTxPktLen
+    io.statTxPktUcast := axisXgmiiTxInst.io.statTxPktUcast
+    io.statTxPktMcast := axisXgmiiTxInst.io.statTxPktMcast
+    io.statTxPktBcast := axisXgmiiTxInst.io.statTxPktBcast
+    io.statTxPktVlan := axisXgmiiTxInst.io.statTxPktVlan
+    io.statTxPktGood := axisXgmiiTxInst.io.statTxPktGood
+    io.statTxPktBad := axisXgmiiTxInst.io.statTxPktBad
+    io.statTxErrOversize := axisXgmiiTxInst.io.statTxErrOversize
+    io.statTxErrUser := axisXgmiiTxInst.io.statTxErrUser
+    io.statTxErrUnderflow := axisXgmiiTxInst.io.statTxErrUnderflow
   }
 
   // -------------------------------------------------------------
@@ -286,41 +317,39 @@ class Mac(
   // -------------------------------------------------------------
   if (macCtrlEn) {
     // Implement control logic here
-    } else {
-    
+  } else {
+
     // Connect external TX input to internal TX MAC
-    AxisTie(io.s_axis_tx, axis_tx_int)
+    AxisTie(io.sAxisTx, axisTxInt)
 
     // Connect internal RX MAC to external RX output
-    AxisTie(axis_rx_int, io.m_axis_rx)
+    AxisTie(axisRxInt, io.mAxisRx)
 
     // Tie off unused flow-control outputs securely
-    io.rx_lfc_req := false.B
-    io.rx_pfc_req := 0.U
-    io.tx_pause_ack := false.B
+    io.rxLfcReq := false.B
+    io.rxPfcReq := 0.U
+    io.txPauseAck := false.B
 
-    io.stat_tx_mcf := false.B
-    io.stat_rx_mcf := false.B
-    io.stat_tx_lfc_pkt := false.B
-    io.stat_tx_lfc_xon := false.B
-    io.stat_tx_lfc_xoff := false.B
-    io.stat_tx_lfc_paused := false.B
-    io.stat_tx_pfc_pkt := false.B
-    io.stat_tx_pfc_xon := 0.U
-    io.stat_tx_pfc_xoff := 0.U
-    io.stat_tx_pfc_paused := 0.U
-    io.stat_rx_lfc_pkt := false.B
-    io.stat_rx_lfc_xon := false.B
-    io.stat_rx_lfc_xoff := false.B
-    io.stat_rx_lfc_paused := false.B
-    io.stat_rx_pfc_pkt := false.B
-    io.stat_rx_pfc_xon := 0.U
-    io.stat_rx_pfc_xoff := 0.U
-    io.stat_rx_pfc_paused := 0.U
+    io.statTxMcf := false.B
+    io.statRxMcf := false.B
+    io.statTxLfcPkt := false.B
+    io.statTxLfcXon := false.B
+    io.statTxLfcXoff := false.B
+    io.statTxLfcPaused := false.B
+    io.statTxPfcPkt := false.B
+    io.statTxPfcXon := 0.U
+    io.statTxPfcXoff := 0.U
+    io.statTxPfcPaused := 0.U
+    io.statRxLfcPkt := false.B
+    io.statRxLfcXon := false.B
+    io.statRxLfcXoff := false.B
+    io.statRxLfcPaused := false.B
+    io.statRxPfcPkt := false.B
+    io.statRxPfcXon := 0.U
+    io.statRxPfcXoff := 0.U
+    io.statRxPfcPaused := 0.U
   }
 }
-
-
 
 object Mac {
   def apply(p: MacParams): Mac = Module(new Mac(
@@ -340,10 +369,9 @@ object Mac {
   ))
 }
 
-
 object Main extends App {
-  val mainClassName = "Mac"
-  val coreDir = s"modules/${mainClassName.toLowerCase()}"
+  val MainClassName = "Mac"
+  val coreDir = s"modules/${MainClassName.toLowerCase()}"
   MacParams.synConfigMap.foreach { case (configName, p) =>
     println(s"Generating Verilog for config: $configName")
     ChiselStage.emitSystemVerilog(
@@ -372,8 +400,18 @@ object Main extends App {
     )
     // Synthesis collateral generation
     sdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-    YosysTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
-    StaTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
-    RunScriptFile.create(mainClassName, MacParams.synConfigs, s"${coreDir}/generated/synTestCases")
+    YosysTclFile.create(
+      mainClassName = MainClassName,
+      outputDir = s"${coreDir}/generated/synTestCases/$configName"
+    )
+    StaTclFile.create(
+      mainClassName = MainClassName,
+      outputDir = s"${coreDir}/generated/synTestCases/$configName"
+    )
+    RunScriptFile.create(
+      mainClassName = MainClassName,
+      synConfigs = MacParams.synConfigs,
+      outputDir = s"${coreDir}/generated/synTestCases"
+    )
   }
 }

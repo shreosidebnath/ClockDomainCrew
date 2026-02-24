@@ -1,18 +1,14 @@
 package org.chiselware.cores.o01.t001.pcs.tx
-import chisel3._
-import chisel3.util._
 import scala.collection.mutable.LinkedHashMap
-import java.io.{File, PrintWriter}
 
 case class PcsTxInterfaceParams(
-  dataW: Int = 64,
-  hdrW: Int = 2,
-  gbxIfEn: Boolean = true,
-  bitReverse: Boolean = true,
-  scramblerDisable: Boolean = false,
-  prbs31En: Boolean = false,
-  serdesPipeline: Int = 1
-)
+    dataW: Int = 64,
+    hdrW: Int = 2,
+    gbxIfEn: Boolean = true,
+    bitReverse: Boolean = true,
+    scramblerDisable: Boolean = false,
+    prbs31En: Boolean = false,
+    serdesPipeline: Int = 1)
 
 object PcsTxInterfaceParams {
   val simConfigMap = LinkedHashMap[String, PcsTxInterfaceParams](

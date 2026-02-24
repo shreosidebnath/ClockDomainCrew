@@ -1,41 +1,37 @@
 package org.chiselware.cores.o01.t001.pcs.rx
-import chisel3._
-import chisel3.util._
 import scala.collection.mutable.LinkedHashMap
-import java.io.{File, PrintWriter}
 
 case class XgmiiDecoderParams(
-  dataW: Int = 64,
-  ctrlW: Int = 8,
-  hdrW: Int = 2,
-  gbxIfEn: Boolean = true,
-)
+    dataW: Int = 64,
+    ctrlW: Int = 8,
+    hdrW: Int = 2,
+    gbxIfEn: Boolean = true)
 
 object XgmiiDecoderParams {
-  val simConfigMap = LinkedHashMap[String, XgmiiDecoderParams](
+  val SimConfigMap = LinkedHashMap[String, XgmiiDecoderParams](
     "config" -> XgmiiDecoderParams()
   )
 
-  val synConfigMap = LinkedHashMap[String, XgmiiDecoderParams](
+  val SynConfigMap = LinkedHashMap[String, XgmiiDecoderParams](
     "xgmii_decoder_inst" -> XgmiiDecoderParams(
-        dataW = 32,
-        ctrlW = 4,
-        hdrW = 2,
-        gbxIfEn = true,
+      dataW = 32,
+      ctrlW = 4,
+      hdrW = 2,
+      gbxIfEn = true
     )
   )
 
-  val synConfigs = synConfigMap.keys.mkString(" ")
+  val SynConfigs = SynConfigMap.keys.mkString(" ")
 }
 
-// object sdcFile {
+// object SdcFile {
 //   def create(sdcFilePath: String): Unit = {
 //     val sdcFileData = ""
 //     val sdcFileDir = new File(sdcFilePath)
 //     sdcFileDir.mkdirs()
 //     val sdcFileName = new File(s"$sdcFilePath/XgmiiDecoder.sdc")
-//     val sdcFile = new PrintWriter(sdcFileName)
-//     sdcFile.write(sdcFileData)
-//     sdcFile.close()
+//     val sdcFileWriter = new PrintWriter(sdcFileName)
+//     sdcFileWriter.write(sdcFileData)
+//     sdcFileWriter.close()
 //   }
 // }

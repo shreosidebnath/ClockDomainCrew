@@ -47,7 +47,7 @@ lazy val mac = project
     coverageMinimumStmtTotal := 90,
     coverageMinimumBranchTotal := 95,
     publish / skip := true,
-    Compile / mainClass := Some("org.chiselware.cores.o01.t001.mac.Main")
+    Compile / mainClass := Some("org.chiselware.cores.o01.t001.mac.stats.Main")
   )
   .settings(commonSettings: _*)
 

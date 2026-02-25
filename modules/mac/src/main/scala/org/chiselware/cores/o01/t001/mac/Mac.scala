@@ -372,7 +372,7 @@ object Mac {
 object Main extends App {
   val MainClassName = "Mac"
   val coreDir = s"modules/${MainClassName.toLowerCase()}"
-  MacParams.synConfigMap.foreach { case (configName, p) =>
+  MacParams.SynConfigMap.foreach { case (configName, p) =>
     println(s"Generating Verilog for config: $configName")
     ChiselStage.emitSystemVerilog(
       new Mac(
@@ -398,20 +398,19 @@ object Main extends App {
         s"-o=${coreDir}/generated/synTestCases/$configName"
       )
     )
-    // Synthesis collateral generation
-    sdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
+    SdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
     YosysTclFile.create(
-      mainClassName = MainClassName,
-      outputDir = s"${coreDir}/generated/synTestCases/$configName"
+      MainClassName,
+      s"${coreDir}/generated/synTestCases/$configName"
     )
     StaTclFile.create(
-      mainClassName = MainClassName,
-      outputDir = s"${coreDir}/generated/synTestCases/$configName"
+      MainClassName,
+      s"${coreDir}/generated/synTestCases/$configName"
     )
     RunScriptFile.create(
-      mainClassName = MainClassName,
-      synConfigs = MacParams.synConfigs,
-      outputDir = s"${coreDir}/generated/synTestCases"
+      MainClassName,
+      MacParams.SynConfigs,
+      s"${coreDir}/generated/synTestCases"
     )
   }
 }

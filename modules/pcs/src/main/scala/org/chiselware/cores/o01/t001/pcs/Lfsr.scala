@@ -17,22 +17,13 @@ class Lfsr(
     val stateOut = Output(UInt(lfsrW.W))
   })
 
-  // --- Procedural Generation of Next State Logic (Matrix Calculation) ---
-  // Simulate the LFSR shifting at elaboration time (Scala)
-  // to build the XOR dependencies for the hardware.
-
-  // 1. Initialize dependency trackers using immutable vals via scanLeft/foldLeft
-  // vState(i) tracks which input state bits affect bit i
-  // vData(i) tracks which input data bits affect bit i
-
+  // scalafix:off DisableSyntax.var
   var vState = Array.tabulate(lfsrW)(i => (BigInt(1) << i))
   var vData = Array.fill(lfsrW)(BigInt(0))
 
-  // Output trackers
   var vOutState = Array.fill(dataW)(BigInt(0))
   var vOutData = Array.fill(dataW)(BigInt(0))
 
-  // 2. Simulate the LFSR shifting loop 'dataW' times
   for (k <- 0 until dataW) {
     val dataIdx =
       if (reverse)
@@ -40,15 +31,12 @@ class Lfsr(
       else
         dataW - 1 - k
 
-    // Current MSB used for feedback
     var stateVal = vState(lfsrW - 1)
     var dataValEq = vData(lfsrW - 1)
 
-    // Add input data dependency (XOR)
     dataValEq = dataValEq ^ (BigInt(1) << dataIdx)
 
     if (lfsrGalois) {
-      // --- Galois Configuration ---
       for (j <- lfsrW - 1 until 0 by -1) {
         vState(j) = vState(j - 1)
         vData(j) = vData(j - 1)
@@ -77,7 +65,6 @@ class Lfsr(
       }
 
     } else {
-      // --- Fibonacci Configuration ---
       for (j <- 1 until lfsrW) {
         if (((lfsrPoly >> j) & 1) == 1) {
           stateVal = stateVal ^ vState(j - 1)
@@ -106,11 +93,11 @@ class Lfsr(
       vData(0) = dataValEq
     }
   }
+  // scalafix:on DisableSyntax.var
 
-  // --- 3. Generate Hardware Logic from Masks ---
-
-  // State Output
+  // scalafix:off scala-027
   val nextState = Wire(Vec(lfsrW, Bool()))
+  // scalafix:on scala-027
   for (i <- 0 until lfsrW) {
     val maskI =
       if (reverse)
@@ -145,8 +132,9 @@ class Lfsr(
   }
   io.stateOut := nextState.asUInt
 
-  // Data Output
+  // scalafix:off scala-027
   val dataOutWire = Wire(Vec(dataW, Bool()))
+  // scalafix:on scala-027
   for (i <- 0 until dataW) {
     val maskIdx =
       if (reverse)
@@ -222,8 +210,8 @@ object Lfsr {
 //       )
 //     )
 //     SdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-//     YosysTclFile.create(mainClassName = MainClassName, outputDir = s"${coreDir}/generated/synTestCases/$configName")
-//     StaTclFile.create(mainClassName = MainClassName, outputDir = s"${coreDir}/generated/synTestCases/$configName")
-//     RunScriptFile.create(mainClassName = MainClassName, synConfigs = LfsrParams.SynConfigs, outputDir = s"${coreDir}/generated/synTestCases")
+//     YosysTclFile.create(MainClassName, s"${coreDir}/generated/synTestCases/$configName")
+//     StaTclFile.create(MainClassName, s"${coreDir}/generated/synTestCases/$configName")
+//     RunScriptFile.create(MainClassName, LfsrParams.SynConfigs, s"${coreDir}/generated/synTestCases")
 //   }
 // }

@@ -13,56 +13,54 @@ class PcsTx(
     val prbs31En: Boolean = false,
     val serdesPipeline: Int = 0) extends Module {
   val io = IO(new Bundle {
-    val xgmii_txd = Input(UInt(dataW.W))
-    val xgmii_txc = Input(UInt(ctrlW.W))
-    val xgmii_tx_valid = Input(Bool())
-    val tx_gbx_req_sync = Output(Bool())
-    val tx_gbx_req_stall = Output(Bool())
-    val tx_gbx_sync = Input(Bool())
+    val xgmiiTxd = Input(UInt(dataW.W))
+    val xgmiiTxc = Input(UInt(ctrlW.W))
+    val xgmiiTxValid = Input(Bool())
+    val txGbxReqSync = Output(Bool())
+    val txGbxReqStall = Output(Bool())
+    val txGbxSync = Input(Bool())
 
-    val serdes_tx_data = Output(UInt(dataW.W))
-    val serdes_tx_data_valid = Output(Bool())
-    val serdes_tx_hdr = Output(UInt(hdrW.W))
-    val serdes_tx_hdr_valid = Output(Bool())
-    val serdes_tx_gbx_req_sync = Input(Bool())
-    val serdes_tx_gbx_req_stall = Input(Bool())
-    val serdes_tx_gbx_sync = Output(Bool())
+    val serdesTxData = Output(UInt(dataW.W))
+    val serdesTxDataValid = Output(Bool())
+    val serdesTxHdr = Output(UInt(hdrW.W))
+    val serdesTxHdrValid = Output(Bool())
+    val serdesTxGbxReqSync = Input(Bool())
+    val serdesTxGbxReqStall = Input(Bool())
+    val serdesTxGbxSync = Output(Bool())
 
-    val tx_bad_block = Output(Bool()) // Status
-    val cfg_tx_prbs31_enable = Input(Bool()) // Configuration
+    val txBadBlock = Output(Bool())
+    val cfgTxPrbs31Enable = Input(Bool())
   })
 
-  val encoded_tx_data = Wire(UInt(dataW.W))
-  val encoded_tx_data_valid = Wire(Bool())
-  val encoded_tx_hdr = Wire(UInt(hdrW.W))
-  val encoded_tx_hdr_valid = Wire(Bool())
-  val tx_gbx_sync_int = Wire(Bool())
+  val encodedTxData = Wire(UInt(dataW.W))
+  val encodedTxDataValid = Wire(Bool())
+  val encodedTxHdr = Wire(UInt(hdrW.W))
+  val encodedTxHdrValid = Wire(Bool())
+  val txGbxSyncInt = Wire(Bool())
 
   // Encoder
-  val encoder = Module(new XgmiiEncoder(
+  val encoderInst = Module(new XgmiiEncoder(
     dataW = dataW,
     ctrlW = ctrlW,
     hdrW = hdrW,
     gbxIfEn = gbxIfEn,
     gbxCnt = 1
   ))
-  encoder.clock := clock
-  encoder.reset := reset
-  encoder.io.xgmii_txd := io.xgmii_txd
-  encoder.io.xgmii_txc := io.xgmii_txc
-  encoder.io.xgmii_tx_valid := io.xgmii_tx_valid
-  encoder.io.tx_gbx_sync_in := io.tx_gbx_sync
+  encoderInst.io.xgmiiTxd := io.xgmiiTxd
+  encoderInst.io.xgmiiTxc := io.xgmiiTxc
+  encoderInst.io.xgmiiTxValid := io.xgmiiTxValid
+  encoderInst.io.txGbxSyncIn := io.txGbxSync
 
-  encoded_tx_data := encoder.io.encoded_tx_data
-  encoded_tx_data_valid := encoder.io.encoded_tx_data_valid
-  encoded_tx_hdr := encoder.io.encoded_tx_hdr
-  encoded_tx_hdr_valid := encoder.io.encoded_tx_hdr_valid
-  tx_gbx_sync_int := encoder.io.tx_gbx_sync_out
+  encodedTxData := encoderInst.io.encodedTxData
+  encodedTxDataValid := encoderInst.io.encodedTxDataValid
+  encodedTxHdr := encoderInst.io.encodedTxHdr
+  encodedTxHdrValid := encoderInst.io.encodedTxHdrValid
+  txGbxSyncInt := encoderInst.io.txGbxSyncOut
 
-  io.tx_bad_block := encoder.io.tx_bad_block
+  io.txBadBlock := encoderInst.io.txBadBlock
 
   // TX Interface
-  val tx_if = Module(new PcsTxInterface(
+  val txIfInst = Module(new PcsTxInterface(
     dataW = dataW,
     hdrW = hdrW,
     gbxIfEn = gbxIfEn,
@@ -72,27 +70,25 @@ class PcsTx(
     serdesPipeline = serdesPipeline
   ))
 
-  tx_if.clock := clock
-  tx_if.reset := reset
-  tx_if.io.encoded_tx_data := encoded_tx_data
-  tx_if.io.encoded_tx_data_valid := encoded_tx_data_valid
-  tx_if.io.encoded_tx_hdr := encoded_tx_hdr
-  tx_if.io.encoded_tx_hdr_valid := encoded_tx_hdr_valid
+  txIfInst.io.encodedTxData := encodedTxData
+  txIfInst.io.encodedTxDataValid := encodedTxDataValid
+  txIfInst.io.encodedTxHdr := encodedTxHdr
+  txIfInst.io.encodedTxHdrValid := encodedTxHdrValid
 
-  io.tx_gbx_req_sync := tx_if.io.tx_gbx_req_sync
-  io.tx_gbx_req_stall := tx_if.io.tx_gbx_req_stall
-  tx_if.io.tx_gbx_sync := tx_gbx_sync_int
+  io.txGbxReqSync := txIfInst.io.txGbxReqSync
+  io.txGbxReqStall := txIfInst.io.txGbxReqStall
+  txIfInst.io.txGbxSync := txGbxSyncInt
 
-  io.serdes_tx_data := tx_if.io.serdes_tx_data
-  io.serdes_tx_data_valid := tx_if.io.serdes_tx_data_valid
-  io.serdes_tx_hdr := tx_if.io.serdes_tx_hdr
-  io.serdes_tx_hdr_valid := tx_if.io.serdes_tx_hdr_valid
+  io.serdesTxData := txIfInst.io.serdesTxData
+  io.serdesTxDataValid := txIfInst.io.serdesTxDataValid
+  io.serdesTxHdr := txIfInst.io.serdesTxHdr
+  io.serdesTxHdrValid := txIfInst.io.serdesTxHdrValid
 
-  tx_if.io.serdes_tx_gbx_req_sync := io.serdes_tx_gbx_req_sync
-  tx_if.io.serdes_tx_gbx_req_stall := io.serdes_tx_gbx_req_stall
-  io.serdes_tx_gbx_sync := tx_if.io.serdes_tx_gbx_sync
+  txIfInst.io.serdesTxGbxReqSync := io.serdesTxGbxReqSync
+  txIfInst.io.serdesTxGbxReqStall := io.serdesTxGbxReqStall
+  io.serdesTxGbxSync := txIfInst.io.serdesTxGbxSync
 
-  tx_if.io.cfg_tx_prbs31_enable := io.cfg_tx_prbs31_enable
+  txIfInst.io.cfgTxPrbs31Enable := io.cfgTxPrbs31Enable
 }
 
 object PcsTx {
@@ -109,9 +105,9 @@ object PcsTx {
 }
 
 object Main extends App {
-  val mainClassName = "Pcs"
-  val coreDir = s"modules/${mainClassName.toLowerCase()}"
-  PcsTxParams.synConfigMap.foreach { case (configName, p) =>
+  val MainClassName = "Pcs"
+  val coreDir = s"modules/${MainClassName.toLowerCase()}"
+  PcsTxParams.SynConfigMap.foreach { case (configName, p) =>
     println(s"Generating Verilog for config: $configName")
     ChiselStage.emitSystemVerilog(
       new PcsTx(
@@ -132,19 +128,18 @@ object Main extends App {
         s"-o=${coreDir}/generated/synTestCases/$configName"
       )
     )
-    // Synthesis collateral generation
-    sdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
+    SdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
     YosysTclFile.create(
-      mainClassName,
+      MainClassName,
       s"${coreDir}/generated/synTestCases/$configName"
     )
     StaTclFile.create(
-      mainClassName,
+      MainClassName,
       s"${coreDir}/generated/synTestCases/$configName"
     )
     RunScriptFile.create(
-      mainClassName,
-      PcsTxParams.synConfigs,
+      MainClassName,
+      PcsTxParams.SynConfigs,
       s"${coreDir}/generated/synTestCases"
     )
   }

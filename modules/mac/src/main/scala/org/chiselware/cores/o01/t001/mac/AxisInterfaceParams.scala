@@ -36,17 +36,17 @@ object AxisInterfaceParams {
 
     // Return the new case class with the finalized values
     new AxisInterfaceParams(
-      dataW  = dataW,
-      keepW  = calculatedKeepW,
+      dataW = dataW,
+      keepW = calculatedKeepW,
       keepEn = keepEn,
       strbEn = strbEn,
       lastEn = lastEn,
-      idEn   = idEn,
-      idW    = idW,
+      idEn = idEn,
+      idW = idW,
       destEn = destEn,
-      destW  = destW,
+      destW = destW,
       userEn = userEn,
-      userW  = userW
+      userW = userW
     )
   }
 }

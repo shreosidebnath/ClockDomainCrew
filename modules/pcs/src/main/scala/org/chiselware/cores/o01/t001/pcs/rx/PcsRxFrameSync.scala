@@ -5,8 +5,7 @@ import chisel3.util._
 class PcsRxFrameSync(
     hdrW: Int = 2,
     bitslipHighCycles: Int = 1,
-    bitslipLowCycles: Int = 7
-  ) extends Module {
+    bitslipLowCycles: Int = 7) extends Module {
 
   require(hdrW == 2, "Error: HDR_W must be 2")
 
@@ -54,7 +53,7 @@ class PcsRxFrameSync(
     // wait for header - do nothing (defaults hold)
   }.elsewhen(
     io.serdesRxHdr === PcsRxFrameSync.SyncCtrl ||
-    io.serdesRxHdr === PcsRxFrameSync.SyncData
+      io.serdesRxHdr === PcsRxFrameSync.SyncData
   ) {
     // valid header
     shCountNext := shCountReg + 1.U
@@ -99,7 +98,8 @@ object PcsRxFrameSync {
   val SyncData = "b10".U(2.W)
   val SyncCtrl = "b01".U(2.W)
 
-  def apply(p: PcsRxFrameSyncParams): PcsRxFrameSync = Module(new PcsRxFrameSync(
+  def apply(p: PcsRxFrameSyncParams)
+      : PcsRxFrameSync = Module(new PcsRxFrameSync(
     hdrW = p.hdrW,
     bitslipHighCycles = p.bitslipHighCycles,
     bitslipLowCycles = p.bitslipLowCycles

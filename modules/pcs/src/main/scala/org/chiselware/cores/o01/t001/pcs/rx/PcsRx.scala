@@ -151,17 +151,17 @@ object Main extends App {
     )
     SdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
     YosysTclFile.create(
-      mainClassName = MainClassName,
-      outputDir = s"${coreDir}/generated/synTestCases/$configName"
+      MainClassName,
+      s"${coreDir}/generated/synTestCases/$configName"
     )
     StaTclFile.create(
-      mainClassName = MainClassName,
-      outputDir = s"${coreDir}/generated/synTestCases/$configName"
+      MainClassName,
+      s"${coreDir}/generated/synTestCases/$configName"
     )
     RunScriptFile.create(
-      mainClassName = MainClassName,
-      synConfigs = PcsRxParams.SynConfigs,
-      outputDir = s"${coreDir}/generated/synTestCases"
+      MainClassName,
+      PcsRxParams.SynConfigs,
+      s"${coreDir}/generated/synTestCases"
     )
   }
 }

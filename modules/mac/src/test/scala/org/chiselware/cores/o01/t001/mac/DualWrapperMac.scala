@@ -9,130 +9,114 @@ class DualWrapperMac extends Module {
   val ID_W = 8
 
   val io = IO(new Bundle {
-    // Drive XGMII RX into both DUTs
-    val xgmii_rxd = Input(UInt(DATA_W.W))
-    val xgmii_rxc = Input(UInt(CTRL_W.W))
-    val xgmii_rx_valid = Input(Bool())
+    val xgmiiRxd = Input(UInt(DATA_W.W))
+    val xgmiiRxc = Input(UInt(CTRL_W.W))
+    val xgmiiRxValid = Input(Bool())
 
-    // Ready for both RX outputs
-    val rx_ready = Input(Bool())
+    val rxReady = Input(Bool())
+    val cfgRxMaxPktLen = Input(UInt(16.W))
 
-    // For oversize test
-    val cfg_rx_max_pkt_len = Input(UInt(16.W))
+    val chiselRxTdata = Output(UInt(DATA_W.W))
+    val chiselRxTkeep = Output(UInt(CTRL_W.W))
+    val chiselRxTvalid = Output(Bool())
+    val chiselRxTlast = Output(Bool())
+    val chiselRxTuser = Output(UInt(USER_W.W))
+    val chiselRxTid = Output(UInt(ID_W.W))
 
-    // Compare outputs: CHISEL vs VERILOG (golden)
-    val chisel_rx_tdata = Output(UInt(DATA_W.W))
-    val chisel_rx_tkeep = Output(UInt(CTRL_W.W))
-    val chisel_rx_tvalid = Output(Bool())
-    val chisel_rx_tlast = Output(Bool())
-    val chisel_rx_tuser = Output(UInt(USER_W.W))
-    val chisel_rx_tid = Output(UInt(ID_W.W))
-    // for negative testing
-    val chisel_stat_rx_pkt_good = Output(Bool())
-    val chisel_stat_rx_pkt_bad = Output(Bool())
-    val chisel_stat_rx_err_bad_fcs = Output(Bool())
-    val chisel_stat_rx_err_preamble = Output(Bool())
-    val chisel_stat_rx_err_framing = Output(Bool())
-    val chisel_stat_rx_err_oversize = Output(Bool())
-    val chisel_stat_rx_pkt_fragment = Output(Bool())
+    val chiselStatRxPktGood = Output(Bool())
+    val chiselStatRxPktBad = Output(Bool())
+    val chiselStatRxErrBadFcs = Output(Bool())
+    val chiselStatRxErrPreamble = Output(Bool())
+    val chiselStatRxErrFraming = Output(Bool())
+    val chiselStatRxErrOversize = Output(Bool())
+    val chiselStatRxPktFragment = Output(Bool())
 
-    val verilog_rx_tdata = Output(UInt(DATA_W.W))
-    val verilog_rx_tkeep = Output(UInt(CTRL_W.W))
-    val verilog_rx_tvalid = Output(Bool())
-    val verilog_rx_tlast = Output(Bool())
-    val verilog_rx_tuser = Output(UInt(USER_W.W))
-    val verilog_rx_tid = Output(UInt(ID_W.W))
-    // for negative testing
-    val verilog_stat_rx_pkt_good = Output(Bool())
-    val verilog_stat_rx_pkt_bad = Output(Bool())
-    val verilog_stat_rx_err_bad_fcs = Output(Bool())
-    val verilog_stat_rx_err_preamble = Output(Bool())
-    val verilog_stat_rx_err_framing = Output(Bool())
-    val verilog_stat_rx_err_oversize = Output(Bool())
-    val verilog_stat_rx_pkt_fragment = Output(Bool())
+    val verilogRxTdata = Output(UInt(DATA_W.W))
+    val verilogRxTkeep = Output(UInt(CTRL_W.W))
+    val verilogRxTvalid = Output(Bool())
+    val verilogRxTlast = Output(Bool())
+    val verilogRxTuser = Output(UInt(USER_W.W))
+    val verilogRxTid = Output(UInt(ID_W.W))
+
+    val verilogStatRxPktGood = Output(Bool())
+    val verilogStatRxPktBad = Output(Bool())
+    val verilogStatRxErrBadFcs = Output(Bool())
+    val verilogStatRxErrPreamble = Output(Bool())
+    val verilogStatRxErrFraming = Output(Bool())
+    val verilogStatRxErrOversize = Output(Bool())
+    val verilogStatRxPktFragment = Output(Bool())
   })
 
-  // Instantiate both versions (for now both are the BB)
   val bbParams = MacBbParams()
   val chiselDut = Module(new MacBb(bbParams))
   val origDut = Module(new MacBb(bbParams))
 
-  // Common clocks/resets
   for (d <- Seq(chiselDut, origDut)) {
-    d.io.rx_clk := clock
-    d.io.tx_clk := clock
-    d.io.rx_rst := reset.asBool
-    d.io.tx_rst := reset.asBool
+    d.io.rxClk := clock
+    d.io.txClk := clock
+    d.io.rxRst := reset.asBool
+    d.io.txRst := reset.asBool
 
-    // Minimal configs
-    d.io.cfg_tx_max_pkt_len := 1518.U
-    d.io.cfg_tx_ifg := 12.U
-    d.io.cfg_tx_enable := true.B
-    d.io.cfg_rx_max_pkt_len := io.cfg_rx_max_pkt_len
-    d.io.cfg_rx_enable := true.B
+    d.io.cfgTxMaxPktLen := 1518.U
+    d.io.cfgTxIfg := 12.U
+    d.io.cfgTxEnable := true.B
+    d.io.cfgRxMaxPktLen := io.cfgRxMaxPktLen
+    d.io.cfgRxEnable := true.B
 
-    // Tie TX side off (RX-only test)
-    d.io.s_axis_tx_tdata := 0.U
-    d.io.s_axis_tx_tkeep := 0.U
-    d.io.s_axis_tx_tvalid := false.B
-    d.io.s_axis_tx_tlast := false.B
-    d.io.s_axis_tx_tuser := 0.U
-    d.io.s_axis_tx_tid := 0.U
+    d.io.sAxisTxTdata := 0.U
+    d.io.sAxisTxTkeep := 0.U
+    d.io.sAxisTxTvalid := false.B
+    d.io.sAxisTxTlast := false.B
+    d.io.sAxisTxTuser := 0.U
+    d.io.sAxisTxTid := 0.U
 
-    // Always accept TX completion (even though we’re not driving TX)
-    d.io.m_axis_tx_cpl_tready := true.B
+    d.io.mAxisTxCplTready := true.B
 
-    // Misc inputs
-    d.io.tx_gbx_req_sync := 0.U
-    d.io.tx_gbx_req_stall := false.B
+    d.io.txGbxReqSync := 0.U
+    d.io.txGbxReqStall := false.B
 
-    d.io.tx_ptp_ts := 0.U
-    d.io.rx_ptp_ts := 0.U
+    d.io.txPtpTs := 0.U
+    d.io.rxPtpTs := 0.U
   }
 
-  // Drive XGMII RX into both
-  chiselDut.io.xgmii_rxd := io.xgmii_rxd
-  chiselDut.io.xgmii_rxc := io.xgmii_rxc
-  chiselDut.io.xgmii_rx_valid := io.xgmii_rx_valid
+  chiselDut.io.xgmiiRxd := io.xgmiiRxd
+  chiselDut.io.xgmiiRxc := io.xgmiiRxc
+  chiselDut.io.xgmiiRxValid := io.xgmiiRxValid
 
-  origDut.io.xgmii_rxd := io.xgmii_rxd
-  origDut.io.xgmii_rxc := io.xgmii_rxc
-  origDut.io.xgmii_rx_valid := io.xgmii_rx_valid
+  origDut.io.xgmiiRxd := io.xgmiiRxd
+  origDut.io.xgmiiRxc := io.xgmiiRxc
+  origDut.io.xgmiiRxValid := io.xgmiiRxValid
 
-  // Ready for RX stream
-  chiselDut.io.m_axis_rx_tready := io.rx_ready
-  origDut.io.m_axis_rx_tready := io.rx_ready
+  chiselDut.io.mAxisRxTready := io.rxReady
+  origDut.io.mAxisRxTready := io.rxReady
 
-  // Export both RX outputs
-  io.chisel_rx_tdata := chiselDut.io.m_axis_rx_tdata
-  io.chisel_rx_tkeep := chiselDut.io.m_axis_rx_tkeep
-  io.chisel_rx_tvalid := chiselDut.io.m_axis_rx_tvalid
-  io.chisel_rx_tlast := chiselDut.io.m_axis_rx_tlast
-  io.chisel_rx_tuser := chiselDut.io.m_axis_rx_tuser
-  io.chisel_rx_tid := chiselDut.io.m_axis_rx_tid
+  io.chiselRxTdata := chiselDut.io.mAxisRxTdata
+  io.chiselRxTkeep := chiselDut.io.mAxisRxTkeep
+  io.chiselRxTvalid := chiselDut.io.mAxisRxTvalid
+  io.chiselRxTlast := chiselDut.io.mAxisRxTlast
+  io.chiselRxTuser := chiselDut.io.mAxisRxTuser
+  io.chiselRxTid := chiselDut.io.mAxisRxTid
 
-  io.verilog_rx_tdata := origDut.io.m_axis_rx_tdata
-  io.verilog_rx_tkeep := origDut.io.m_axis_rx_tkeep
-  io.verilog_rx_tvalid := origDut.io.m_axis_rx_tvalid
-  io.verilog_rx_tlast := origDut.io.m_axis_rx_tlast
-  io.verilog_rx_tuser := origDut.io.m_axis_rx_tuser
-  io.verilog_rx_tid := origDut.io.m_axis_rx_tid
+  io.verilogRxTdata := origDut.io.mAxisRxTdata
+  io.verilogRxTkeep := origDut.io.mAxisRxTkeep
+  io.verilogRxTvalid := origDut.io.mAxisRxTvalid
+  io.verilogRxTlast := origDut.io.mAxisRxTlast
+  io.verilogRxTuser := origDut.io.mAxisRxTuser
+  io.verilogRxTid := origDut.io.mAxisRxTid
 
-  // Export RX status (Chisel DUT)
-  io.chisel_stat_rx_pkt_good := chiselDut.io.stat_rx_pkt_good
-  io.chisel_stat_rx_pkt_fragment := chiselDut.io.stat_rx_pkt_fragment
-  io.chisel_stat_rx_pkt_bad := chiselDut.io.stat_rx_pkt_bad
-  io.chisel_stat_rx_err_bad_fcs := chiselDut.io.stat_rx_err_bad_fcs
-  io.chisel_stat_rx_err_preamble := chiselDut.io.stat_rx_err_preamble
-  io.chisel_stat_rx_err_framing := chiselDut.io.stat_rx_err_framing
-  io.chisel_stat_rx_err_oversize := chiselDut.io.stat_rx_err_oversize
+  io.chiselStatRxPktGood := chiselDut.io.statRxPktGood
+  io.chiselStatRxPktFragment := chiselDut.io.statRxPktFragment
+  io.chiselStatRxPktBad := chiselDut.io.statRxPktBad
+  io.chiselStatRxErrBadFcs := chiselDut.io.statRxErrBadFcs
+  io.chiselStatRxErrPreamble := chiselDut.io.statRxErrPreamble
+  io.chiselStatRxErrFraming := chiselDut.io.statRxErrFraming
+  io.chiselStatRxErrOversize := chiselDut.io.statRxErrOversize
 
-  // Export RX status (Golden / Verilog DUT)
-  io.verilog_stat_rx_pkt_good := origDut.io.stat_rx_pkt_good
-  io.verilog_stat_rx_pkt_fragment := origDut.io.stat_rx_pkt_fragment
-  io.verilog_stat_rx_pkt_bad := origDut.io.stat_rx_pkt_bad
-  io.verilog_stat_rx_err_bad_fcs := origDut.io.stat_rx_err_bad_fcs
-  io.verilog_stat_rx_err_preamble := origDut.io.stat_rx_err_preamble
-  io.verilog_stat_rx_err_framing := origDut.io.stat_rx_err_framing
-  io.verilog_stat_rx_err_oversize := origDut.io.stat_rx_err_oversize
+  io.verilogStatRxPktGood := origDut.io.statRxPktGood
+  io.verilogStatRxPktFragment := origDut.io.statRxPktFragment
+  io.verilogStatRxPktBad := origDut.io.statRxPktBad
+  io.verilogStatRxErrBadFcs := origDut.io.statRxErrBadFcs
+  io.verilogStatRxErrPreamble := origDut.io.statRxErrPreamble
+  io.verilogStatRxErrFraming := origDut.io.statRxErrFraming
+  io.verilogStatRxErrOversize := origDut.io.statRxErrOversize
 }

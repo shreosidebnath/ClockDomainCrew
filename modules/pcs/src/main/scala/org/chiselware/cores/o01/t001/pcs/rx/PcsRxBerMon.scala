@@ -4,8 +4,7 @@ import chisel3.util._
 
 class PcsRxBerMon(
     val hdrW: Int = 2,
-    val count125Us: Double = 125000.0 / 6.4
-  ) extends Module {
+    val count125Us: Double = 125000.0 / 6.4) extends Module {
   val io = IO(new Bundle {
     // SERDES interface
     val serdesRxHdr = Input(UInt(hdrW.W))
@@ -35,7 +34,8 @@ class PcsRxBerMon(
   // 2. Main BER Logic
   when(io.serdesRxHdrValid) {
     val isValidHeader =
-      io.serdesRxHdr === PcsRxBerMon.SyncCtrl || io.serdesRxHdr === PcsRxBerMon.SyncData
+      io.serdesRxHdr === PcsRxBerMon.SyncCtrl ||
+        io.serdesRxHdr === PcsRxBerMon.SyncData
 
     when(isValidHeader) {
       when(berCountReg =/= 15.U) {

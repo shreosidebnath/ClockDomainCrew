@@ -11,15 +11,15 @@ case class Xgmii2Axis64Params(
     ptpTsW: Int = 96)
 
 object Xgmii2Axis64Params {
-  val SimConfigMap = LinkedHashMap[String, Xgmii2Axis64Params](
+  val simConfigMap = LinkedHashMap[String, Xgmii2Axis64Params](
     "config" -> Xgmii2Axis64Params()
   )
 
-  val SynConfigMap = LinkedHashMap[String, Xgmii2Axis64Params](
+  val synConfigMap = LinkedHashMap[String, Xgmii2Axis64Params](
     "mac_xgmii_2_axis_64_inst" -> Xgmii2Axis64Params()
   )
 
-  val SynConfigs = SynConfigMap.keys.mkString(" ")
+  val synConfigs = synConfigMap.keys.mkString(" ")
 }
 
 object SdcFile {

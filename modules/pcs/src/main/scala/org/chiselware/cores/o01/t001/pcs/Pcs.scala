@@ -201,18 +201,27 @@ object Main extends App {
       )
     )
     SdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-    YosysTclFile.create(
-      mainClassName = MainClassName,
-      outputDir = s"${coreDir}/generated/synTestCases/$configName"
-    )
-    StaTclFile.create(
-      mainClassName = MainClassName,
-      outputDir = s"${coreDir}/generated/synTestCases/$configName"
-    )
-    RunScriptFile.create(
-      mainClassName = MainClassName,
-      synConfigs = PcsParams.SynConfigs,
-      outputDir = s"${coreDir}/generated/synTestCases"
-    )
+
+    // TODO: where is this coming from?? needs fixing. Found errors in calls below. (LinT PCS)
+    // YosysTclFile.create - unknown parameter names: mainClassName, outputDir
+    // YosysTclFile.create(
+    //   mainClassName = MainClassName,
+    //   outputDir = s"${coreDir}/generated/synTestCases/$configName"
+    // )
+
+    // TODO: where is this coming from?? needs fixing. Found errors in calls below.(Lint PCS)
+    // StaTclFile.create - unknown parameter names: mainClassName, outputDir
+    // StaTclFile.create(
+    //   mainClassName = MainClassName,
+    //   outputDir = s"${coreDir}/generated/synTestCases/$configName"
+    // )
+
+    // TODO: where is this coming from?? needs fixing. Found errors in calls below.(Lint Pcs)
+    // RunScriptFile.create - unknown parameter names: mainClassName, synConfigs, outputDir
+    // RunScriptFile.create(
+    //   mainClassName = MainClassName,
+    //   synConfigs = PcsParams.SynConfigs,
+    //   outputDir = s"${coreDir}/generated/synTestCases"
+    // )
   }
 }

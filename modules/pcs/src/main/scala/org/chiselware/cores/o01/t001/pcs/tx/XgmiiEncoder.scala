@@ -2,381 +2,56 @@ package org.chiselware.cores.o01.t001.pcs.tx
 import chisel3._
 import chisel3.util._
 
-class XgmiiEncoder(
-    val dataW: Int = 64,
-    val ctrlW: Int = 8,
-    val hdrW: Int = 2,
-    val gbxIfEn: Boolean = false,
-    val gbxCnt: Int = 1) extends Module {
-
-  // Parameter validations
-  require(dataW == 32 || dataW == 64, "Error: Interface width must be 32 or 64")
-
-  val io = IO(new Bundle {
-    val xgmii_txd = Input(UInt(dataW.W))
-    val xgmii_txc = Input(UInt(ctrlW.W))
-    val xgmii_tx_valid = Input(Bool())
-    val tx_gbx_sync_in = Input(UInt(gbxCnt.W))
-
-    val encoded_tx_data = Output(UInt(dataW.W))
-    val encoded_tx_data_valid = Output(Bool())
-    val encoded_tx_hdr = Output(UInt(hdrW.W))
-    val encoded_tx_hdr_valid = Output(Bool())
-    val tx_gbx_sync_out = Output(UInt(gbxCnt.W))
-
-    val tx_bad_block = Output(Bool())
-  })
-
-  // Internal Constants
-  val dataWInt = 64
-  val ctrlWInt = 8
-  val useHdrVld = gbxIfEn || dataW != 64
-  val segCnt = dataWInt / dataW
-
+object XgmiiEncoder {
   // XGMII Control Codes
-  val XGMII_IDLE = 0x07.U(8.W)
-  val XGMII_LPI = 0x06.U(8.W)
-  val XGMII_START = 0xfb.U(8.W)
-  val XGMII_TERM = 0xfd.U(8.W)
-  val XGMII_ERROR = 0xfe.U(8.W)
-  val XGMII_SEQ_OS = 0x9c.U(8.W)
-  val XGMII_RES_0 = 0x1c.U(8.W)
-  val XGMII_RES_1 = 0x3c.U(8.W)
-  val XGMII_RES_2 = 0x7c.U(8.W)
-  val XGMII_RES_3 = 0xbc.U(8.W)
-  val XGMII_RES_4 = 0xdc.U(8.W)
-  val XGMII_RES_5 = 0xf7.U(8.W)
-  val XGMII_SIG_OS = 0x5c.U(8.W)
+  val XgmiiIdle = 0x07.U(8.W)
+  val XgmiiLpi = 0x06.U(8.W)
+  val XgmiiStart = 0xfb.U(8.W)
+  val XgmiiTerm = 0xfd.U(8.W)
+  val XgmiiError = 0xfe.U(8.W)
+  val XgmiiSeqOs = 0x9c.U(8.W)
+  val XgmiiRes0 = 0x1c.U(8.W)
+  val XgmiiRes1 = 0x3c.U(8.W)
+  val XgmiiRes2 = 0x7c.U(8.W)
+  val XgmiiRes3 = 0xbc.U(8.W)
+  val XgmiiRes4 = 0xdc.U(8.W)
+  val XgmiiRes5 = 0xf7.U(8.W)
+  val XgmiiSigOs = 0x5c.U(8.W)
 
   // 10GBASE-R Control Codes
-  val CTRL_IDLE = 0x00.U(7.W)
-  val CTRL_LPI = 0x06.U(7.W)
-  val CTRL_ERROR = 0x1e.U(7.W)
-  val CTRL_RES_0 = 0x2d.U(7.W)
-  val CTRL_RES_1 = 0x33.U(7.W)
-  val CTRL_RES_2 = 0x4b.U(7.W)
-  val CTRL_RES_3 = 0x55.U(7.W)
-  val CTRL_RES_4 = 0x66.U(7.W)
-  val CTRL_RES_5 = 0x78.U(7.W)
+  val CtrlIdle = 0x00.U(7.W)
+  val CtrlLpi = 0x06.U(7.W)
+  val CtrlError = 0x1e.U(7.W)
+  val CtrlRes0 = 0x2d.U(7.W)
+  val CtrlRes1 = 0x33.U(7.W)
+  val CtrlRes2 = 0x4b.U(7.W)
+  val CtrlRes3 = 0x55.U(7.W)
+  val CtrlRes4 = 0x66.U(7.W)
+  val CtrlRes5 = 0x78.U(7.W)
 
-  val O_SEQ_OS = 0x0.U(4.W)
-  val O_SIG_OS = 0xf.U(4.W)
+  val OSeqOs = 0x0.U(4.W)
+  val OSigOs = 0xf.U(4.W)
 
-  val SYNC_DATA = "b10".U(2.W)
-  val SYNC_CTRL = "b01".U(2.W)
+  val SyncData = "b10".U(2.W)
+  val SyncCtrl = "b01".U(2.W)
 
   // Block Types
-  val BLOCK_TYPE_CTRL = 0x1e.U(8.W)
-  val BLOCK_TYPE_OS_4 = 0x2d.U(8.W)
-  val BLOCK_TYPE_START_4 = 0x33.U(8.W)
-  val BLOCK_TYPE_OS_START = 0x66.U(8.W)
-  val BLOCK_TYPE_OS_04 = 0x55.U(8.W)
-  val BLOCK_TYPE_START_0 = 0x78.U(8.W)
-  val BLOCK_TYPE_OS_0 = 0x4b.U(8.W)
-  val BLOCK_TYPE_TERM_0 = 0x87.U(8.W)
-  val BLOCK_TYPE_TERM_1 = 0x99.U(8.W)
-  val BLOCK_TYPE_TERM_2 = 0xaa.U(8.W)
-  val BLOCK_TYPE_TERM_3 = 0xb4.U(8.W)
-  val BLOCK_TYPE_TERM_4 = 0xcc.U(8.W)
-  val BLOCK_TYPE_TERM_5 = 0xd2.U(8.W)
-  val BLOCK_TYPE_TERM_6 = 0xe1.U(8.W)
-  val BLOCK_TYPE_TERM_7 = 0xff.U(8.W)
+  val BlockTypeCtrl = 0x1e.U(8.W)
+  val BlockTypeOs4 = 0x2d.U(8.W)
+  val BlockTypeStart4 = 0x33.U(8.W)
+  val BlockTypeOsStart = 0x66.U(8.W)
+  val BlockTypeOs04 = 0x55.U(8.W)
+  val BlockTypeStart0 = 0x78.U(8.W)
+  val BlockTypeOs0 = 0x4b.U(8.W)
+  val BlockTypeTerm0 = 0x87.U(8.W)
+  val BlockTypeTerm1 = 0x99.U(8.W)
+  val BlockTypeTerm2 = 0xaa.U(8.W)
+  val BlockTypeTerm3 = 0xb4.U(8.W)
+  val BlockTypeTerm4 = 0xcc.U(8.W)
+  val BlockTypeTerm5 = 0xd2.U(8.W)
+  val BlockTypeTerm6 = 0xe1.U(8.W)
+  val BlockTypeTerm7 = 0xff.U(8.W)
 
-  // --- Registers ---
-  val encoded_tx_data_reg = RegInit(0.U(dataWInt.W))
-  val encoded_tx_data_valid_reg = RegInit(0.U(segCnt.W))
-  val encoded_tx_hdr_reg = RegInit(0.U(hdrW.W))
-  val encoded_tx_hdr_valid_reg = RegInit(false.B)
-  val tx_gbx_sync_reg = RegInit(0.U(gbxCnt.W))
-  val tx_bad_block_reg = RegInit(false.B)
-
-  // Next state wires
-  val encoded_tx_data_next = Wire(UInt(dataWInt.W))
-  val encoded_tx_data_valid_next = Wire(UInt(segCnt.W))
-  val encoded_tx_hdr_next = Wire(UInt(hdrW.W))
-  val encoded_tx_hdr_valid_next = Wire(Bool())
-  val tx_gbx_sync_next = Wire(UInt(gbxCnt.W))
-  val tx_bad_block_next = Wire(Bool())
-
-  // --- Input Repacking Logic ---
-  val xgmii_txd_int = Wire(UInt(dataWInt.W))
-  val xgmii_txc_int = Wire(UInt(ctrlWInt.W))
-  val xgmii_tx_valid_int = Wire(Bool())
-
-  if (dataW == 64) {
-    xgmii_txd_int := io.xgmii_txd
-    xgmii_txc_int := io.xgmii_txc
-    xgmii_tx_valid_int := io.xgmii_tx_valid
-  } else {
-    // 32-bit accumulation logic
-    val xgmii_txd_reg = RegInit(0.U((dataWInt - dataW).W))
-    val xgmii_txc_reg = RegInit(0.U((ctrlWInt - ctrlW).W))
-    val xgmii_tx_valid_reg = RegInit(false.B)
-
-    xgmii_txd_int := Cat(io.xgmii_txd, xgmii_txd_reg)
-    xgmii_txc_int := Cat(io.xgmii_txc, xgmii_txc_reg)
-
-    val valid_pulse =
-      if (gbxIfEn)
-        io.xgmii_tx_valid
-      else
-        true.B
-    xgmii_tx_valid_int := xgmii_tx_valid_reg && valid_pulse
-
-    when(!gbxIfEn.B || io.xgmii_tx_valid) {
-      xgmii_txd_reg := io.xgmii_txd
-      xgmii_txc_reg := io.xgmii_txc
-      xgmii_tx_valid_reg := !xgmii_tx_valid_reg
-
-      if (gbxIfEn) {
-        when(io.tx_gbx_sync_in(0)) {
-          xgmii_tx_valid_reg := false.B
-        }
-      }
-    }
-  }
-
-  // --- Control Code Encoding ---
-  val encoded_ctrl_vec = Wire(Vec(ctrlWInt, UInt(7.W)))
-  val encode_err_vec = Wire(Vec(ctrlWInt, Bool()))
-
-  val xgmii_txd_bytes = Wire(Vec(8, UInt(8.W)))
-  val xgmii_txc_bits = Wire(Vec(8, Bool()))
-
-  for (i <- 0 until 8) {
-    xgmii_txd_bytes(i) := xgmii_txd_int(i * 8 + 7, i * 8)
-    xgmii_txc_bits(i) := xgmii_txc_int(i)
-  }
-
-  for (i <- 0 until ctrlWInt) {
-    when(xgmii_txc_bits(i)) {
-      encode_err_vec(i) := false.B
-      encoded_ctrl_vec(i) := CTRL_ERROR
-
-      switch(xgmii_txd_bytes(i)) {
-        is(XGMII_IDLE) { encoded_ctrl_vec(i) := CTRL_IDLE }
-        is(XGMII_LPI) { encoded_ctrl_vec(i) := CTRL_LPI }
-        is(XGMII_ERROR) { encoded_ctrl_vec(i) := CTRL_ERROR }
-        is(XGMII_RES_0) { encoded_ctrl_vec(i) := CTRL_RES_0 }
-        is(XGMII_RES_1) { encoded_ctrl_vec(i) := CTRL_RES_1 }
-        is(XGMII_RES_2) { encoded_ctrl_vec(i) := CTRL_RES_2 }
-        is(XGMII_RES_3) { encoded_ctrl_vec(i) := CTRL_RES_3 }
-        is(XGMII_RES_4) { encoded_ctrl_vec(i) := CTRL_RES_4 }
-        is(XGMII_RES_5) { encoded_ctrl_vec(i) := CTRL_RES_5 }
-        is(XGMII_SIG_OS) {
-          encoded_ctrl_vec(i) := CTRL_ERROR
-          encode_err_vec(i) := true.B
-        }
-      }
-
-      val known_codes = Seq(
-        XGMII_IDLE,
-        XGMII_LPI,
-        XGMII_ERROR,
-        XGMII_RES_0,
-        XGMII_RES_1,
-        XGMII_RES_2,
-        XGMII_RES_3,
-        XGMII_RES_4,
-        XGMII_RES_5
-      )
-      val is_known = known_codes.map(c => xgmii_txd_bytes(i) === c).reduce(_ ||
-        _)
-      when(!is_known) {
-        encoded_ctrl_vec(i) := CTRL_ERROR
-        encode_err_vec(i) := true.B
-      }
-
-    }.otherwise {
-      encoded_ctrl_vec(i) := CTRL_ERROR
-      encode_err_vec(i) := true.B
-    }
-  }
-
-  val encoded_ctrl_flat = Cat(encoded_ctrl_vec.reverse)
-  val encode_err_flat = Cat(encode_err_vec.reverse)
-
-  def ctrlSlice(
-      high: Int,
-      low: Int
-    ): UInt = {
-    Cat((low to high).map(i => encoded_ctrl_vec(i)).reverse)
-  }
-
-  // --- Main Combinatorial Logic ---
-  encoded_tx_data_next := Cat(Fill(ctrlWInt, CTRL_ERROR), BLOCK_TYPE_CTRL)
-  encoded_tx_data_valid_next := 0.U
-  encoded_tx_hdr_next := SYNC_CTRL
-  encoded_tx_hdr_valid_next := false.B
-  tx_gbx_sync_next := 0.U
-  tx_bad_block_next := false.B
-
-  if (segCnt > 1) {
-    val upper_half = encoded_tx_data_reg(dataWInt - 1, dataW)
-    encoded_tx_data_next := Cat(0.U(dataW.W), upper_half)
-    encoded_tx_data_valid_next :=
-      Cat(false.B, encoded_tx_data_valid_reg(segCnt - 1, 1))
-    encoded_tx_hdr_next := 0.U
-    encoded_tx_hdr_valid_next := false.B
-  }
-
-  when(xgmii_tx_valid_int) {
-    encoded_tx_data_valid_next := Fill(segCnt, 1.U)
-    encoded_tx_hdr_valid_next := true.B
-
-    when(xgmii_txc_int === 0.U) {
-      encoded_tx_data_next := xgmii_txd_int
-      encoded_tx_hdr_next := SYNC_DATA
-      tx_bad_block_next := false.B
-    }.otherwise {
-      encoded_tx_hdr_next := SYNC_CTRL
-      val d = xgmii_txd_bytes
-      val c = xgmii_txc_int
-
-      when(c === 0x1f.U && d(4) === XGMII_SEQ_OS) {
-        encoded_tx_data_next :=
-          Cat(d(7), d(6), d(5), O_SEQ_OS, ctrlSlice(3, 0), BLOCK_TYPE_OS_4)
-        tx_bad_block_next := encode_err_vec(0) || encode_err_vec(1) ||
-          encode_err_vec(2) || encode_err_vec(3)
-      }.elsewhen(c === 0x1f.U && d(4) === XGMII_START) {
-        encoded_tx_data_next :=
-          Cat(d(7), d(6), d(5), 0.U(4.W), ctrlSlice(3, 0), BLOCK_TYPE_START_4)
-        tx_bad_block_next := encode_err_vec(0) || encode_err_vec(1) ||
-          encode_err_vec(2) || encode_err_vec(3)
-      }.elsewhen(c === 0x11.U && d(0) === XGMII_SEQ_OS &&
-        d(4) === XGMII_START) {
-        encoded_tx_data_next := Cat(
-          d(7),
-          d(6),
-          d(5),
-          0.U(4.W),
-          O_SEQ_OS,
-          d(3),
-          d(2),
-          d(1),
-          BLOCK_TYPE_OS_START
-        )
-        tx_bad_block_next := false.B
-      }.elsewhen(c === 0x11.U && d(0) === XGMII_SEQ_OS &&
-        d(4) === XGMII_SEQ_OS) {
-        encoded_tx_data_next := Cat(
-          d(7),
-          d(6),
-          d(5),
-          O_SEQ_OS,
-          O_SEQ_OS,
-          d(3),
-          d(2),
-          d(1),
-          BLOCK_TYPE_OS_04
-        )
-        tx_bad_block_next := false.B
-      }.elsewhen(c === 0x01.U && d(0) === XGMII_START) {
-        encoded_tx_data_next := Cat(xgmii_txd_int(63, 8), BLOCK_TYPE_START_0)
-        tx_bad_block_next := false.B
-      }.elsewhen(c === 0xf1.U && d(0) === XGMII_SEQ_OS) {
-        encoded_tx_data_next :=
-          Cat(ctrlSlice(7, 4), O_SEQ_OS, d(3), d(2), d(1), BLOCK_TYPE_OS_0)
-        tx_bad_block_next := encode_err_vec(4) || encode_err_vec(5) ||
-          encode_err_vec(6) || encode_err_vec(7)
-      }.elsewhen(c === 0xff.U && d(0) === XGMII_TERM) {
-        encoded_tx_data_next :=
-          Cat(ctrlSlice(7, 1), 0.U(7.W), BLOCK_TYPE_TERM_0)
-        tx_bad_block_next := encode_err_flat(7, 1) =/= 0.U
-      }.elsewhen(c === 0xfe.U && d(1) === XGMII_TERM) {
-        encoded_tx_data_next :=
-          Cat(ctrlSlice(7, 2), 0.U(6.W), d(0), BLOCK_TYPE_TERM_1)
-        tx_bad_block_next := encode_err_flat(7, 2) =/= 0.U
-      }.elsewhen(c === 0xfc.U && d(2) === XGMII_TERM) {
-        encoded_tx_data_next := Cat(
-          ctrlSlice(7, 3),
-          0.U(5.W),
-          xgmii_txd_int(15, 0),
-          BLOCK_TYPE_TERM_2
-        )
-        tx_bad_block_next := encode_err_flat(7, 3) =/= 0.U
-      }.elsewhen(c === 0xf8.U && d(3) === XGMII_TERM) {
-        encoded_tx_data_next := Cat(
-          ctrlSlice(7, 4),
-          0.U(4.W),
-          xgmii_txd_int(23, 0),
-          BLOCK_TYPE_TERM_3
-        )
-        tx_bad_block_next := encode_err_flat(7, 4) =/= 0.U
-      }.elsewhen(c === 0xf0.U && d(4) === XGMII_TERM) {
-        encoded_tx_data_next := Cat(
-          ctrlSlice(7, 5),
-          0.U(3.W),
-          xgmii_txd_int(31, 0),
-          BLOCK_TYPE_TERM_4
-        )
-        tx_bad_block_next := encode_err_flat(7, 5) =/= 0.U
-      }.elsewhen(c === 0xe0.U && d(5) === XGMII_TERM) {
-        encoded_tx_data_next := Cat(
-          ctrlSlice(7, 6),
-          0.U(2.W),
-          xgmii_txd_int(39, 0),
-          BLOCK_TYPE_TERM_5
-        )
-        tx_bad_block_next := encode_err_flat(7, 6) =/= 0.U
-      }.elsewhen(c === 0xc0.U && d(6) === XGMII_TERM) {
-        encoded_tx_data_next := Cat(
-          ctrlSlice(7, 7),
-          0.U(1.W),
-          xgmii_txd_int(47, 0),
-          BLOCK_TYPE_TERM_6
-        )
-        tx_bad_block_next := encode_err_vec(7)
-      }.elsewhen(c === 0x80.U && d(7) === XGMII_TERM) {
-        encoded_tx_data_next := Cat(xgmii_txd_int(55, 0), BLOCK_TYPE_TERM_7)
-        tx_bad_block_next := false.B
-      }.elsewhen(c === 0xff.U) {
-        encoded_tx_data_next := Cat(encoded_ctrl_flat, BLOCK_TYPE_CTRL)
-        tx_bad_block_next := encode_err_flat =/= 0.U
-      }.otherwise {
-        encoded_tx_data_next := Cat(Fill(ctrlWInt, CTRL_ERROR), BLOCK_TYPE_CTRL)
-        tx_bad_block_next := true.B
-      }
-    }
-  }
-
-  if (gbxIfEn) {
-    when(!xgmii_tx_valid_int) {
-      tx_bad_block_next := false.B
-    }
-  }
-
-  tx_gbx_sync_next := io.tx_gbx_sync_in
-
-  encoded_tx_data_reg := encoded_tx_data_next
-  encoded_tx_data_valid_reg := encoded_tx_data_valid_next
-  encoded_tx_hdr_reg := encoded_tx_hdr_next
-  encoded_tx_hdr_valid_reg := encoded_tx_hdr_valid_next
-  tx_gbx_sync_reg := tx_gbx_sync_next
-  tx_bad_block_reg := tx_bad_block_next
-
-  io.encoded_tx_data := encoded_tx_data_reg(dataW - 1, 0)
-
-  if (gbxIfEn) {
-    io.encoded_tx_data_valid := encoded_tx_data_valid_reg(0)
-    io.tx_gbx_sync_out := tx_gbx_sync_reg
-  } else {
-    io.encoded_tx_data_valid := true.B
-    io.tx_gbx_sync_out := 0.U
-  }
-
-  io.encoded_tx_hdr := encoded_tx_hdr_reg
-
-  if (useHdrVld) {
-    io.encoded_tx_hdr_valid := encoded_tx_hdr_valid_reg
-  } else {
-    io.encoded_tx_hdr_valid := true.B
-  }
-
-  io.tx_bad_block := tx_bad_block_reg
-}
-
-object XgmiiEncoder {
   def apply(p: XgmiiEncoderParams): XgmiiEncoder = Module(new XgmiiEncoder(
     dataW = p.dataW,
     ctrlW = p.ctrlW,
@@ -386,10 +61,334 @@ object XgmiiEncoder {
   ))
 }
 
+class XgmiiEncoder(
+    val dataW: Int = 64,
+    val ctrlW: Int = 8,
+    val hdrW: Int = 2,
+    val gbxIfEn: Boolean = false,
+    val gbxCnt: Int = 1) extends Module {
+
+  import XgmiiEncoder._
+
+  require(dataW == 32 || dataW == 64, "Error: Interface width must be 32 or 64")
+
+  val io = IO(new Bundle {
+    val xgmiiTxd = Input(UInt(dataW.W))
+    val xgmiiTxc = Input(UInt(ctrlW.W))
+    val xgmiiTxValid = Input(Bool())
+    val txGbxSyncIn = Input(UInt(gbxCnt.W))
+
+    val encodedTxData = Output(UInt(dataW.W))
+    val encodedTxDataValid = Output(Bool())
+    val encodedTxHdr = Output(UInt(hdrW.W))
+    val encodedTxHdrValid = Output(Bool())
+    val txGbxSyncOut = Output(UInt(gbxCnt.W))
+
+    val txBadBlock = Output(Bool())
+  })
+
+  // Internal Constants
+  val dataWInt = 64
+  val ctrlWInt = 8
+  val useHdrVld = gbxIfEn || dataW != 64
+  val segCnt = dataWInt / dataW
+
+  // --- Registers ---
+  val encodedTxDataReg = RegInit(0.U(dataWInt.W))
+  val encodedTxDataValidReg = RegInit(0.U(segCnt.W))
+  val encodedTxHdrReg = RegInit(0.U(hdrW.W))
+  val encodedTxHdrValidReg = RegInit(false.B)
+  val txGbxSyncReg = RegInit(0.U(gbxCnt.W))
+  val txBadBlockReg = RegInit(false.B)
+
+  // Next state wires
+  val encodedTxDataNext = Wire(UInt(dataWInt.W))
+  val encodedTxDataValidNext = Wire(UInt(segCnt.W))
+  val encodedTxHdrNext = Wire(UInt(hdrW.W))
+  val encodedTxHdrValidNext = Wire(Bool())
+  val txGbxSyncNext = Wire(UInt(gbxCnt.W))
+  val txBadBlockNext = Wire(Bool())
+
+  // --- Input Repacking Logic ---
+  val xgmiiTxdInt = Wire(UInt(dataWInt.W))
+  val xgmiiTxcInt = Wire(UInt(ctrlWInt.W))
+  val xgmiiTxValidInt = Wire(Bool())
+
+  if (dataW == 64) {
+    xgmiiTxdInt := io.xgmiiTxd
+    xgmiiTxcInt := io.xgmiiTxc
+    xgmiiTxValidInt := io.xgmiiTxValid
+  } else {
+    val xgmiiTxdReg = RegInit(0.U((dataWInt - dataW).W))
+    val xgmiiTxcReg = RegInit(0.U((ctrlWInt - ctrlW).W))
+    val xgmiiTxValidReg = RegInit(false.B)
+
+    xgmiiTxdInt := Cat(io.xgmiiTxd, xgmiiTxdReg)
+    xgmiiTxcInt := Cat(io.xgmiiTxc, xgmiiTxcReg)
+
+    val validPulse =
+      if (gbxIfEn)
+        io.xgmiiTxValid
+      else
+        true.B
+    xgmiiTxValidInt := xgmiiTxValidReg && validPulse
+
+    when(!gbxIfEn.B || io.xgmiiTxValid) {
+      xgmiiTxdReg := io.xgmiiTxd
+      xgmiiTxcReg := io.xgmiiTxc
+      xgmiiTxValidReg := !xgmiiTxValidReg
+
+      if (gbxIfEn) {
+        when(io.txGbxSyncIn(0)) {
+          xgmiiTxValidReg := false.B
+        }
+      }
+    }
+  }
+
+  // --- Control Code Encoding ---
+  val encodedCtrlVec = Wire(Vec(ctrlWInt, UInt(7.W)))
+  val encodeErrVec = Wire(Vec(ctrlWInt, Bool()))
+
+  val xgmiiTxdBytes = Wire(Vec(8, UInt(8.W)))
+  val xgmiiTxcBits = Wire(Vec(8, Bool()))
+
+  for (i <- 0 until 8) {
+    xgmiiTxdBytes(i) := xgmiiTxdInt(i * 8 + 7, i * 8)
+    xgmiiTxcBits(i) := xgmiiTxcInt(i)
+  }
+
+  for (i <- 0 until ctrlWInt) {
+    when(xgmiiTxcBits(i)) {
+      encodeErrVec(i) := false.B
+      encodedCtrlVec(i) := CtrlError
+
+      switch(xgmiiTxdBytes(i)) {
+        is(XgmiiIdle) { encodedCtrlVec(i) := CtrlIdle }
+        is(XgmiiLpi) { encodedCtrlVec(i) := CtrlLpi }
+        is(XgmiiError) { encodedCtrlVec(i) := CtrlError }
+        is(XgmiiRes0) { encodedCtrlVec(i) := CtrlRes0 }
+        is(XgmiiRes1) { encodedCtrlVec(i) := CtrlRes1 }
+        is(XgmiiRes2) { encodedCtrlVec(i) := CtrlRes2 }
+        is(XgmiiRes3) { encodedCtrlVec(i) := CtrlRes3 }
+        is(XgmiiRes4) { encodedCtrlVec(i) := CtrlRes4 }
+        is(XgmiiRes5) { encodedCtrlVec(i) := CtrlRes5 }
+        is(XgmiiSigOs) {
+          encodedCtrlVec(i) := CtrlError
+          encodeErrVec(i) := true.B
+        }
+      }
+
+      val knownCodes = Seq(
+        XgmiiIdle,
+        XgmiiLpi,
+        XgmiiError,
+        XgmiiRes0,
+        XgmiiRes1,
+        XgmiiRes2,
+        XgmiiRes3,
+        XgmiiRes4,
+        XgmiiRes5
+      )
+      val isKnown = knownCodes.map(c => xgmiiTxdBytes(i) === c).reduce(_ || _)
+      when(!isKnown) {
+        encodedCtrlVec(i) := CtrlError
+        encodeErrVec(i) := true.B
+      }
+
+    }.otherwise {
+      encodedCtrlVec(i) := CtrlError
+      encodeErrVec(i) := true.B
+    }
+  }
+
+  val encodedCtrlFlat = Cat(encodedCtrlVec.reverse)
+  val encodeErrFlat = Cat(encodeErrVec.reverse)
+
+  def ctrlSlice(
+      high: Int,
+      low: Int
+    ): UInt =
+    Cat((low to high).map(i => encodedCtrlVec(i)).reverse)
+
+  // --- Main Combinatorial Logic ---
+  encodedTxDataNext := Cat(Fill(ctrlWInt, CtrlError), BlockTypeCtrl)
+  encodedTxDataValidNext := 0.U
+  encodedTxHdrNext := SyncCtrl
+  encodedTxHdrValidNext := false.B
+  txGbxSyncNext := 0.U
+  txBadBlockNext := false.B
+
+  if (segCnt > 1) {
+    val upperHalf = encodedTxDataReg(dataWInt - 1, dataW)
+    encodedTxDataNext := Cat(0.U(dataW.W), upperHalf)
+    encodedTxDataValidNext :=
+      Cat(false.B, encodedTxDataValidReg(segCnt - 1, 1))
+    encodedTxHdrNext := 0.U
+    encodedTxHdrValidNext := false.B
+  }
+
+  when(xgmiiTxValidInt) {
+    encodedTxDataValidNext := Fill(segCnt, 1.U)
+    encodedTxHdrValidNext := true.B
+
+    when(xgmiiTxcInt === 0.U) {
+      encodedTxDataNext := xgmiiTxdInt
+      encodedTxHdrNext := SyncData
+      txBadBlockNext := false.B
+    }.otherwise {
+      encodedTxHdrNext := SyncCtrl
+      val d = xgmiiTxdBytes
+      val c = xgmiiTxcInt
+
+      when(c === 0x1f.U && d(4) === XgmiiSeqOs) {
+        encodedTxDataNext :=
+          Cat(d(7), d(6), d(5), OSeqOs, ctrlSlice(3, 0), BlockTypeOs4)
+        txBadBlockNext :=
+          encodeErrVec(0) || encodeErrVec(1) ||
+            encodeErrVec(2) || encodeErrVec(3)
+      }.elsewhen(c === 0x1f.U && d(4) === XgmiiStart) {
+        encodedTxDataNext :=
+          Cat(d(7), d(6), d(5), 0.U(4.W), ctrlSlice(3, 0), BlockTypeStart4)
+        txBadBlockNext :=
+          encodeErrVec(0) || encodeErrVec(1) ||
+            encodeErrVec(2) || encodeErrVec(3)
+      }.elsewhen(c === 0x11.U && d(0) === XgmiiSeqOs && d(4) === XgmiiStart) {
+        encodedTxDataNext := Cat(
+          d(7),
+          d(6),
+          d(5),
+          0.U(4.W),
+          OSeqOs,
+          d(3),
+          d(2),
+          d(1),
+          BlockTypeOsStart
+        )
+        txBadBlockNext := false.B
+      }.elsewhen(c === 0x11.U && d(0) === XgmiiSeqOs && d(4) === XgmiiSeqOs) {
+        encodedTxDataNext := Cat(
+          d(7),
+          d(6),
+          d(5),
+          OSeqOs,
+          OSeqOs,
+          d(3),
+          d(2),
+          d(1),
+          BlockTypeOs04
+        )
+        txBadBlockNext := false.B
+      }.elsewhen(c === 0x01.U && d(0) === XgmiiStart) {
+        encodedTxDataNext := Cat(xgmiiTxdInt(63, 8), BlockTypeStart0)
+        txBadBlockNext := false.B
+      }.elsewhen(c === 0xf1.U && d(0) === XgmiiSeqOs) {
+        encodedTxDataNext :=
+          Cat(ctrlSlice(7, 4), OSeqOs, d(3), d(2), d(1), BlockTypeOs0)
+        txBadBlockNext :=
+          encodeErrVec(4) || encodeErrVec(5) ||
+            encodeErrVec(6) || encodeErrVec(7)
+      }.elsewhen(c === 0xff.U && d(0) === XgmiiTerm) {
+        encodedTxDataNext :=
+          Cat(ctrlSlice(7, 1), 0.U(7.W), BlockTypeTerm0)
+        txBadBlockNext := encodeErrFlat(7, 1) =/= 0.U
+      }.elsewhen(c === 0xfe.U && d(1) === XgmiiTerm) {
+        encodedTxDataNext :=
+          Cat(ctrlSlice(7, 2), 0.U(6.W), d(0), BlockTypeTerm1)
+        txBadBlockNext := encodeErrFlat(7, 2) =/= 0.U
+      }.elsewhen(c === 0xfc.U && d(2) === XgmiiTerm) {
+        encodedTxDataNext := Cat(
+          ctrlSlice(7, 3),
+          0.U(5.W),
+          xgmiiTxdInt(15, 0),
+          BlockTypeTerm2
+        )
+        txBadBlockNext := encodeErrFlat(7, 3) =/= 0.U
+      }.elsewhen(c === 0xf8.U && d(3) === XgmiiTerm) {
+        encodedTxDataNext := Cat(
+          ctrlSlice(7, 4),
+          0.U(4.W),
+          xgmiiTxdInt(23, 0),
+          BlockTypeTerm3
+        )
+        txBadBlockNext := encodeErrFlat(7, 4) =/= 0.U
+      }.elsewhen(c === 0xf0.U && d(4) === XgmiiTerm) {
+        encodedTxDataNext := Cat(
+          ctrlSlice(7, 5),
+          0.U(3.W),
+          xgmiiTxdInt(31, 0),
+          BlockTypeTerm4
+        )
+        txBadBlockNext := encodeErrFlat(7, 5) =/= 0.U
+      }.elsewhen(c === 0xe0.U && d(5) === XgmiiTerm) {
+        encodedTxDataNext := Cat(
+          ctrlSlice(7, 6),
+          0.U(2.W),
+          xgmiiTxdInt(39, 0),
+          BlockTypeTerm5
+        )
+        txBadBlockNext := encodeErrFlat(7, 6) =/= 0.U
+      }.elsewhen(c === 0xc0.U && d(6) === XgmiiTerm) {
+        encodedTxDataNext := Cat(
+          ctrlSlice(7, 7),
+          0.U(1.W),
+          xgmiiTxdInt(47, 0),
+          BlockTypeTerm6
+        )
+        txBadBlockNext := encodeErrVec(7)
+      }.elsewhen(c === 0x80.U && d(7) === XgmiiTerm) {
+        encodedTxDataNext := Cat(xgmiiTxdInt(55, 0), BlockTypeTerm7)
+        txBadBlockNext := false.B
+      }.elsewhen(c === 0xff.U) {
+        encodedTxDataNext := Cat(encodedCtrlFlat, BlockTypeCtrl)
+        txBadBlockNext := encodeErrFlat =/= 0.U
+      }.otherwise {
+        encodedTxDataNext := Cat(Fill(ctrlWInt, CtrlError), BlockTypeCtrl)
+        txBadBlockNext := true.B
+      }
+    }
+  }
+
+  if (gbxIfEn) {
+    when(!xgmiiTxValidInt) {
+      txBadBlockNext := false.B
+    }
+  }
+
+  txGbxSyncNext := io.txGbxSyncIn
+
+  encodedTxDataReg := encodedTxDataNext
+  encodedTxDataValidReg := encodedTxDataValidNext
+  encodedTxHdrReg := encodedTxHdrNext
+  encodedTxHdrValidReg := encodedTxHdrValidNext
+  txGbxSyncReg := txGbxSyncNext
+  txBadBlockReg := txBadBlockNext
+
+  io.encodedTxData := encodedTxDataReg(dataW - 1, 0)
+
+  if (gbxIfEn) {
+    io.encodedTxDataValid := encodedTxDataValidReg(0)
+    io.txGbxSyncOut := txGbxSyncReg
+  } else {
+    io.encodedTxDataValid := true.B
+    io.txGbxSyncOut := 0.U
+  }
+
+  io.encodedTxHdr := encodedTxHdrReg
+
+  if (useHdrVld) {
+    io.encodedTxHdrValid := encodedTxHdrValidReg
+  } else {
+    io.encodedTxHdrValid := true.B
+  }
+
+  io.txBadBlock := txBadBlockReg
+}
+
 // object Main extends App {
-//   val mainClassName = "Pcs"
-//   val coreDir = s"modules/${mainClassName.toLowerCase()}"
-//   XgmiiEncoderParams.synConfigMap.foreach { case (configName, p) =>
+//   val MainClassName = "Pcs"
+//   val coreDir = s"modules/${MainClassName.toLowerCase()}"
+//   XgmiiEncoderParams.SynConfigMap.foreach { case (configName, p) =>
 //     println(s"Generating Verilog for config: $configName")
 //     ChiselStage.emitSystemVerilog(
 //       new XgmiiEncoder(
@@ -403,10 +402,9 @@ object XgmiiEncoder {
 //         s"-o=${coreDir}/generated/synTestCases/$configName"
 //       )
 //     )
-//     // Synthesis collateral generation
-//     sdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-//     YosysTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
-//     StaTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
-//     RunScriptFile.create(mainClassName, XgmiiEncoderParams.synConfigs, s"${coreDir}/generated/synTestCases")
+//     SdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
+//     YosysTclFile.create(MainClassName, s"${coreDir}/generated/synTestCases/$configName")
+//     StaTclFile.create(MainClassName, s"${coreDir}/generated/synTestCases/$configName")
+//     RunScriptFile.create(MainClassName, XgmiiEncoderParams.SynConfigs, s"${coreDir}/generated/synTestCases")
 //   }
 // }

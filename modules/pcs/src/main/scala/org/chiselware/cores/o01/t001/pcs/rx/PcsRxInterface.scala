@@ -68,26 +68,14 @@ class PcsRxInterface(
   val serdesRxHdrValidInt = Wire(Bool())
 
   if (serdesPipeline > 0) {
-    serdesRxDataInt := ShiftRegister(
-      in = serdesRxDataRev,
-      n = serdesPipeline
-    )
+    serdesRxDataInt := ShiftRegister(serdesRxDataRev, serdesPipeline)
 
-    val dataValidPipe = ShiftRegister(
-      in = io.serdesRxDataValid,
-      n = serdesPipeline
-    )
+    val dataValidPipe = ShiftRegister(io.serdesRxDataValid, serdesPipeline)
     serdesRxDataValidInt := Mux(gbxIfEn.B, dataValidPipe, true.B)
 
-    serdesRxHdrInt := ShiftRegister(
-      in = serdesRxHdrRev,
-      n = serdesPipeline
-    )
+    serdesRxHdrInt := ShiftRegister(serdesRxHdrRev, serdesPipeline)
 
-    val hdrValidPipe = ShiftRegister(
-      in = io.serdesRxHdrValid,
-      n = serdesPipeline
-    )
+    val hdrValidPipe = ShiftRegister(io.serdesRxHdrValid, serdesPipeline)
     serdesRxHdrValidInt := Mux(useHdrVld.B, hdrValidPipe, true.B)
   } else {
     serdesRxDataInt := serdesRxDataRev
@@ -236,7 +224,8 @@ class PcsRxInterface(
 }
 
 object PcsRxInterface {
-  def apply(p: PcsRxInterfaceParams): PcsRxInterface = Module(new PcsRxInterface(
+  def apply(p: PcsRxInterfaceParams)
+      : PcsRxInterface = Module(new PcsRxInterface(
     dataW = p.dataW,
     hdrW = p.hdrW,
     gbxIfEn = p.gbxIfEn,
@@ -277,8 +266,8 @@ object PcsRxInterface {
 //       )
 //     )
 //     SdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-//     YosysTclFile.create(mainClassName = MainClassName, outputDir = s"${coreDir}/generated/synTestCases/$configName")
-//     StaTclFile.create(mainClassName = MainClassName, outputDir = s"${coreDir}/generated/synTestCases/$configName")
-//     RunScriptFile.create(mainClassName = MainClassName, synConfigs = PcsRxInterfaceParams.SynConfigs, outputDir = s"${coreDir}/generated/synTestCases")
+//     YosysTclFile.create(MainClassName, s"${coreDir}/generated/synTestCases/$configName")
+//     StaTclFile.create(MainClassName, s"${coreDir}/generated/synTestCases/$configName")
+//     RunScriptFile.create(MainClassName, PcsRxInterfaceParams.SynConfigs, s"${coreDir}/generated/synTestCases")
 //   }
 // }

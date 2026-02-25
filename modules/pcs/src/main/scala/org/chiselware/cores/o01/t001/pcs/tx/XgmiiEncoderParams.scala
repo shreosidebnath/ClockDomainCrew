@@ -9,25 +9,25 @@ case class XgmiiEncoderParams(
     gbxCnt: Int = 1)
 
 object XgmiiEncoderParams {
-  val simConfigMap = LinkedHashMap[String, XgmiiEncoderParams](
+  val SimConfigMap = LinkedHashMap[String, XgmiiEncoderParams](
     "config" -> XgmiiEncoderParams()
   )
 
-  val synConfigMap = LinkedHashMap[String, XgmiiEncoderParams](
+  val SynConfigMap = LinkedHashMap[String, XgmiiEncoderParams](
     "xgmii_encoder_inst" -> XgmiiEncoderParams()
   )
 
-  val synConfigs = synConfigMap.keys.mkString(" ")
+  val SynConfigs = SynConfigMap.keys.mkString(" ")
 }
 
-// object sdcFile {
+// object SdcFile {
 //   def create(sdcFilePath: String): Unit = {
 //     val sdcFileData = ""
 //     val sdcFileDir = new File(sdcFilePath)
 //     sdcFileDir.mkdirs()
 //     val sdcFileName = new File(s"$sdcFilePath/XgmiiEncoder.sdc")
-//     val sdcFile = new PrintWriter(sdcFileName)
-//     sdcFile.write(sdcFileData)
-//     sdcFile.close()
+//     val sdcFileWriter = new PrintWriter(sdcFileName)
+//     sdcFileWriter.write(sdcFileData)
+//     sdcFileWriter.close()
 //   }
 // }

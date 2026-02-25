@@ -29,14 +29,14 @@ object MacParams {
   val synConfigs = synConfigMap.keys.mkString(" ")
 }
 
-object sdcFile {
+object SdcFile {
   def create(sdcFilePath: String): Unit = {
     val sdcFileData = ""
     val sdcFileDir = new File(sdcFilePath)
     sdcFileDir.mkdirs()
     val sdcFileName = new File(s"$sdcFilePath/Mac.sdc")
-    val sdcFile = new PrintWriter(sdcFileName)
-    sdcFile.write(sdcFileData)
-    sdcFile.close()
+    val sdcFileWriter = new PrintWriter(sdcFileName)
+    sdcFileWriter.write(sdcFileData)
+    sdcFileWriter.close()
   }
 }

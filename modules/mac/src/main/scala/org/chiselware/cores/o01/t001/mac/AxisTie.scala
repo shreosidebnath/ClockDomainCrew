@@ -34,7 +34,7 @@ class AxisTie(
   )
 
   // Direct Assignments
-  io.mAxis.tdata  := io.sAxis.tdata
+  io.mAxis.tdata := io.sAxis.tdata
   io.mAxis.tvalid := io.sAxis.tvalid
   io.sAxis.tready := io.mAxis.tready
 

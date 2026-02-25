@@ -13,25 +13,25 @@ case class PcsTxParams(
     serdesPipeline: Int = 1)
 
 object PcsTxParams {
-  val simConfigMap = LinkedHashMap[String, PcsTxParams](
+  val SimConfigMap = LinkedHashMap[String, PcsTxParams](
     "config" -> PcsTxParams()
   )
 
-  val synConfigMap = LinkedHashMap[String, PcsTxParams](
+  val SynConfigMap = LinkedHashMap[String, PcsTxParams](
     "pcs_tx_inst" -> PcsTxParams()
   )
 
-  val synConfigs = synConfigMap.keys.mkString(" ")
+  val SynConfigs = SynConfigMap.keys.mkString(" ")
 }
 
-object sdcFile {
+object SdcFile {
   def create(sdcFilePath: String): Unit = {
     val sdcFileData = ""
     val sdcFileDir = new File(sdcFilePath)
     sdcFileDir.mkdirs()
     val sdcFileName = new File(s"$sdcFilePath/PcsTx.sdc")
-    val sdcFile = new PrintWriter(sdcFileName)
-    sdcFile.write(sdcFileData)
-    sdcFile.close()
+    val sdcFileWriter = new PrintWriter(sdcFileName)
+    sdcFileWriter.write(sdcFileData)
+    sdcFileWriter.close()
   }
 }

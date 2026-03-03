@@ -779,10 +779,10 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
   // --------------------------------------------------------------------------
   // Test cases
   // --------------------------------------------------------------------------
-  it should "RX: valid frame passes (tuser==0) and matches expected bytes" in {
+  it should "MAC RX: valid frame passes (tuser==0) and matches expected bytes" in {
     progInfo(0, "start of MAC testing")
     val tn = 0
-    val tname = "RX: valid frame passes (tuser==0) and matches expected bytes"
+    val tname = "MAC RX: valid frame passes (tuser==0) and matches expected bytes"
     progStart(tn, tname)
     
     test(new DualWrapperMac)
@@ -818,9 +818,9 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
     progEnd(tn+1, tname)
   }
 
-  it should "RX: bad FCS is flagged (tuser==1)" in {
+  it should "MAC RX: bad FCS is flagged (tuser==1)" in {
     val tn = 1
-    val tname = "RX: bad FCS is flagged (tuser==1)"
+    val tname = "MAC RX: bad FCS is flagged (tuser==1)"
     progStart(tn, tname)
 
     test(new DualWrapperMac)
@@ -861,9 +861,9 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
     progEnd(tn+1, tname)
   }
 
-  it should "RX: runt (truncated FCS) is flagged (tuser==1)" in {
+  it should "MAC RX: runt (truncated FCS) is flagged (tuser==1)" in {
     val tn = 2
-    val tname = "RX: runt (truncated FCS) is flagged (tuser==1)"
+    val tname = "MAC RX: runt (truncated FCS) is flagged (tuser==1)"
     progStart(tn, tname)
 
     test(new DualWrapperMac)
@@ -903,9 +903,9 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
     progEnd(tn+1, tname)
   }
 
-  it should "RX: bad preamble/SFD (corrupted) is detected" in {
+  it should "MAC RX: bad preamble/SFD (corrupted) is detected" in {
     val tn = 3
-    val tname = "RX: bad preamble/SFD (corrupted) - detected"
+    val tname = "MAC RX: bad preamble/SFD (corrupted) - detected"
     progStart(tn, tname)
 
     test(new DualWrapperMac)
@@ -950,9 +950,9 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
     progEnd(tn+1, tname)
   }
 
-  it should "RX: framing error (control inside payload) is flagged (tuser==1)" in {
+  it should "MAC RX: framing error (control inside payload) is flagged (tuser==1)" in {
     val tn = 4
-    val tname = "RX: framing error (control inside payload) is flagged (tuser==1)"
+    val tname = "MAC RX: framing error (control inside payload) is flagged (tuser==1)"
     progStart(tn, tname)
 
     test(new DualWrapperMac)
@@ -999,9 +999,9 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
     progEnd(tn+1, tname)
   }
 
-  it should "RX: oversize is flagged when cfg_rx_max_pkt_len is small" in {
+  it should "MAC RX: oversize is flagged when cfg_rx_max_pkt_len is small" in {
     val tn = 5
-    val tname = "RX: oversize is flagged when cfg_rx_max_pkt_len is small"
+    val tname = "MAC RX: oversize is flagged when cfg_rx_max_pkt_len is small"
     progStart(tn, tname)
 
     test(new DualWrapperMac)
@@ -1044,9 +1044,9 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
     progEnd(tn+1, tname)
   }
   
-  it should "RX: terminate-lane coverage hits T0..T7 on good frames (tuser==0), Chisel matches Verilog" in {
+  it should "MAC RX: terminate-lane coverage hits T0..T7 on good frames (tuser==0), Chisel matches Verilog" in {
     val tn = 6
-    val tname = "RX: terminate-lane coverage hits T0..T7 on good frames (tuser==0), Chisel matches Verilog"
+    val tname = "MAC RX: terminate-lane coverage hits T0..T7 on good frames (tuser==0), Chisel matches Verilog"
     progStart(tn, tname)
 
     test(new DualWrapperMac)
@@ -1115,9 +1115,9 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
     progEnd(tn+1, tname)
   }
 
-  it should "RX: 500 random frames (payload/len/data) match expected and Chisel==Verilog" in {
+  it should "MAC RX: 500 random frames (payload/len/data) match expected and Chisel==Verilog" in {
     val tn = 7
-    val tname = "RX: 500 random frames (payload/len/data) match expected and Chisel==Verilog"
+    val tname = "MAC RX: 500 random frames (payload/len/data) match expected and Chisel==Verilog"
     progStart(tn, tname)
 
     test(new DualWrapperMac)
@@ -1177,9 +1177,9 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
     progInfo(tn+1, s"RX tests completed, TX tests starting...")
   }
   
-  it should "TX: AXIS -> XGMII produces matching frames (Chisel vs Verilog)" in {
+  it should "MAC TX: AXIS -> XGMII produces matching frames (Chisel vs Verilog)" in {
     val tn = 8
-    val tname = "TX: AXIS -> XGMII produces matching frames (Chisel vs Verilog)"
+    val tname = "MAC TX: AXIS -> XGMII produces matching frames (Chisel vs Verilog)"
     progStart(tn, tname)
 
     test(new DualWrapperMac)
@@ -1241,9 +1241,9 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
     progEnd(tn+1, tname)
   }
 
-  it should "TX: back-to-back frames preserve ordering and match (Chisel vs Verilog)" in {
+  it should "MAC TX: back-to-back frames preserve ordering and match (Chisel vs Verilog)" in {
     val tn = 9
-    val tname = "TX: back-to-back frames preserve ordering and match (Chisel vs Verilog)"
+    val tname = "MAC TX: back-to-back frames preserve ordering and match (Chisel vs Verilog)"
     progStart(tn, tname)
 
     test(new DualWrapperMac)
@@ -1306,9 +1306,9 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
     progEnd(tn+1, tname)
   }
 
-  it should "TX: terminate-lane coverage hits T0..T7 (Chisel vs Verilog match)" in {
+  it should "MAC TX: terminate-lane coverage hits T0..T7 (Chisel vs Verilog match)" in {
     val tn = 10
-    val tname = "TX: terminate-lane coverage hits T0..T7 (Chisel vs Verilog match)"
+    val tname = "MAC TX: terminate-lane coverage hits T0..T7 (Chisel vs Verilog match)"
     progStart(tn, tname)
 
     test(new DualWrapperMac)
@@ -1415,9 +1415,9 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
     progEnd(tn+1, tname)
   }
 
-  it should "TX: IFG between frames is >= cfg_tx_ifg (bytes)" in {
+  it should "MAC TX: IFG between frames is >= cfg_tx_ifg (bytes)" in {
     val tn = 11
-    val tname = "TX: IFG between frames is >= cfg_tx_ifg (bytes)"
+    val tname = "MAC TX: IFG between frames is >= cfg_tx_ifg (bytes)"
     progStart(tn, tname)
 
     test(new DualWrapperMac).withAnnotations(Seq(
@@ -1478,9 +1478,9 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
     progEnd(tn+1, tname)
   }
 
-  it should "TX: partial tkeep on last beat (1..7) changes length and terminate lane correctly" in {
+  it should "MAC TX: partial tkeep on last beat (1..7) changes length and terminate lane correctly" in {
     val tn = 12
-    val tname = "TX: partial tkeep on last beat (1..7) changes length and terminate lane correctly"
+    val tname = "MAC TX: partial tkeep on last beat (1..7) changes length and terminate lane correctly"
     progStart(tn, tname)
 
     test(new DualWrapperMac).withAnnotations(Seq(
@@ -1577,9 +1577,9 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
     progEnd(tn+1, tname)
   }
 
-  it should "TX: tuser=0 produces a good packet (tx status all good)" in {
+  it should "MAC TX: tuser=0 produces a good packet (tx status all good)" in {
     val tn = 13
-    val tname = "TX: tuser=0 produces a good packet (tx status all good)"
+    val tname = "MAC TX: tuser=0 produces a good packet (tx status all good)"
     progStart(tn, tname)
 
     test(new DualWrapperMac).withAnnotations(Seq(
@@ -1638,9 +1638,9 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
     progEnd(tn+1, tname)
   }
 
-  it should "TX: tuser=1 triggers user-error behavior (drop or mark bad), Chisel matches Verilog" in {
+  it should "MAC TX: tuser=1 triggers user-error behavior (drop or mark bad), Chisel matches Verilog" in {
     val tn = 14
-    val tname = "TX: tuser=1 triggers user-error behavior (drop or mark bad), Chisel matches Verilog"
+    val tname = "MAC TX: tuser=1 triggers user-error behavior (drop or mark bad), Chisel matches Verilog"
     progStart(tn, tname)
 
     test(new DualWrapperMac).withAnnotations(Seq(
@@ -1698,7 +1698,7 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
       val stCh = b.chiselTxStatus.snapshot
       val stV  = b.verilogTxStatus.snapshot
 
-      withClue(s"TX status mismatch:\nChisel=$stCh\nVerilog=$stV\n") {
+      withClue(s"MAC TX status mismatch:\nChisel=$stCh\nVerilog=$stV\n") {
         stCh shouldBe stV
       }
 
@@ -1734,9 +1734,9 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
     progEnd(tn+1, tname)
   }
 
-  it should "TX: 500 random AXIS frames (len/data) produce identical XGMII (Chisel==Verilog)" in {
+  it should "MAC TX: 500 random AXIS frames (len/data) produce identical XGMII (Chisel==Verilog)" in {
     val tn = 15
-    val tname = "TX: 500 random AXIS frames (len/data) produce identical XGMII (Chisel==Verilog)"
+    val tname = "MAC TX: 500 random AXIS frames (len/data) produce identical XGMII (Chisel==Verilog)"
     progStart(tn, tname)
 
     test(new DualWrapperMac)

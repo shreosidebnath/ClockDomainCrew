@@ -58,35 +58,64 @@ class DualWrapperPcs extends Module {
     val tap_serdes_rx_hdr_valid  = Input(Bool())
   })
 
-  private def hookupPcs(pcs: PcsBb): Unit = {
-    pcs.io.tx_clk := clock
-    pcs.io.rx_clk := clock
-    pcs.io.tx_rst := io.rst
-    pcs.io.rx_rst := io.rst
+  // Accept "anything" whose io looks like a PCS IO bundle (bb.io and ch.io)
+  private type PcsIoLike = {
+    val tx_clk: Clock
+    val rx_clk: Clock
+    val tx_rst: Bool
+    val rx_rst: Bool
 
-    pcs.io.xgmii_txd      := io.xgmii_txd
-    pcs.io.xgmii_txc      := io.xgmii_txc
-    pcs.io.xgmii_tx_valid := io.xgmii_tx_valid
+    val xgmii_txd: UInt
+    val xgmii_txc: UInt
+    val xgmii_tx_valid: Bool
+
+    val cfg_tx_prbs31_enable: Bool
+    val cfg_rx_prbs31_enable: Bool
+
+    val tx_gbx_sync: Bool
+    val serdes_tx_gbx_req_sync: Bool
+    val serdes_tx_gbx_req_stall: Bool
+
+    val serdes_tx_data: UInt
+    val serdes_tx_data_valid: Bool
+    val serdes_tx_hdr: UInt
+    val serdes_tx_hdr_valid: Bool
+
+    val serdes_rx_data: UInt
+    val serdes_rx_data_valid: Bool
+    val serdes_rx_hdr: UInt
+    val serdes_rx_hdr_valid: Bool
+  }
+
+  private def hookupPcsIo(pcsIo: PcsIoLike): Unit = {
+    pcsIo.tx_clk := clock
+    pcsIo.rx_clk := clock
+    pcsIo.tx_rst := io.rst
+    pcsIo.rx_rst := io.rst
+
+    pcsIo.xgmii_txd      := io.xgmii_txd
+    pcsIo.xgmii_txc      := io.xgmii_txc
+    pcsIo.xgmii_tx_valid := io.xgmii_tx_valid
 
     // config
-    pcs.io.cfg_tx_prbs31_enable := false.B
-    pcs.io.cfg_rx_prbs31_enable := false.B
+    pcsIo.cfg_tx_prbs31_enable := false.B
+    pcsIo.cfg_rx_prbs31_enable := false.B
 
     // GBX controls (not using gearbox handshake in this first test)
-    pcs.io.tx_gbx_sync := true.B
-    pcs.io.serdes_tx_gbx_req_sync  := false.B
-    pcs.io.serdes_tx_gbx_req_stall := false.B
+    pcsIo.tx_gbx_sync             := true.B
+    pcsIo.serdes_tx_gbx_req_sync  := false.B
+    pcsIo.serdes_tx_gbx_req_stall := false.B
 
     // Tap mux: default is internal loopback (TX -> RX)
-    val rxData = Mux(io.tap_enable, io.tap_serdes_rx_data, pcs.io.serdes_tx_data)
-    val rxDVal = Mux(io.tap_enable, io.tap_serdes_rx_data_valid, pcs.io.serdes_tx_data_valid)
-    val rxHdr  = Mux(io.tap_enable, io.tap_serdes_rx_hdr, pcs.io.serdes_tx_hdr)
-    val rxHVal = Mux(io.tap_enable, io.tap_serdes_rx_hdr_valid, pcs.io.serdes_tx_hdr_valid)
+    val rxData = Mux(io.tap_enable, io.tap_serdes_rx_data, pcsIo.serdes_tx_data)
+    val rxDVal = Mux(io.tap_enable, io.tap_serdes_rx_data_valid, pcsIo.serdes_tx_data_valid)
+    val rxHdr  = Mux(io.tap_enable, io.tap_serdes_rx_hdr, pcsIo.serdes_tx_hdr)
+    val rxHVal = Mux(io.tap_enable, io.tap_serdes_rx_hdr_valid, pcsIo.serdes_tx_hdr_valid)
 
-    pcs.io.serdes_rx_data       := rxData
-    pcs.io.serdes_rx_data_valid := rxDVal
-    pcs.io.serdes_rx_hdr        := rxHdr
-    pcs.io.serdes_rx_hdr_valid  := rxHVal
+    pcsIo.serdes_rx_data       := rxData
+    pcsIo.serdes_rx_data_valid := rxDVal
+    pcsIo.serdes_rx_hdr        := rxHdr
+    pcsIo.serdes_rx_hdr_valid  := rxHVal
   }
 
   val bbParams = PcsBbParams(
@@ -106,7 +135,7 @@ class DualWrapperPcs extends Module {
 
   // === BlackBox PCS ===
   val bb = Module(new PcsBb(bbParams))
-  hookupPcs(bb)
+  hookupPcsIo(bb.io)
 
   io.bb_rxd           := bb.io.xgmii_rxd
   io.bb_rxc           := bb.io.xgmii_rxc
@@ -123,9 +152,9 @@ class DualWrapperPcs extends Module {
   io.bb_rx_sequence_error := bb.io.rx_sequence_error
   io.bb_rx_error_count    := bb.io.rx_error_count
 
-  // === "Chisel PCS" side (golden model for now) ===
-  val ch = Module(new PcsBb(bbParams))
-  hookupPcs(ch)
+  // === "Chisel PCS" side ===
+  val ch = Module(new PcsTb(PcsParams(dataW = dataW, ctrlW = ctrlW, hdrW = hdrW)))
+  hookupPcsIo(ch.io)
 
   io.chisel_rxd           := ch.io.xgmii_rxd
   io.chisel_rxc           := ch.io.xgmii_rxc

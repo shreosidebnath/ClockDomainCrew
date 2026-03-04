@@ -13,10 +13,10 @@ object MacBbFiles {
     "taxi_axis_xgmii_rx_64.sv",
     "taxi_axis_xgmii_tx_64.sv",
 
-    // IMPORTANT: use nodefaults version so Verilator won't error on defaulted inputs
+    // IMPORTANT: uses defaults -> Verilator v5.044+ REQUIRED
     "taxi_eth_mac_10g.sv",
 
-    // wrapper must instantiate taxi_eth_mac_10g (from nodefaults file)
+    // wrapper must instantiate taxi_eth_mac_10g
     "taxi_eth_mac_10g_wrapper.sv"
   )
 }
@@ -99,6 +99,12 @@ class MacBb(p: MacBbParams)
     val stat_rx_err_framing   = Output(Bool())
     val stat_rx_err_oversize  = Output(Bool())
     val stat_rx_pkt_fragment  = Output(Bool())
+
+    val stat_tx_pkt_good        = Output(Bool())
+    val stat_tx_pkt_bad         = Output(Bool())
+    val stat_tx_err_oversize    = Output(Bool())
+    val stat_tx_err_user        = Output(Bool())
+    val stat_tx_err_underflow   = Output(Bool())
   })
 
   p.bbFiles.foreach(f => addResource(s"/org/chiselware/cores/o01/t001/mac/$f"))

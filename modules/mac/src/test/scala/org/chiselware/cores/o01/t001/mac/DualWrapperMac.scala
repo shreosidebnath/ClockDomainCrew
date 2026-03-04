@@ -27,7 +27,7 @@ class DualWrapperMac extends Module {
     val chisel_rx_tlast  = Output(Bool())
     val chisel_rx_tuser  = Output(UInt(USER_W.W))
     val chisel_rx_tid    = Output(UInt(ID_W.W))
-    // for negative testing
+    // for negative testing RX
     val chisel_stat_rx_pkt_good     = Output(Bool())
     val chisel_stat_rx_pkt_bad      = Output(Bool())
     val chisel_stat_rx_err_bad_fcs  = Output(Bool())
@@ -35,6 +35,12 @@ class DualWrapperMac extends Module {
     val chisel_stat_rx_err_framing  = Output(Bool())
     val chisel_stat_rx_err_oversize = Output(Bool())
     val chisel_stat_rx_pkt_fragment = Output(Bool())
+    // for negative testing TX
+    val chisel_stat_tx_pkt_good       = Output(Bool())
+    val chisel_stat_tx_pkt_bad        = Output(Bool())
+    val chisel_stat_tx_err_oversize   = Output(Bool())
+    val chisel_stat_tx_err_user       = Output(Bool())
+    val chisel_stat_tx_err_underflow  = Output(Bool())
 
     val verilog_rx_tdata  = Output(UInt(DATA_W.W))
     val verilog_rx_tkeep  = Output(UInt(CTRL_W.W))
@@ -42,7 +48,7 @@ class DualWrapperMac extends Module {
     val verilog_rx_tlast  = Output(Bool())
     val verilog_rx_tuser  = Output(UInt(USER_W.W))
     val verilog_rx_tid    = Output(UInt(ID_W.W))
-    // for negative testing
+    // for negative testing RX
     val verilog_stat_rx_pkt_good     = Output(Bool())
     val verilog_stat_rx_pkt_bad      = Output(Bool())
     val verilog_stat_rx_err_bad_fcs  = Output(Bool())
@@ -50,6 +56,31 @@ class DualWrapperMac extends Module {
     val verilog_stat_rx_err_framing  = Output(Bool())
     val verilog_stat_rx_err_oversize = Output(Bool())
     val verilog_stat_rx_pkt_fragment = Output(Bool())
+    // for negative testing TX
+    val verilog_stat_tx_pkt_good        = Output(Bool())
+    val verilog_stat_tx_pkt_bad         = Output(Bool())
+    val verilog_stat_tx_err_oversize    = Output(Bool())
+    val verilog_stat_tx_err_user        = Output(Bool())
+    val verilog_stat_tx_err_underflow   = Output(Bool())
+
+    // TX IOs
+    // Drive AXIS TX into both DUTs
+    val tx_tdata  = Input(UInt(DATA_W.W))
+    val tx_tkeep  = Input(UInt(CTRL_W.W))
+    val tx_tvalid = Input(Bool())
+    val tx_tlast  = Input(Bool())
+    val tx_tuser  = Input(UInt(USER_W.W))
+    val tx_tid    = Input(UInt(ID_W.W))
+    val tx_tready = Output(Bool()) // from DUT (they should match)
+
+    // Export XGMII TX from both DUTs
+    val chisel_xgmii_txd      = Output(UInt(DATA_W.W))
+    val chisel_xgmii_txc      = Output(UInt(CTRL_W.W))
+    val chisel_xgmii_tx_valid = Output(Bool())
+
+    val verilog_xgmii_txd      = Output(UInt(DATA_W.W))
+    val verilog_xgmii_txc      = Output(UInt(CTRL_W.W))
+    val verilog_xgmii_tx_valid = Output(Bool())
   })
 
   // Instantiate both versions (for now both are the BB)
@@ -65,22 +96,20 @@ class DualWrapperMac extends Module {
     d.io.tx_rst := reset.asBool
 
     // Minimal configs
-    d.io.cfg_tx_max_pkt_len := 1518.U
-    d.io.cfg_tx_ifg         := 12.U
-    d.io.cfg_tx_enable      := true.B
-    d.io.cfg_rx_max_pkt_len := io.cfg_rx_max_pkt_len
-    d.io.cfg_rx_enable      := true.B
-
-    // Tie TX side off (RX-only test)
-    d.io.s_axis_tx_tdata  := 0.U
-    d.io.s_axis_tx_tkeep  := 0.U
-    d.io.s_axis_tx_tvalid := false.B
-    d.io.s_axis_tx_tlast  := false.B
-    d.io.s_axis_tx_tuser  := 0.U
-    d.io.s_axis_tx_tid    := 0.U
-
-    // Always accept TX completion (even though we’re not driving TX)
+    d.io.cfg_tx_max_pkt_len   := 1518.U
+    d.io.cfg_tx_ifg           := 12.U
+    d.io.cfg_tx_enable        := true.B
+    d.io.cfg_rx_max_pkt_len   := io.cfg_rx_max_pkt_len
+    d.io.cfg_rx_enable        := true.B
     d.io.m_axis_tx_cpl_tready := true.B
+
+    // TX 
+    d.io.s_axis_tx_tdata  := io.tx_tdata
+    d.io.s_axis_tx_tkeep  := io.tx_tkeep
+    d.io.s_axis_tx_tvalid := io.tx_tvalid
+    d.io.s_axis_tx_tlast  := io.tx_tlast
+    d.io.s_axis_tx_tuser  := io.tx_tuser
+    d.io.s_axis_tx_tid    := io.tx_tid
 
     // Misc inputs
     d.io.tx_gbx_req_sync  := 0.U
@@ -102,6 +131,10 @@ class DualWrapperMac extends Module {
   // Ready for RX stream
   chiselDut.io.m_axis_rx_tready := io.rx_ready
   origDut.io.m_axis_rx_tready   := io.rx_ready
+
+  // Ready for TX stream (AXIS sink ready comes from DUT)
+  io.tx_tready := chiselDut.io.s_axis_tx_tready
+  assert(chiselDut.io.s_axis_tx_tready === origDut.io.s_axis_tx_tready)
 
   // Export both RX outputs
   io.chisel_rx_tdata  := chiselDut.io.m_axis_rx_tdata
@@ -135,4 +168,27 @@ class DualWrapperMac extends Module {
   io.verilog_stat_rx_err_preamble := origDut.io.stat_rx_err_preamble
   io.verilog_stat_rx_err_framing  := origDut.io.stat_rx_err_framing
   io.verilog_stat_rx_err_oversize := origDut.io.stat_rx_err_oversize
+
+  // Export TX status (Chisel DUT)
+  io.chisel_stat_tx_pkt_good      := chiselDut.io.stat_tx_pkt_good
+  io.chisel_stat_tx_pkt_bad       := chiselDut.io.stat_tx_pkt_bad
+  io.chisel_stat_tx_err_oversize  := chiselDut.io.stat_tx_err_oversize
+  io.chisel_stat_tx_err_user      := chiselDut.io.stat_tx_err_user
+  io.chisel_stat_tx_err_underflow := chiselDut.io.stat_tx_err_underflow
+
+  // Export TX status (Golden / Verilog DUT)
+  io.verilog_stat_tx_pkt_good      := origDut.io.stat_tx_pkt_good
+  io.verilog_stat_tx_pkt_bad       := origDut.io.stat_tx_pkt_bad
+  io.verilog_stat_tx_err_oversize  := origDut.io.stat_tx_err_oversize
+  io.verilog_stat_tx_err_user      := origDut.io.stat_tx_err_user
+  io.verilog_stat_tx_err_underflow := origDut.io.stat_tx_err_underflow
+
+  // Export XGMII TX
+  io.chisel_xgmii_txd      := chiselDut.io.xgmii_txd
+  io.chisel_xgmii_txc      := chiselDut.io.xgmii_txc
+  io.chisel_xgmii_tx_valid := chiselDut.io.xgmii_tx_valid
+
+  io.verilog_xgmii_txd      := origDut.io.xgmii_txd
+  io.verilog_xgmii_txc      := origDut.io.xgmii_txc
+  io.verilog_xgmii_tx_valid := origDut.io.xgmii_tx_valid
 }

@@ -70,14 +70,21 @@ module taxi_eth_mac_10g_wrapper #(
     input  logic [15:0]          cfg_rx_max_pkt_len,
     input  logic                 cfg_rx_enable,
 
-    // Status outputs
+    // RX status outputs
     output logic stat_rx_pkt_good,
     output logic stat_rx_pkt_bad,
     output logic stat_rx_err_bad_fcs,
     output logic stat_rx_err_preamble,
     output logic stat_rx_err_framing,
     output logic stat_rx_err_oversize,
-    output logic stat_rx_pkt_fragment
+    output logic stat_rx_pkt_fragment,
+
+    // TX status outputs
+    output logic        stat_tx_pkt_good,
+    output logic        stat_tx_pkt_bad,
+    output logic        stat_tx_err_oversize,
+    output logic        stat_tx_err_user,
+    output logic        stat_tx_err_underflow
 );
     logic                 tx_lfc_req      = 1'b0;
     logic                 tx_lfc_resend   = 1'b0;
@@ -102,8 +109,6 @@ module taxi_eth_mac_10g_wrapper #(
     logic [3:0]           stat_tx_byte;
     logic [15:0]          stat_tx_pkt_len;
     logic                 stat_tx_pkt_ucast, stat_tx_pkt_mcast, stat_tx_pkt_bcast, stat_tx_pkt_vlan;
-    logic                 stat_tx_pkt_good, stat_tx_pkt_bad;
-    logic                 stat_tx_err_oversize, stat_tx_err_user, stat_tx_err_underflow;
 
     logic [1:0]           rx_start_packet;
     logic [3:0]           stat_rx_byte;

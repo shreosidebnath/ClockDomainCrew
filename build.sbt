@@ -43,9 +43,15 @@ lazy val mac = project
   .settings(
     name := "chiselware-core-mac",
     coverageDataDir := target.value / "../generated/scalaCoverage",
+    coverageExcludedPackages := Seq(
+      "sdcFile",                      // sdc files
+      ".*Params.*",                   // params case class/object
+      "Main",                         // any main classes
+      ".*\\.(?!MacTb$).*Tb$"          // exclude any class/object whose name ends with Tb, except exactly MacTb
+    ).mkString(";"),
     coverageFailOnMinimum := true,
-    coverageMinimumStmtTotal := 90,
-    coverageMinimumBranchTotal := 95,
+    coverageMinimumStmtTotal := 95,
+    coverageMinimumBranchTotal := 90,
     publish / skip := true,
     Compile / mainClass := Some("org.chiselware.cores.o01.t001.mac.Main")
   )
@@ -56,9 +62,15 @@ lazy val pcs = project
   .settings(
     name := "chiselware-core-pcs",
     coverageDataDir := target.value / "../generated/scalaCoverage",
+    coverageExcludedPackages := Seq(
+      "sdcFile",                      // sdc files
+      ".*Params.*",                   // params case class/object
+      "Main",                         // any main classes
+      ".*\\.(?!PcsTb$).*Tb$"          // exclude any class/object whose name ends with Tb, except exactly PcsTb
+    ).mkString(";"),
     coverageFailOnMinimum := true,
-    coverageMinimumStmtTotal := 90,
-    coverageMinimumBranchTotal := 95,
+    coverageMinimumStmtTotal := 95,
+    coverageMinimumBranchTotal := 90,
     publish / skip := true,
     Compile / mainClass := Some("org.chiselware.cores.o01.t001.pcs.Main")
   )

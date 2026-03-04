@@ -1,6 +1,8 @@
 package org.chiselware.cores.o01.t001.pcs.rx
 import chisel3._
 import chisel3.util._
+import _root_.circt.stage.ChiselStage
+import org.chiselware.syn.{ RunScriptFile, StaTclFile, YosysTclFile }
 
 class PcsRxWatchdog(
     val hdrW: Int = 2,
@@ -125,8 +127,8 @@ object PcsRxWatchdog {
 //       )
 //     )
 //     SdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-//     YosysTclFile.create(mainClassName = MainClassName, outputDir = s"${coreDir}/generated/synTestCases/$configName")
-//     StaTclFile.create(mainClassName = MainClassName, outputDir = s"${coreDir}/generated/synTestCases/$configName")
-//     RunScriptFile.create(mainClassName = MainClassName, synConfigs = PcsRxWatchdogParams.SynConfigs, outputDir = s"${coreDir}/generated/synTestCases")
+//     YosysTclFile.create(MainClassName, s"${coreDir}/generated/synTestCases/$configName")
+//     StaTclFile.create(MainClassName, s"${coreDir}/generated/synTestCases/$configName")
+//     RunScriptFile.create(MainClassName, PcsRxWatchdogParams.SynConfigs, s"${coreDir}/generated/synTestCases")
 //   }
 // }

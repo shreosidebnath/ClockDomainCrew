@@ -1,6 +1,8 @@
 package org.chiselware.cores.o01.t001.pcs.rx
 import chisel3._
 import chisel3.util._
+import _root_.circt.stage.ChiselStage
+import org.chiselware.syn.{ RunScriptFile, StaTclFile, YosysTclFile }
 
 class PcsRxBerMon(
     val hdrW: Int = 2,
@@ -90,8 +92,8 @@ object PcsRxBerMon {
 //       )
 //     )
 //     SdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-//     YosysTclFile.create(mainClassName = MainClassName, outputDir = s"${coreDir}/generated/synTestCases/$configName")
-//     StaTclFile.create(mainClassName = MainClassName, outputDir = s"${coreDir}/generated/synTestCases/$configName")
-//     RunScriptFile.create(mainClassName = MainClassName, synConfigs = PcsRxBerMonParams.SynConfigs, outputDir = s"${coreDir}/generated/synTestCases")
+//     YosysTclFile.create(MainClassName, s"${coreDir}/generated/synTestCases/$configName")
+//     StaTclFile.create(MainClassName, s"${coreDir}/generated/synTestCases/$configName")
+//     RunScriptFile.create(MainClassName, PcsRxBerMonParams.SynConfigs, s"${coreDir}/generated/synTestCases")
 //   }
 // }

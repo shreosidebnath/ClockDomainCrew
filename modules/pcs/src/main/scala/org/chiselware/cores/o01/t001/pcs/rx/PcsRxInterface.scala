@@ -1,7 +1,9 @@
 package org.chiselware.cores.o01.t001.pcs.rx
+import _root_.circt.stage.ChiselStage
 import chisel3._
 import chisel3.util._
 import org.chiselware.cores.o01.t001.pcs.Lfsr
+import org.chiselware.syn.{ RunScriptFile, StaTclFile, YosysTclFile }
 
 /** 10G Ethernet PHY RX IF
   */

@@ -1,4 +1,5 @@
 package org.chiselware.cores.o01.t001.mac
+import java.io.{ File, PrintWriter }
 import scala.collection.mutable.LinkedHashMap
 
 case class LfsrParams(
@@ -69,3 +70,16 @@ object LfsrParams {
 
   val synConfigs = synConfigMap.keys.mkString(" ")
 }
+
+
+// object SdcFile {
+//   def create(sdcFilePath: String): Unit = {
+//     val sdcFileData = ""
+//     val sdcFileDir = new File(sdcFilePath)
+//     sdcFileDir.mkdirs()
+//     val sdcFileName = new File(s"$sdcFilePath/Lfsr.sdc")
+//     val sdcFileWriter = new PrintWriter(sdcFileName)
+//     sdcFileWriter.write(sdcFileData)
+//     sdcFileWriter.close()
+//   }
+// }

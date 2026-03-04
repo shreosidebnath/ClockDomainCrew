@@ -372,7 +372,7 @@ object Mac {
 object Main extends App {
   val MainClassName = "Mac"
   val coreDir = s"modules/${MainClassName.toLowerCase()}"
-  MacParams.SynConfigMap.foreach { case (configName, p) =>
+  MacParams.synConfigMap.foreach { case (configName, p) =>
     println(s"Generating Verilog for config: $configName")
     ChiselStage.emitSystemVerilog(
       new Mac(
@@ -409,7 +409,7 @@ object Main extends App {
     )
     RunScriptFile.create(
       MainClassName,
-      MacParams.SynConfigs,
+      MacParams.synConfigs,
       s"${coreDir}/generated/synTestCases"
     )
   }

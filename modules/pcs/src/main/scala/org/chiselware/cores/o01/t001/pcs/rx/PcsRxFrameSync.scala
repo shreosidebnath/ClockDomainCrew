@@ -1,6 +1,8 @@
 package org.chiselware.cores.o01.t001.pcs.rx
 import chisel3._
 import chisel3.util._
+import _root_.circt.stage.ChiselStage
+import org.chiselware.syn.{ RunScriptFile, StaTclFile, YosysTclFile }
 
 class PcsRxFrameSync(
     hdrW: Int = 2,
@@ -124,8 +126,8 @@ object PcsRxFrameSync {
 //       )
 //     )
 //     SdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-//     YosysTclFile.create(mainClassName = MainClassName, outputDir = s"${coreDir}/generated/synTestCases/$configName")
-//     StaTclFile.create(mainClassName = MainClassName, outputDir = s"${coreDir}/generated/synTestCases/$configName")
-//     RunScriptFile.create(mainClassName = MainClassName, synConfigs = PcsRxFrameSyncParams.SynConfigs, outputDir = s"${coreDir}/generated/synTestCases")
+//     YosysTclFile.create(MainClassName, s"${coreDir}/generated/synTestCases/$configName")
+//     StaTclFile.create(MainClassName, s"${coreDir}/generated/synTestCases/$configName")
+//     RunScriptFile.create(MainClassName, PcsRxFrameSyncParams.SynConfigs, s"${coreDir}/generated/synTestCases")
 //   }
 // }

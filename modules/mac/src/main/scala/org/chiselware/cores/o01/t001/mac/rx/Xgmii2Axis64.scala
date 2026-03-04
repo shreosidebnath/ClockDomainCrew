@@ -188,7 +188,6 @@ class Xgmii2Axis64(
   val statRxErrPreambleNext = WireDefault(false.B)
 
   // Mask input data
-  // scalafix:off scala-027
   val xgmiiRxdMaskedVec = Wire(Vec(ctrlW, UInt(8.W)))
   val xgmiiTermVec = Wire(Vec(ctrlW, Bool()))
 
@@ -201,7 +200,6 @@ class Xgmii2Axis64(
     }
     xgmiiTermVec(n) := io.xgmiiRxc(n) && (rxdByte === XgmiiTerm)
   }
-  // scalafix:on scala-027
 
   val xgmiiRxdMasked = xgmiiRxdMaskedVec.asUInt
   val xgmiiTerm = xgmiiTermVec.asUInt
@@ -216,19 +214,15 @@ class Xgmii2Axis64(
     dataInEn = true,
     dataOutEn = false
   ))
-  // scalafix:off scala-027
   crcInst.io.dataIn := Mux(
     xgmiiStartSwapReg,
     Cat(xgmiiRxdMasked(63, 32), 0.U(32.W)),
     xgmiiRxdMasked
   )
-  // scalafix:on scala-027
   crcInst.io.stateIn := crcStateReg
   val crcState = crcInst.io.stateOut
 
-  // scalafix:off scala-027
   val crcValid = Wire(Vec(8, Bool()))
-  // scalafix:on scala-027
   crcValid(7) := crcStateReg === (~"h2144df1c".U(32.W)).asUInt
   crcValid(6) := crcStateReg === (~"hc622f71d".U(32.W)).asUInt
   crcValid(5) := crcStateReg === (~"hb1c2a1a3".U(32.W)).asUInt
@@ -270,7 +264,6 @@ class Xgmii2Axis64(
   io.statRxErrFraming := statRxErrFramingReg
   io.statRxErrPreamble := statRxErrPreambleReg
 
-  // scalafix:off scala-027
   when(gbxIfEn.B && !io.xgmiiRxValid) {
     stateNext := stateReg
   }.otherwise {
@@ -459,7 +452,6 @@ class Xgmii2Axis64(
       }
     }
   }
-  // scalafix:on scala-027
 
   // Sequential Logic Block
   stateReg := stateNext
@@ -499,7 +491,6 @@ class Xgmii2Axis64(
   statRxErrFramingReg := statRxErrFramingNext
   statRxErrPreambleReg := statRxErrPreambleNext
 
-  // scalafix:off scala-027
   when(!gbxIfEn.B || io.xgmiiRxValid) {
     swapRxdReg := xgmiiRxdMasked(63, 32)
     swapRxcReg := io.xgmiiRxc(7, 4)
@@ -600,7 +591,6 @@ class Xgmii2Axis64(
 
   lastTsReg := io.ptpTs(19, 0)
   tsIncReg := io.ptpTs(19, 0) - lastTsReg
-  // scalafix:on scala-027
 }
 
 object Xgmii2Axis64 {
@@ -637,27 +627,18 @@ object Main extends App {
       )
     )
     SdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-
-    // TODO: where is this coming from?? needs fixing. Found errors in calls below.
-    // YosysTclFile.create - unknown parameter names
-    // YosysTclFile.create(
-    //   MainClassName,
-    //   s"${coreDir}/generated/synTestCases/$configName"
-    // )
-
-    // TODO: where is this coming from?? needs fixing. Found errors in calls below.
-    // StaTclFile.create - unknown parameter names
-    // StaTclFile.create(
-    //   MainClassName,
-    //   s"${coreDir}/generated/synTestCases/$configName"
-    // )
-
-    // TODO: where is this coming from?? needs fixing. Found errors in calls below.
-    // RunScriptFile.create - unknown parameter names
-    // RunScriptFile.create(
-    //   MainClassName,
-    //   Xgmii2Axis64Params.synConfigs,
-    //   s"${coreDir}/generated/synTestCases"
-    // )
+    YosysTclFile.create(
+      MainClassName,
+      s"${coreDir}/generated/synTestCases/$configName"
+    )
+    StaTclFile.create(
+      MainClassName,
+      s"${coreDir}/generated/synTestCases/$configName"
+    )
+    RunScriptFile.create(
+      MainClassName,
+      Xgmii2Axis64Params.synConfigs,
+      s"${coreDir}/generated/synTestCases"
+    )
   }
 }

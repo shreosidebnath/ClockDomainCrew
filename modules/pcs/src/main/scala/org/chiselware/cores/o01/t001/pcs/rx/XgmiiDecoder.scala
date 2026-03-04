@@ -1,6 +1,8 @@
 package org.chiselware.cores.o01.t001.pcs.rx
 import chisel3._
 import chisel3.util._
+import _root_.circt.stage.ChiselStage
+import org.chiselware.syn.{ RunScriptFile, StaTclFile, YosysTclFile }
 
 object XgmiiDecoder {
   // XGMII Control Codes

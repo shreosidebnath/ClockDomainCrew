@@ -1,5 +1,7 @@
 package org.chiselware.cores.o01.t001.mac
+import _root_.circt.stage.ChiselStage
 import chisel3._
+import org.chiselware.syn.{ RunScriptFile, StaTclFile, YosysTclFile }
 
 class Lfsr(
     val lfsrW: Int = 31,
@@ -38,16 +40,8 @@ class Lfsr(
   )
 
   // 2. Simulate the LFSR shifting loop 'dataW' times
-  val simResult = (0 until dataW).foldLeft(initState) {
-    (s,
-        k
-      ) =>
-      val dataIdx =
-        if (reverse)
-          k
-        else
-          dataW - 1 - k
-
+  val simResult = (0 until dataW).foldLeft(initState) { (s, k) =>
+      val dataIdx = if (reverse) k else (dataW - 1 - k)
       val stateVal0 = s.vState(lfsrW - 1)
       val dataValEq0 = s.vData(lfsrW - 1) ^ (BigInt(1) << dataIdx)
 
@@ -166,20 +160,13 @@ class Lfsr(
   val nextState = Wire(Vec(n = lfsrW, gen = Bool()))
   for (i <- 0 until lfsrW) {
     // If reverse is true, we need to map to the inverted mask index
-    val maskI =
-      if (reverse)
-        lfsrW - 1 - i
-      else
-        i
+    val maskI = if (reverse) (lfsrW - 1 - i) else i
 
     val stateContrib = (0 until lfsrW)
       .filter(b => ((simResult.vState(maskI) >> b) & 1) == 1)
       // Mirror the state_in pin mapping if reversed
       .map(b =>
-        io.stateIn(if (reverse)
-          lfsrW - 1 - b
-        else
-          b)
+        io.stateIn(if (reverse) (lfsrW - 1 - b) else b)
       )
 
     val dataContrib = (0 until dataW)
@@ -187,12 +174,7 @@ class Lfsr(
       // dataIn does NOT need mirroring here because dataIdx was flipped in the sim loop
       .map(b => io.dataIn(b))
 
-    val allContribs =
-      stateContrib ++
-        (if (dataInEn)
-           dataContrib
-         else
-           Seq())
+    val allContribs = stateContrib ++ (if (dataInEn) dataContrib else Seq())
 
     if (allContribs.nonEmpty)
       nextState(i) := allContribs.reduce(_ ^ _)
@@ -204,12 +186,7 @@ class Lfsr(
   // Data Output
   val dataOutWire = Wire(Vec(n = dataW, gen = Bool()))
   for (i <- 0 until dataW) {
-    val maskIdx =
-      if (reverse)
-        dataW - 1 - i
-      else
-        i
-
+    val maskIdx = if (reverse) (dataW - 1 - i) else i
     val sMask = simResult.vOutState(maskIdx)
     val dMask = simResult.vOutData(maskIdx)
 
@@ -217,22 +194,14 @@ class Lfsr(
       .filter(b => ((sMask >> b) & 1) == 1)
       // Mirror the state_in pin mapping if reversed
       .map(b =>
-        io.stateIn(if (reverse)
-          lfsrW - 1 - b
-        else
-          b)
+        io.stateIn(if (reverse) (lfsrW - 1 - b) else b)
       )
 
     val dataContrib = (0 until dataW)
       .filter(b => ((dMask >> b) & 1) == 1)
       .map(b => io.dataIn(b))
 
-    val allContribs =
-      stateContrib ++
-        (if (dataInEn)
-           dataContrib
-         else
-           Seq())
+    val allContribs = stateContrib ++ (if (dataInEn) dataContrib else Seq())
 
     if (dataOutEn) {
       if (allContribs.nonEmpty)
@@ -279,7 +248,7 @@ object Lfsr {
 //       )
 //     )
 //     // Synthesis collateral generation
-//     sdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
+//     SdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
 //     YosysTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
 //     StaTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
 //     RunScriptFile.create(mainClassName, LfsrParams.synConfigs, s"${coreDir}/generated/synTestCases")

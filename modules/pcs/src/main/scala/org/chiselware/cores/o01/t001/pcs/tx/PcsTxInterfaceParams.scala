@@ -1,4 +1,5 @@
 package org.chiselware.cores.o01.t001.pcs.tx
+import java.io.{ File, PrintWriter }
 import scala.collection.mutable.LinkedHashMap
 
 case class PcsTxInterfaceParams(

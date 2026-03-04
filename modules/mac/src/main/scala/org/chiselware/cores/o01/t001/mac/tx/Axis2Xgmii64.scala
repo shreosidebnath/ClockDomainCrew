@@ -248,7 +248,6 @@ class Axis2Xgmii64(
   io.mAxisTxCpl.tdest := 0.U
   io.mAxisTxCpl.tuser := 0.U
 
-  // scalafix:off scala-027
   def keep2empty(k: UInt): UInt = {
     val out = WireDefault(0.U(3.W))
     val k8 = k(7, 0)
@@ -278,10 +277,8 @@ class Axis2Xgmii64(
       )
     }
   }
-  // scalafix:on scala-027
   val sAxisTxTdataMasked = sAxisTxTdataMaskedVec.asUInt
 
-  // scalafix:off scala-027
   val crcState = Wire(Vec(8, UInt(32.W)))
   for (n <- 0 until 8) {
     val crcInst = Module(new Lfsr(
@@ -298,7 +295,6 @@ class Axis2Xgmii64(
     crcInst.io.stateIn := crcStateReg(7)
     crcState(n) := crcInst.io.stateOut
   }
-  // scalafix:on scala-027
 
   val fcsOutputTxd0 = WireDefault(0.U(dataW.W))
   val fcsOutputTxd1 = WireDefault(0.U(dataW.W))
@@ -306,7 +302,6 @@ class Axis2Xgmii64(
   val fcsOutputTxc1 = WireDefault(0.U(ctrlW.W))
   val ifgOffset = WireDefault(0.U(8.W))
 
-  // scalafix:off scala-027
   switch(sEmptyReg) {
     is(7.U) {
       fcsOutputTxd0 := Cat(
@@ -488,7 +483,7 @@ class Axis2Xgmii64(
 
         when(io.sAxisTx.tvalid && io.sAxisTx.tlast) {
           when(frameLenLimCheckReg) {
-            when(frameLenLimLastReg(7.U - keep2empty(io.sAxisTx.tkeep))) {
+            when(frameLenLimLastReg < (7.U - keep2empty(io.sAxisTx.tkeep))) {
               frameOversizeNext := true.B
             }
           }
@@ -673,7 +668,6 @@ class Axis2Xgmii64(
       }
     }
   }
-  // scalafix:on scala-027
 
   // Register assignments
   stateReg := stateNext
@@ -718,7 +712,6 @@ class Axis2Xgmii64(
   statTxErrUserReg := statTxErrUserNext
   statTxErrUnderflowReg := statTxErrUnderflowNext
 
-  // scalafix:off scala-027
   if (ptpTsEn && ptpTsFmtTod) {
     mAxisTxCplValidReg := mAxisTxCplValidIntReg
     mAxisTxCplTsAdjReg := Cat(
@@ -794,7 +787,6 @@ class Axis2Xgmii64(
   txGbxSyncReg := io.txGbxReqSync
   lastTsReg := io.ptpTs(19, 0)
   tsIncReg := io.ptpTs(19, 0) - lastTsReg
-  // scalafix:on scala-027
 }
 
 object Axis2Xgmii64 {
@@ -842,26 +834,18 @@ object Main extends App {
     )
     SdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
 
-    // TODO: where is this coming from?? needs fixing. Found errors in calls below.
-    // YosysTclFile.create - unknown parameter names
-    // YosysTclFile.create(
-    //   MainClassName,
-    //   s"${coreDir}/generated/synTestCases/$configName"
-    // )
-
-    // TODO: where is this coming from?? needs fixing. Found errors in calls below.
-    // StaTclFile.create - unknown parameter names
-    // StaTclFile.create(
-    //   MainClassName,
-    //   s"${coreDir}/generated/synTestCases/$configName"
-    // )
-
-    // TODO: where is this coming from?? needs fixing. Found errors in calls below.
-    // RunScriptFile.create - unknown parameter names
-    // RunScriptFile.create(
-    //   MainClassName,
-    //   Axis2Xgmii64Params.synConfigs,
-    //   s"${coreDir}/generated/synTestCases"
-    // )
+    YosysTclFile.create(
+      MainClassName,
+      s"${coreDir}/generated/synTestCases/$configName"
+    )
+    StaTclFile.create(
+      MainClassName,
+      s"${coreDir}/generated/synTestCases/$configName"
+    )
+    RunScriptFile.create(
+      MainClassName,
+      Axis2Xgmii64Params.synConfigs,
+      s"${coreDir}/generated/synTestCases"
+    )
   }
 }

@@ -1,6 +1,8 @@
 package org.chiselware.cores.o01.t001.pcs.tx
 import chisel3._
 import chisel3.util._
+import _root_.circt.stage.ChiselStage
+import org.chiselware.syn.{ RunScriptFile, StaTclFile, YosysTclFile }
 import org.chiselware.cores.o01.t001.pcs.Lfsr
 
 class PcsTxInterface(

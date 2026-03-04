@@ -1,1 +1,0 @@
-This branch uses 00-000-dff template tag v0.6.0 to run linter. This ensures improved code quality.

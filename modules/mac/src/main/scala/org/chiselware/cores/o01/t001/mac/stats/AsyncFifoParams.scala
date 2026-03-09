@@ -36,7 +36,6 @@ case class AsyncFifoParams(
 )
 
 object AsyncFifoParams {
-  // These NOW match line 627 of fpga_core.sv exactly
   val synConfigMap = LinkedHashMap[String, AsyncFifoParams](
     "tx_stat_fifo_inst" -> AsyncFifoParams(
       depth = 16384,

@@ -3,8 +3,6 @@ package org.chiselware.cores.o01.t001.mac.stats
 import chisel3._
 import chisel3.util._
 import _root_.circt.stage.ChiselStage
-import org.chiselware.syn.{YosysTclFile, StaTclFile, RunScriptFile}
-import java.io.{File, PrintWriter}
 
 class AsyncFifo(val p: AsyncFifoParams) extends RawModule {
   val io = IO(new Bundle {
@@ -39,8 +37,8 @@ class AsyncFifo(val p: AsyncFifoParams) extends RawModule {
   val aw = log2Ceil(p.depth)
   val payloadWidth = p.dataW + p.keepW + p.keepW + 1 + p.idW + p.destW + p.userW
 
-  // Memory - Single file generation via Reg(Vec)
-  val mem = withClockAndReset(io.sClk, io.sRst) { Reg(Vec(p.depth, UInt(payloadWidth.W))) }
+  // Use SyncReadMem so Vivado infers Block RAM for the 16K depth
+  val mem = withClockAndReset(io.sClk, io.sRst) { SyncReadMem(p.depth, UInt(payloadWidth.W)) }
 
   // --- Write Domain ---
   withClockAndReset(io.sClk, io.sRst) {
@@ -53,7 +51,7 @@ class AsyncFifo(val p: AsyncFifoParams) extends RawModule {
 
     when(io.sAxisTvalid && io.sAxisTready) {
       val sPayload = Cat(io.sAxisTuser, io.sAxisTdest, io.sAxisTid, io.sAxisTlast, io.sAxisTstrb, io.sAxisTkeep, io.sAxisTdata)
-      mem(wrPtr(aw - 1, 0)) := sPayload
+      mem.write(wrPtr(aw - 1, 0), sPayload)
       val nextWrPtr = wrPtr + 1.U
       wrPtr := nextWrPtr
       wrPtrGray := (nextWrPtr ^ (nextWrPtr >> 1))
@@ -72,7 +70,8 @@ class AsyncFifo(val p: AsyncFifoParams) extends RawModule {
     val readReady = !validReg || io.mAxisTready
 
     when(readReady && !empty) {
-      dataOutReg := mem(rdPtr(aw - 1, 0))
+      // SyncReadMem requires the read enable signal
+      dataOutReg := mem.read(rdPtr(aw - 1, 0), readReady && !empty)
       val nextRdPtr = rdPtr + 1.U
       rdPtr := nextRdPtr
       rdPtrGray := (nextRdPtr ^ (nextRdPtr >> 1))

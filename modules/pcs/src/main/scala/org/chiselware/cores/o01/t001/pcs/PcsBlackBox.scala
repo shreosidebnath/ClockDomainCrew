@@ -36,7 +36,7 @@ case class PcsBbParams(
   dataW: Int = 64,
   hdrW:  Int = 2,
 
-  // These are compile-time params you said your Chisel PCS uses.
+  // These are compile-time params Chisel PCS uses.
   txGbxIfEn: Boolean = true,
   rxGbxIfEn: Boolean = true,
   bitReverse: Boolean = true,
@@ -70,7 +70,7 @@ class PcsBb(p: PcsBbParams)
     "COUNT_125US"        -> DoubleParam(p.count125Us)
   )) with HasBlackBoxResource {
 
-  // This makes the emitted BlackBox module name match your wrapper module name
+  // This makes the emitted BlackBox module name match wrapper module name
   override val desiredName = "taxi_eth_phy_10g_wrapper"
 
   private val ctrlW = p.dataW / 8

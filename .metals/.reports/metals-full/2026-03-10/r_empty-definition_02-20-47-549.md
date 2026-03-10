@@ -1,3 +1,22 @@
+error id: file:///C:/Users/benja/ClockDomainCrew/ClockDomainCrew/modules/mac/src/main/scala/org/chiselware/cores/o01/t001/mac/MacBb.scala:
+file:///C:/Users/benja/ClockDomainCrew/ClockDomainCrew/modules/mac/src/main/scala/org/chiselware/cores/o01/t001/mac/MacBb.scala
+empty definition using pc, found symbol in pc: 
+empty definition using semanticdb
+empty definition using fallback
+non-local guesses:
+	 -chisel3/sAAxis_tx_tready.
+	 -chisel3/sAAxis_tx_tready#
+	 -chisel3/sAAxis_tx_tready().
+	 -sAAxis_tx_tready.
+	 -sAAxis_tx_tready#
+	 -sAAxis_tx_tready().
+	 -scala/Predef.sAAxis_tx_tready.
+	 -scala/Predef.sAAxis_tx_tready#
+	 -scala/Predef.sAAxis_tx_tready().
+offset: 1393
+uri: file:///C:/Users/benja/ClockDomainCrew/ClockDomainCrew/modules/mac/src/main/scala/org/chiselware/cores/o01/t001/mac/MacBb.scala
+text:
+```scala
 package org.chiselware.cores.o01.t001.mac
 
 import chisel3._
@@ -43,15 +62,15 @@ class MacBb(p: MacBbParams)
   private val ctrlW = p.dataW/8
 
   val io = IO(new Bundle {
-    val rxClk = Input(Clock())
-    val rxRst = Input(Bool())
-    val txClk = Input(Clock())
-    val txRst = Input(Bool())
+    val rx_clk = Input(Clock())
+    val rx_rst = Input(Bool())
+    val tx_clk = Input(Clock())
+    val tx_rst = Input(Bool())
 
-    val sAxisTxTdata  = Input(UInt(p.dataW.W))
-    val sAxisTxTkeep  = Input(UInt(ctrlW.W))
-    val sAxisTxTvalid = Input(Bool())
-    val sAxisTxTready = Output(Bool())
+    val s_axis_tx_tdata  = Input(UInt(p.dataW.W))
+    val s_axis_tx_tkeep  = Input(UInt(ctrlW.W))
+    val s_axis_tx_tvalid = Input(Bool())
+    val sAAxis_tx_t@@ready = Output(Bool())
     val sAxisTxTlast  = Input(Bool())
     val sAxisTxTuser  = Input(UInt(p.userW.W))
     val sAxisTxTid    = Input(UInt(p.idW.W))
@@ -109,3 +128,10 @@ class MacBb(p: MacBbParams)
 
   p.bbFiles.foreach(f => addResource(s"/org/chiselware/cores/o01/t001/mac/$f"))
 }
+
+```
+
+
+#### Short summary: 
+
+empty definition using pc, found symbol in pc: 

@@ -1,3 +1,22 @@
+error id: file:///C:/Users/benja/ClockDomainCrew/ClockDomainCrew/modules/mac/src/test/scala/org/chiselware/cores/o01/t001/mac/DualWrapperMac.scala:chiselStatRxPktFragment.
+file:///C:/Users/benja/ClockDomainCrew/ClockDomainCrew/modules/mac/src/test/scala/org/chiselware/cores/o01/t001/mac/DualWrapperMac.scala
+empty definition using pc, found symbol in pc: 
+empty definition using semanticdb
+empty definition using fallback
+non-local guesses:
+	 -chisel3/io/chiselStatRxPktFragment.
+	 -chisel3/io/chiselStatRxPktFragment#
+	 -chisel3/io/chiselStatRxPktFragment().
+	 -io/chiselStatRxPktFragment.
+	 -io/chiselStatRxPktFragment#
+	 -io/chiselStatRxPktFragment().
+	 -scala/Predef.io.chiselStatRxPktFragment.
+	 -scala/Predef.io.chiselStatRxPktFragment#
+	 -scala/Predef.io.chiselStatRxPktFragment().
+offset: 5530
+uri: file:///C:/Users/benja/ClockDomainCrew/ClockDomainCrew/modules/mac/src/test/scala/org/chiselware/cores/o01/t001/mac/DualWrapperMac.scala
+text:
+```scala
 package org.chiselware.cores.o01.t001.mac
 
 import chisel3._
@@ -133,7 +152,7 @@ class DualWrapperMac extends Module {
   origDut.io.mAxisRxTready   := io.rxReady
 
   // Ready for TX stream (AXIS sink ready comes from DUT)
-  io.txTready := chiselDut.io.sAxisTxTready
+  io.tx_tready := chiselDut.io.sAxisTxTready
   assert(chiselDut.io.sAxisTxTready === origDut.io.sAxisTxTready)
 
   // Export both RX outputs
@@ -142,23 +161,23 @@ class DualWrapperMac extends Module {
   io.chiselRxTvalid := chiselDut.io.mAxisRxTvalid
   io.chiselRxTlast  := chiselDut.io.mAxisRxTlast
   io.chiselRxTuser  := chiselDut.io.mAxisRxTuser
-  io.chiselRxTid    := chiselDut.io.mAxisRxTid
+  io.chiselRXTid    := chiselDut.io.mAxisRx_tid
 
   io.verilogRxTdata  := origDut.io.mAxisRxTdata
   io.verilogRxTkeep  := origDut.io.mAxisRxTkeep
   io.verilogRxTvalid := origDut.io.mAxisRxTvalid
   io.verilogRxTlast  := origDut.io.mAxisRxTlast
   io.verilogRxTuser  := origDut.io.mAxisRxTuser
-  io.verilogRxTid    := origDut.io.mAxisRxTid
+  io.verilogRXTid    := origDut.io.mAxisRx_tid
 
   // Export RX status (Chisel DUT)
   io.chiselStatRxPktGood     := chiselDut.io.statRxPktGood
-  io.chiselStatRxPktFragment := chiselDut.io.statRxPktFragment
+  io.chiselStatRxPkt@@Fragment := chiselDut.io.statRxPktFragment
   io.chiselStatRxPktBad      := chiselDut.io.statRxPktBad
   io.chiselStatRxBadFcs  := chiselDut.io.statRxErrBadFcs
   io.chiselStatRxPreamble := chiselDut.io.statRxErrPreamble
   io.chiselStatRxFraming  := chiselDut.io.statRxErrFraming
-  io.chiselStatRxErrOversize := chiselDut.io.statRxErrOversize
+  io.chiselStatRxOversize := chiselDut.io.statRxErrOversize
 
   // Export RX status (Golden / Verilog DUT)
   io.verilogStatRxPktGood     := origDut.io.statRxPktGood
@@ -167,7 +186,7 @@ class DualWrapperMac extends Module {
   io.verilogStatRxBadFcs  := origDut.io.statRxErrBadFcs
   io.verilogStatRxPreamble := origDut.io.statRxErrPreamble
   io.verilogStatRxFraming  := origDut.io.statRxErrFraming
-  io.verilogStatRxErrOversize := origDut.io.statRxErrOversize
+  io.verilogStatRxOversize := origDut.io.statRxErrOversize
 
   // Export TX status (Chisel DUT)
   io.chiselStatTxPktGood      := chiselDut.io.statTxPktGood
@@ -192,3 +211,10 @@ class DualWrapperMac extends Module {
   io.verilogXgmiiTxc      := origDut.io.xgmiiTxc
   io.verilogXgmiiTxValid := origDut.io.xgmiiTxValid
 }
+
+```
+
+
+#### Short summary: 
+
+empty definition using pc, found symbol in pc: 

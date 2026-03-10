@@ -1,3 +1,16 @@
+error id: file:///C:/Users/benja/ClockDomainCrew/ClockDomainCrew/modules/mac/src/test/scala/org/chiselware/cores/o01/t001/mac/DualWrapperMac.scala:
+file:///C:/Users/benja/ClockDomainCrew/ClockDomainCrew/modules/mac/src/test/scala/org/chiselware/cores/o01/t001/mac/DualWrapperMac.scala
+empty definition using pc, found symbol in pc: 
+empty definition using semanticdb
+empty definition using fallback
+non-local guesses:
+	 -chisel3/chiselDut/io.
+	 -chiselDut/io.
+	 -scala/Predef.chiselDut.io.
+offset: 6606
+uri: file:///C:/Users/benja/ClockDomainCrew/ClockDomainCrew/modules/mac/src/test/scala/org/chiselware/cores/o01/t001/mac/DualWrapperMac.scala
+text:
+```scala
 package org.chiselware.cores.o01.t001.mac
 
 import chisel3._
@@ -104,12 +117,12 @@ class DualWrapperMac extends Module {
     d.io.mAxisTxCplTready := true.B
 
     // TX 
-    d.io.sAxisTxTdata  := io.txTdata
-    d.io.sAxisTxTkeep  := io.txTkeep
-    d.io.sAxisTxTvalid := io.txTvalid
-    d.io.sAxisTxTlast  := io.txTlast
-    d.io.sAxisTxTuser  := io.txTuser
-    d.io.sAxisTxTid    := io.txTid
+    d.io.sAxisTxTdata  := io.tx_tdata
+    d.io.sAxisTxTkeep  := io.tx_tkeep
+    d.io.sAxisTxTvalid := io.tx_tvalid
+    d.io.sAxisTxTlast  := io.tx_tlast
+    d.io.sAxisTxTuser  := io.tx_tuser
+    d.io.sAxisTxTid    := io.tx_tid
 
     // Misc inputs
     d.io.txGbxReqSync  := 0.U
@@ -120,20 +133,20 @@ class DualWrapperMac extends Module {
   }
 
   // Drive XGMII RX into both
-  chiselDut.io.xgmiiRxd      := io.xgmiiRxd
-  chiselDut.io.xgmiiRxc      := io.xgmiiRxc
-  chiselDut.io.xgmiiRxValid := io.xgmiiRxValid
+  chiselDut.io.xgmiiRxd      := io.xgmii_rxd
+  chiselDut.io.xgmiiRxc      := io.xgmii_rxc
+  chiselDut.io.xgmiiRxValid := io.xgmii_rx_valid
 
-  origDut.io.xgmiiRxd      := io.xgmiiRxd
-  origDut.io.xgmiiRxc      := io.xgmiiRxc
-  origDut.io.xgmiiRxValid := io.xgmiiRxValid
+  origDut.io.xgmiiRxd      := io.xgmii_rxd
+  origDut.io.xgmiiRxc      := io.xgmii_rxc
+  origDut.io.xgmiiRxValid := io.xgmii_rx_valid
 
   // Ready for RX stream
-  chiselDut.io.mAxisRxTready := io.rxReady
-  origDut.io.mAxisRxTready   := io.rxReady
+  chiselDut.io.mAxisRxTready := io.rx_ready
+  origDut.io.mAxisRxTready   := io.rx_ready
 
   // Ready for TX stream (AXIS sink ready comes from DUT)
-  io.txTready := chiselDut.io.sAxisTxTready
+  io.tx_tready := chiselDut.io.sAxisTxTready
   assert(chiselDut.io.sAxisTxTready === origDut.io.sAxisTxTready)
 
   // Export both RX outputs
@@ -142,53 +155,60 @@ class DualWrapperMac extends Module {
   io.chiselRxTvalid := chiselDut.io.mAxisRxTvalid
   io.chiselRxTlast  := chiselDut.io.mAxisRxTlast
   io.chiselRxTuser  := chiselDut.io.mAxisRxTuser
-  io.chiselRxTid    := chiselDut.io.mAxisRxTid
+  io.chiselRXTid    := chiselDut.io.mAxisRx_tid
 
   io.verilogRxTdata  := origDut.io.mAxisRxTdata
   io.verilogRxTkeep  := origDut.io.mAxisRxTkeep
   io.verilogRxTvalid := origDut.io.mAxisRxTvalid
   io.verilogRxTlast  := origDut.io.mAxisRxTlast
   io.verilogRxTuser  := origDut.io.mAxisRxTuser
-  io.verilogRxTid    := origDut.io.mAxisRxTid
+  io.verilogRXTid    := origDut.io.mAxisRx_tid
 
   // Export RX status (Chisel DUT)
   io.chiselStatRxPktGood     := chiselDut.io.statRxPktGood
   io.chiselStatRxPktFragment := chiselDut.io.statRxPktFragment
   io.chiselStatRxPktBad      := chiselDut.io.statRxPktBad
-  io.chiselStatRxBadFcs  := chiselDut.io.statRxErrBadFcs
-  io.chiselStatRxPreamble := chiselDut.io.statRxErrPreamble
-  io.chiselStatRxFraming  := chiselDut.io.statRxErrFraming
-  io.chiselStatRxErrOversize := chiselDut.io.statRxErrOversize
+  io.chiselStatRxBadFcs  := chiselDut.io.statRxBadFcs
+  io.chiselStatRxPreamble := chiselDut.io.statRxPreamble
+  io.chiselStatRxFraming  := chiselDut.io.statRxFraming
+  io.chiselStatRxOversize := chiselDut.io.statRxOversize
 
   // Export RX status (Golden / Verilog DUT)
   io.verilogStatRxPktGood     := origDut.io.statRxPktGood
   io.verilogStatRxPktFragment := origDut.io.statRxPktFragment
   io.verilogStatRxPktBad      := origDut.io.statRxPktBad
-  io.verilogStatRxBadFcs  := origDut.io.statRxErrBadFcs
-  io.verilogStatRxPreamble := origDut.io.statRxErrPreamble
-  io.verilogStatRxFraming  := origDut.io.statRxErrFraming
-  io.verilogStatRxErrOversize := origDut.io.statRxErrOversize
+  io.verilogStatRxBadFcs  := origDut.io.statRxBadFcs
+  io.verilogStatRxPreamble := origDut.io.statRxPreamble
+  io.verilogStatRxFraming  := origDut.io.statRxFraming
+  io.verilogStatRxOversize := origDut.io.statRxOversize
 
   // Export TX status (Chisel DUT)
-  io.chiselStatTxPktGood      := chiselDut.io.statTxPktGood
-  io.chiselStatTxPktBad       := chiselDut.io.statTxPktBad
-  io.chiselStatTxErrOversize  := chiselDut.io.statTxErrOversize
-  io.chiselStatTxErrUser      := chiselDut.io.statTxErrUser
-  io.chiselStatTxErrUnderflow := chiselDut.io.statTxErrUnderflow
+  io.chiselStatTxPktGood      := chiselDut.io.stat_tx_pkt_good
+  io.chiselStatTxPktBad       := chiselDut.io.stat_tx_pkt_bad
+  io.chiselStatTxErrOversize  := chiselDut.io.stat_tx_err_oversize
+  io.chiselStatTxErrUser      := chiselDut.i@@o.stat_tx_err_user
+  io.chiselStatTxErrUnderflow := chiselDut.io.stat_tx_err_underflow
 
   // Export TX status (Golden / Verilog DUT)
-  io.verilogStatTxPktGood      := origDut.io.statTxPktGood
-  io.verilogStatTxPktBad       := origDut.io.statTxPktBad
-  io.verilogStatTxErrOversize  := origDut.io.statTxErrOversize
-  io.verilogStatTxErrUser      := origDut.io.statTxErrUser
-  io.verilogStatTxErrUnderflow := origDut.io.statTxErrUnderflow
+  io.verilogStatTxPktGood      := origDut.io.stat_tx_pkt_good
+  io.verilogStatTxPktBad       := origDut.io.stat_tx_pkt_bad
+  io.verilogStatTxErrOversize  := origDut.io.stat_tx_err_oversize
+  io.verilogStatTxErrUser      := origDut.io.stat_tx_err_user
+  io.verilogStatTxErrUnderflow := origDut.io.stat_tx_err_underflow
 
   // Export XGMII TX
-  io.chiselXgmiiTxd      := chiselDut.io.xgmiiTxd
-  io.chiselXgmiiTxc      := chiselDut.io.xgmiiTxc
-  io.chiselXgmiiTxValid := chiselDut.io.xgmiiTxValid
+  io.chisel_xgmii_txd      := chiselDut.io.xgmii_txd
+  io.chisel_xgmii_txc      := chiselDut.io.xgmii_txc
+  io.chisel_xgmii_tx_valid := chiselDut.io.xgmii_tx_valid
 
-  io.verilogXgmiiTxd      := origDut.io.xgmiiTxd
-  io.verilogXgmiiTxc      := origDut.io.xgmiiTxc
-  io.verilogXgmiiTxValid := origDut.io.xgmiiTxValid
+  io.verilog_xgmii_txd      := origDut.io.xgmii_txd
+  io.verilog_xgmii_txc      := origDut.io.xgmii_txc
+  io.verilog_xgmii_tx_valid := origDut.io.xgmii_tx_valid
 }
+
+```
+
+
+#### Short summary: 
+
+empty definition using pc, found symbol in pc: 

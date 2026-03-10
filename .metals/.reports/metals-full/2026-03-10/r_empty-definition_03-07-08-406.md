@@ -1,3 +1,22 @@
+error id: file:///C:/Users/benja/ClockDomainCrew/ClockDomainCrew/modules/mac/src/test/scala/org/chiselware/cores/o01/t001/mac/DualWrapperMac.scala:chiselStatTxPktGood.
+file:///C:/Users/benja/ClockDomainCrew/ClockDomainCrew/modules/mac/src/test/scala/org/chiselware/cores/o01/t001/mac/DualWrapperMac.scala
+empty definition using pc, found symbol in pc: 
+empty definition using semanticdb
+empty definition using fallback
+non-local guesses:
+	 -chisel3/io/chiselStatTxPktGood.
+	 -chisel3/io/chiselStatTxPktGood#
+	 -chisel3/io/chiselStatTxPktGood().
+	 -io/chiselStatTxPktGood.
+	 -io/chiselStatTxPktGood#
+	 -io/chiselStatTxPktGood().
+	 -scala/Predef.io.chiselStatTxPktGood.
+	 -scala/Predef.io.chiselStatTxPktGood#
+	 -scala/Predef.io.chiselStatTxPktGood().
+offset: 6388
+uri: file:///C:/Users/benja/ClockDomainCrew/ClockDomainCrew/modules/mac/src/test/scala/org/chiselware/cores/o01/t001/mac/DualWrapperMac.scala
+text:
+```scala
 package org.chiselware.cores.o01.t001.mac
 
 import chisel3._
@@ -170,7 +189,7 @@ class DualWrapperMac extends Module {
   io.verilogStatRxErrOversize := origDut.io.statRxErrOversize
 
   // Export TX status (Chisel DUT)
-  io.chiselStatTxPktGood      := chiselDut.io.statTxPktGood
+  io.chise@@lStatTxPktGood      := chiselDut.io.statTxPktGood
   io.chiselStatTxPktBad       := chiselDut.io.statTxPktBad
   io.chiselStatTxErrOversize  := chiselDut.io.statTxErrOversize
   io.chiselStatTxErrUser      := chiselDut.io.statTxErrUser
@@ -192,3 +211,10 @@ class DualWrapperMac extends Module {
   io.verilogXgmiiTxc      := origDut.io.xgmiiTxc
   io.verilogXgmiiTxValid := origDut.io.xgmiiTxValid
 }
+
+```
+
+
+#### Short summary: 
+
+empty definition using pc, found symbol in pc: 

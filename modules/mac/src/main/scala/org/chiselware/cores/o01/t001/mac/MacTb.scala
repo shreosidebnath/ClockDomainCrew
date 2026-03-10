@@ -1,62 +1,81 @@
 package org.chiselware.cores.o01.t001.mac
+
 import chisel3._
 
 class MacTb(val p: MacParams) extends Module {
-  val keepW = p.dataW / 8
-  val txUserW = 1
-  val rxUserW =
-    (if (p.ptpTsEn)
-       p.ptpTsW
-     else
-       0) + 1
-  val txTagW = 8 // Extracted from s_axis_tx.ID_W
+  private val keepW = p.dataW / 8
+  private val txUserW = 1
+  private val rxUserW = (if (p.ptpTsEn) p.ptpTsW else 0) + 1
+  private val txTagW = 8 // Extracted from s_axis_tx.ID_W
 
   val io = IO(new Bundle {
     val rxClk = Input(Clock())
     val rxRst = Input(Bool())
     val txClk = Input(Clock())
     val txRst = Input(Bool())
-    val sAxisTx = Flipped(new AxisInterface(AxisInterfaceParams(
-      dataW = p.dataW,
-      keepW = keepW,
-      idEn = true,
-      idW = txTagW,
-      userEn = true,
-      userW = txUserW
-    )))
+    
+    val sAxisTx = Flipped(
+      new AxisInterface(
+        AxisInterfaceParams(
+          dataW = p.dataW,
+          keepW = keepW,
+          idEn = true,
+          idW = txTagW,
+          userEn = true,
+          userW = txUserW
+        )
+      )
+    )
+
     val mAxisTxCpl =
-      new AxisInterface(AxisInterfaceParams(dataW = 96, keepW = 1, idW = 8))
+      new AxisInterface(
+        AxisInterfaceParams(
+          dataW = 96, 
+          keepW = 1, 
+          idW = 8
+        )
+      )
+
     val mAxisRx =
-      new AxisInterface(AxisInterfaceParams(
+      new AxisInterface(
+        AxisInterfaceParams(
         dataW = p.dataW,
         keepW = keepW,
         userEn = true,
         userW = rxUserW
-      ))
+      )
+    )
+
     val xgmiiRxd = Input(UInt(p.dataW.W))
     val xgmiiRxc = Input(UInt(p.ctrlW.W))
     val xgmiiRxValid = Input(Bool())
     val xgmiiTxd = Output(UInt(p.dataW.W))
     val xgmiiTxc = Output(UInt(p.ctrlW.W))
     val xgmiiTxValid = Output(Bool())
+
     val txGbxReqSync = Input(UInt(p.gbxCnt.W))
     val txGbxReqStall = Input(Bool())
     val txGbxSync = Output(UInt(p.gbxCnt.W))
+
     val txPtpTs = Input(UInt(p.ptpTsW.W))
     val rxPtpTs = Input(UInt(p.ptpTsW.W))
+
     val txLfcReq = Input(Bool())
     val txLfcResend = Input(Bool())
     val rxLfcEn = Input(Bool())
     val rxLfcReq = Output(Bool())
     val rxLfcAck = Input(Bool())
+
     val txPfcReq = Input(UInt(8.W))
     val txPfcResend = Input(Bool())
     val rxPfcEn = Input(UInt(8.W))
     val rxPfcReq = Output(UInt(8.W))
     val rxPfcAck = Input(UInt(8.W))
+
     val txLfcPauseEn = Input(Bool())
     val txPauseReq = Input(Bool())
     val txPauseAck = Output(Bool())
+
     val txStartPacket = Output(UInt(2.W))
     val statTxByte = Output(UInt(4.W))
     val statTxPktLen = Output(UInt(16.W))
@@ -69,6 +88,7 @@ class MacTb(val p: MacParams) extends Module {
     val statTxErrOversize = Output(Bool())
     val statTxErrUser = Output(Bool())
     val statTxErrUnderflow = Output(Bool())
+
     val rxStartPacket = Output(UInt(2.W))
     val statRxByte = Output(UInt(4.W))
     val statRxPktLen = Output(UInt(16.W))
@@ -85,29 +105,36 @@ class MacTb(val p: MacParams) extends Module {
     val statRxErrBadBlock = Output(Bool())
     val statRxErrFraming = Output(Bool())
     val statRxErrPreamble = Output(Bool())
+
     val statTxMcf = Output(Bool())
     val statRxMcf = Output(Bool())
+
     val statTxLfcPkt = Output(Bool())
     val statTxLfcXon = Output(Bool())
     val statTxLfcXoff = Output(Bool())
     val statTxLfcPaused = Output(Bool())
+
     val statTxPfcPkt = Output(Bool())
     val statTxPfcXon = Output(UInt(8.W))
     val statTxPfcXoff = Output(UInt(8.W))
     val statTxPfcPaused = Output(UInt(8.W))
+
     val statRxLfcPkt = Output(Bool())
     val statRxLfcXon = Output(Bool())
     val statRxLfcXoff = Output(Bool())
     val statRxLfcPaused = Output(Bool())
+
     val statRxPfcPkt = Output(Bool())
     val statRxPfcXon = Output(UInt(8.W))
     val statRxPfcXoff = Output(UInt(8.W))
     val statRxPfcPaused = Output(UInt(8.W))
+
     val cfgTxMaxPktLen = Input(UInt(16.W))
     val cfgTxIfg = Input(UInt(8.W))
     val cfgTxEnable = Input(Bool())
     val cfgRxMaxPktLen = Input(UInt(16.W))
     val cfgRxEnable = Input(Bool())
+
     val cfgMcfRxEthDstMcast = Input(UInt(48.W))
     val cfgMcfRxCheckEthDstMcast = Input(Bool())
     val cfgMcfRxEthDstUcast = Input(UInt(48.W))
@@ -121,6 +148,7 @@ class MacTb(val p: MacParams) extends Module {
     val cfgMcfRxCheckOpcodePfc = Input(Bool())
     val cfgMcfRxForward = Input(Bool())
     val cfgMcfRxEnable = Input(Bool())
+
     val cfgTxLfcEthDst = Input(UInt(48.W))
     val cfgTxLfcEthSrc = Input(UInt(48.W))
     val cfgTxLfcEthType = Input(UInt(16.W))
@@ -128,6 +156,7 @@ class MacTb(val p: MacParams) extends Module {
     val cfgTxLfcEn = Input(Bool())
     val cfgTxLfcQuanta = Input(UInt(16.W))
     val cfgTxLfcRefresh = Input(UInt(16.W))
+
     val cfgTxPfcEthDst = Input(UInt(48.W))
     val cfgTxPfcEthSrc = Input(UInt(48.W))
     val cfgTxPfcEthType = Input(UInt(16.W))
@@ -135,59 +164,70 @@ class MacTb(val p: MacParams) extends Module {
     val cfgTxPfcEn = Input(Bool())
     val cfgTxPfcQuanta = Input(Vec(8, UInt(16.W)))
     val cfgTxPfcRefresh = Input(Vec(8, UInt(16.W)))
+
     val cfgRxLfcOpcode = Input(UInt(16.W))
     val cfgRxLfcEn = Input(Bool())
     val cfgRxPfcOpcode = Input(UInt(16.W))
     val cfgRxPfcEn = Input(Bool())
   })
 
-  val dut = Module(new Mac(
-    dataW = p.dataW,
-    ctrlW = p.ctrlW,
-    txGbxIfEn = p.txGbxIfEn,
-    rxGbxIfEn = p.rxGbxIfEn,
-    gbxCnt = p.gbxCnt,
-    paddingEn = p.paddingEn,
-    dicEn = p.dicEn,
-    minFrameLen = p.minFrameLen,
-    ptpTsEn = p.ptpTsEn,
-    ptpTsFmtTod = p.ptpTsFmtTod,
-    ptpTsW = p.ptpTsW,
-    pfcEn = p.pfcEn,
-    pauseEn = p.pauseEn
-  ))
+  private val dut = Module(
+    new Mac(
+      dataW = p.dataW,
+      ctrlW = p.ctrlW,
+      txGbxIfEn = p.txGbxIfEn,
+      rxGbxIfEn = p.rxGbxIfEn,
+      gbxCnt = p.gbxCnt,
+      paddingEn = p.paddingEn,
+      dicEn = p.dicEn,
+      minFrameLen = p.minFrameLen,
+      ptpTsEn = p.ptpTsEn,
+      ptpTsFmtTod = p.ptpTsFmtTod,
+      ptpTsW = p.ptpTsW,
+      pfcEn = p.pfcEn,
+      pauseEn = p.pauseEn
+    )
+  )
 
-  dut.io.rxClk := io.rxClk
+dut.io.rxClk := io.rxClk
   dut.io.rxRst := io.rxRst
   dut.io.txClk := io.txClk
   dut.io.txRst := io.txRst
+
   io.sAxisTx <> dut.io.sAxisTx
   dut.io.mAxisTxCpl <> io.mAxisTxCpl
   dut.io.mAxisRx <> io.mAxisRx
+
   dut.io.xgmiiRxd := io.xgmiiRxd
   dut.io.xgmiiRxc := io.xgmiiRxc
   dut.io.xgmiiRxValid := io.xgmiiRxValid
   io.xgmiiTxd := dut.io.xgmiiTxd
   io.xgmiiTxc := dut.io.xgmiiTxc
   io.xgmiiTxValid := dut.io.xgmiiTxValid
+
   dut.io.txGbxReqSync := io.txGbxReqSync
   dut.io.txGbxReqStall := io.txGbxReqStall
   io.txGbxSync := dut.io.txGbxSync
+
   dut.io.txPtpTs := io.txPtpTs
   dut.io.rxPtpTs := io.rxPtpTs
+
   dut.io.txLfcReq := io.txLfcReq
   dut.io.txLfcResend := io.txLfcResend
   dut.io.rxLfcEn := io.rxLfcEn
   io.rxLfcReq := dut.io.rxLfcReq
   dut.io.rxLfcAck := io.rxLfcAck
+
   dut.io.txPfcReq := io.txPfcReq
   dut.io.txPfcResend := io.txPfcResend
   dut.io.rxPfcEn := io.rxPfcEn
   io.rxPfcReq := dut.io.rxPfcReq
   dut.io.rxPfcAck := io.rxPfcAck
+
   dut.io.txLfcPauseEn := io.txLfcPauseEn
   dut.io.txPauseReq := io.txPauseReq
   io.txPauseAck := dut.io.txPauseAck
+
   io.txStartPacket := dut.io.txStartPacket
   io.statTxByte := dut.io.statTxByte
   io.statTxPktLen := dut.io.statTxPktLen
@@ -200,6 +240,7 @@ class MacTb(val p: MacParams) extends Module {
   io.statTxErrOversize := dut.io.statTxErrOversize
   io.statTxErrUser := dut.io.statTxErrUser
   io.statTxErrUnderflow := dut.io.statTxErrUnderflow
+
   io.rxStartPacket := dut.io.rxStartPacket
   io.statRxByte := dut.io.statRxByte
   io.statRxPktLen := dut.io.statRxPktLen
@@ -216,29 +257,36 @@ class MacTb(val p: MacParams) extends Module {
   io.statRxErrBadBlock := dut.io.statRxErrBadBlock
   io.statRxErrFraming := dut.io.statRxErrFraming
   io.statRxErrPreamble := dut.io.statRxErrPreamble
+
   io.statTxMcf := dut.io.statTxMcf
   io.statRxMcf := dut.io.statRxMcf
+
   io.statTxLfcPkt := dut.io.statTxLfcPkt
   io.statTxLfcXon := dut.io.statTxLfcXon
   io.statTxLfcXoff := dut.io.statTxLfcXoff
   io.statTxLfcPaused := dut.io.statTxLfcPaused
+
   io.statTxPfcPkt := dut.io.statTxPfcPkt
   io.statTxPfcXon := dut.io.statTxPfcXon
   io.statTxPfcXoff := dut.io.statTxPfcXoff
   io.statTxPfcPaused := dut.io.statTxPfcPaused
+
   io.statRxLfcPkt := dut.io.statRxLfcPkt
   io.statRxLfcXon := dut.io.statRxLfcXon
   io.statRxLfcXoff := dut.io.statRxLfcXoff
   io.statRxLfcPaused := dut.io.statRxLfcPaused
+
   io.statRxPfcPkt := dut.io.statRxPfcPkt
   io.statRxPfcXon := dut.io.statRxPfcXon
   io.statRxPfcXoff := dut.io.statRxPfcXoff
   io.statRxPfcPaused := dut.io.statRxPfcPaused
+
   dut.io.cfgTxMaxPktLen := io.cfgTxMaxPktLen
   dut.io.cfgTxIfg := io.cfgTxIfg
   dut.io.cfgTxEnable := io.cfgTxEnable
   dut.io.cfgRxMaxPktLen := io.cfgRxMaxPktLen
   dut.io.cfgRxEnable := io.cfgRxEnable
+
   dut.io.cfgMcfRxEthDstMcast := io.cfgMcfRxEthDstMcast
   dut.io.cfgMcfRxCheckEthDstMcast := io.cfgMcfRxCheckEthDstMcast
   dut.io.cfgMcfRxEthDstUcast := io.cfgMcfRxEthDstUcast
@@ -252,6 +300,7 @@ class MacTb(val p: MacParams) extends Module {
   dut.io.cfgMcfRxCheckOpcodePfc := io.cfgMcfRxCheckOpcodePfc
   dut.io.cfgMcfRxForward := io.cfgMcfRxForward
   dut.io.cfgMcfRxEnable := io.cfgMcfRxEnable
+
   dut.io.cfgTxLfcEthDst := io.cfgTxLfcEthDst
   dut.io.cfgTxLfcEthSrc := io.cfgTxLfcEthSrc
   dut.io.cfgTxLfcEthType := io.cfgTxLfcEthType
@@ -259,6 +308,7 @@ class MacTb(val p: MacParams) extends Module {
   dut.io.cfgTxLfcEn := io.cfgTxLfcEn
   dut.io.cfgTxLfcQuanta := io.cfgTxLfcQuanta
   dut.io.cfgTxLfcRefresh := io.cfgTxLfcRefresh
+
   dut.io.cfgTxPfcEthDst := io.cfgTxPfcEthDst
   dut.io.cfgTxPfcEthSrc := io.cfgTxPfcEthSrc
   dut.io.cfgTxPfcEthType := io.cfgTxPfcEthType
@@ -266,6 +316,7 @@ class MacTb(val p: MacParams) extends Module {
   dut.io.cfgTxPfcEn := io.cfgTxPfcEn
   dut.io.cfgTxPfcQuanta := io.cfgTxPfcQuanta
   dut.io.cfgTxPfcRefresh := io.cfgTxPfcRefresh
+
   dut.io.cfgRxLfcOpcode := io.cfgRxLfcOpcode
   dut.io.cfgRxLfcEn := io.cfgRxLfcEn
   dut.io.cfgRxPfcOpcode := io.cfgRxPfcOpcode

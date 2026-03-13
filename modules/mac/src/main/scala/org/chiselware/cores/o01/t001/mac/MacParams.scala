@@ -17,6 +17,13 @@ case class MacParams(
   ptpTsW: Int = 96,
   pfcEn: Boolean = false,
   pauseEn: Boolean = false,
+  statEn: Boolean = true,
+  statTxLevel: Int = 1,
+  statRxLevel: Int = 1,
+  statIdBase: Int = 0,
+  statUpdatePeriod: Int = 1024,
+  statStrEn: Boolean = false,
+  statPrefixStr: String = "MAC"
 )
 
 object MacParams {

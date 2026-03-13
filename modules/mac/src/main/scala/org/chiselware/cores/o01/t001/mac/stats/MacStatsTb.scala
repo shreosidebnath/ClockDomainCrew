@@ -26,9 +26,13 @@ class MacStatsTb(val p: MacStatsParams) extends Module {
   dut.io.statClk := io.statClk
   dut.io.statRst := io.statRst
 
-  io.mAxisStatTdata := dut.io.mAxisStatTdata
-  io.mAxisStatTvalid := dut.io.mAxisStatTvalid
-  dut.io.mAxisStatTready := io.mAxisStatTready
+  // io.mAxisStatTdata := dut.io.mAxisStatTdata
+  // io.mAxisStatTvalid := dut.io.mAxisStatTvalid
+  // dut.io.mAxisStatTready := io.mAxisStatTready
+
+  io.mAxisStatTdata := dut.io.mAxisStat.tdata
+  io.mAxisStatTvalid := dut.io.mAxisStat.tvalid
+  dut.io.mAxisStat.tready := io.mAxisStatTready
 
   // Tie off required inputs for the TB wrapper to compile cleanly
   dut.io.txStartPacket := false.B

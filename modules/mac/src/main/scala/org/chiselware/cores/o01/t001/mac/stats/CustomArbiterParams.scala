@@ -25,14 +25,14 @@ object CustomArbiterParams {
   val synConfigs = synConfigMap.keys.mkString(" ")
 }
 
-object sdcFile {
-  def create(sdcFilePath: String): Unit = {
-    val sdcFileData = ""
-    val sdcFileDir = new File(sdcFilePath)
-    sdcFileDir.mkdirs()
-    val sdcFileName = new File(s"$sdcFilePath/CustomArbiter.sdc")
-    val sdcFile = new PrintWriter(sdcFileName)
-    sdcFile.write(sdcFileData)
-    sdcFile.close()
-  }
-}
+// object sdcFile {
+//   def create(sdcFilePath: String): Unit = {
+//     val sdcFileData = ""
+//     val sdcFileDir = new File(sdcFilePath)
+//     sdcFileDir.mkdirs()
+//     val sdcFileName = new File(s"$sdcFilePath/CustomArbiter.sdc")
+//     val sdcFile = new PrintWriter(sdcFileName)
+//     sdcFile.write(sdcFileData)
+//     sdcFile.close()
+//   }
+// }

@@ -3,6 +3,7 @@ import _root_.circt.stage.ChiselStage
 import chisel3._
 import org.chiselware.cores.o01.t001.mac.rx.Xgmii2Axis64
 import org.chiselware.cores.o01.t001.mac.tx.Axis2Xgmii64
+import org.chiselware.cores.o01.t001.mac.stats.{MacStats, MacStatsParams}
 import org.chiselware.syn.{ RunScriptFile, StaTclFile, YosysTclFile }
 
 class Mac(
@@ -18,21 +19,20 @@ class Mac(
     val ptpTsFmtTod: Boolean = true,
     val ptpTsW: Int = 96,
     val pfcEn: Boolean = false,
-    val pauseEn: Boolean = false) extends RawModule {
+    val pauseEn: Boolean = false,
+    val statEn: Boolean = true,
+    val statTxLevel: Int = 1,
+    val statRxLevel: Int = 1,
+    val statIdBase: Int = 0,
+    val statUpdatePeriod: Int = 1024,
+    val statStrEn: Boolean = false,
+    val statPrefixStr: String = "MAC") extends RawModule {
 
   val keepW = dataW / 8
   val macCtrlEn = pauseEn || pfcEn
   val txUserW = 1
-  val rxUserW =
-    (if (ptpTsEn)
-       ptpTsW
-     else
-       0) + 1
-  val txUserWInt =
-    (if (macCtrlEn)
-       1
-     else
-       0) + txUserW
+  val rxUserW = (if (ptpTsEn) ptpTsW else 0) + 1
+  val txUserWInt = (if (macCtrlEn) 1 else 0) + txUserW
   val txTagW = 8 // Extracted from s_axis_tx.ID_W
 
   // Check configuration
@@ -51,6 +51,8 @@ class Mac(
     val rxRst = Input(Bool())
     val txClk = Input(Clock())
     val txRst = Input(Bool())
+    val statClk = Input(Clock())
+    val statRst = Input(Bool())
 
     // Transmit interface (AXI stream)
     val sAxisTx = Flipped(new AxisInterface(AxisInterfaceParams(
@@ -75,6 +77,19 @@ class Mac(
         keepW = keepW,
         userEn = true,
         userW = rxUserW
+      ))
+
+    // Stat interface (AXI stream)
+    val mAxisStat =
+      new AxisInterface(AxisInterfaceParams(
+        dataW = 16,
+        keepW = 1,
+        keepEn = false,
+        lastEn = false,
+        userEn = true,
+        userW = 1,
+        idEn = true,
+        idW = 8
       ))
 
     // XGMII interface
@@ -142,6 +157,7 @@ class Mac(
     val statRxErrBadBlock = Output(Bool())
     val statRxErrFraming = Output(Bool())
     val statRxErrPreamble = Output(Bool())
+    val statRxFifoDrop = Input(Bool())
 
     val statTxMcf = Output(Bool())
     val statRxMcf = Output(Bool())
@@ -316,7 +332,7 @@ class Mac(
   // MAC Control / Bridging Logic
   // -------------------------------------------------------------
   if (macCtrlEn) {
-    // Implement control logic here
+    // Currently not implemented
   } else {
 
     // Connect external TX input to internal TX MAC
@@ -348,6 +364,70 @@ class Mac(
     io.statRxPfcXon := 0.U
     io.statRxPfcXoff := 0.U
     io.statRxPfcPaused := 0.U
+  }
+
+  if (statEn) {
+    val statsInst = Module(new MacStats(MacStatsParams(
+      statTxLevel = statTxLevel,
+      statRxLevel = statRxLevel,
+      statIdBase = statIdBase,
+      statUpdatePeriod = statUpdatePeriod,
+      statStrEn = statStrEn,
+      statPrefixStr = statPrefixStr,
+      incW = 4
+    )))
+
+    // Clock and Reset Connections
+    statsInst.io.rxClk := io.rxClk
+    statsInst.io.rxRst := io.rxRst
+    statsInst.io.txClk := io.txClk
+    statsInst.io.txRst := io.txRst
+    statsInst.io.statClk := io.statClk
+    statsInst.io.statRst := io.statRst
+
+
+    io.mAxisStat <> statsInst.io.mAxisStat
+
+
+    // TX Status Mapping
+    statsInst.io.txStartPacket := io.txStartPacket.orR
+    statsInst.io.statTxByte := io.statTxByte
+    statsInst.io.statTxPktLen := io.statTxPktLen
+    statsInst.io.statTxPktUcast := io.statTxPktUcast
+    statsInst.io.statTxPktMcast := io.statTxPktMcast
+    statsInst.io.statTxPktBcast := io.statTxPktBcast
+    statsInst.io.statTxPktGood := io.statTxPktGood
+    statsInst.io.statTxErrUser := io.statTxErrUser
+    statsInst.io.statTxErrUnderflow := io.statTxErrUnderflow
+    statsInst.io.statTxErrOversize := io.statTxErrOversize
+    statsInst.io.statTxMcf := io.statTxMcf
+
+    // RX Status Mapping
+    statsInst.io.rxStartPacket := io.rxStartPacket.orR
+    statsInst.io.statRxByte := io.statRxByte
+    statsInst.io.statRxPktLen := io.statRxPktLen
+    statsInst.io.statRxErrBadFcs := io.statRxErrBadFcs
+    statsInst.io.statRxFifoDrop := io.statRxFifoDrop
+    statsInst.io.statRxErrOversize := io.statRxErrOversize
+    statsInst.io.statRxMcf := io.statRxMcf
+    statsInst.io.statRxErrBadBlock := io.statRxErrBadBlock
+    statsInst.io.statRxErrFraming := io.statRxErrFraming
+    statsInst.io.statRxPktGood := io.statRxPktGood
+    statsInst.io.statRxPktBad := io.statRxPktBad
+    statsInst.io.statRxPktUcast := io.statRxPktUcast
+    statsInst.io.statRxPktMcast := io.statRxPktMcast
+    statsInst.io.statRxPktBcast := io.statRxPktBcast
+
+  }
+  else {
+    io.mAxisStat.tdata := 0.U
+    io.mAxisStat.tkeep := 1.U
+    io.mAxisStat.tstrb := io.mAxisStat.tkeep
+    io.mAxisStat.tvalid := false.B
+    io.mAxisStat.tlast := true.B
+    io.mAxisStat.tid := 0.U
+    io.mAxisStat.tdest := 0.U
+    io.mAxisStat.tuser := 0.U
   }
 }
 
@@ -388,7 +468,14 @@ object Main extends App {
         ptpTsFmtTod = p.ptpTsFmtTod,
         ptpTsW = p.ptpTsW,
         pfcEn = p.pfcEn,
-        pauseEn = p.pauseEn
+        pauseEn = p.pauseEn,
+        statEn = p.statEn,
+        statTxLevel = p.statTxLevel,
+        statRxLevel = p.statRxLevel,
+        statIdBase = p.statIdBase,
+        statUpdatePeriod = p.statUpdatePeriod,
+        statStrEn = p.statStrEn,
+        statPrefixStr = p.statPrefixStr
       ),
       firtoolOpts = Array(
         "--lowering-options=disallowLocalVariables,disallowPackedArrays",

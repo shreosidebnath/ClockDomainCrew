@@ -385,13 +385,9 @@ class Mac(
     statsInst.io.statClk := io.statClk
     statsInst.io.statRst := io.statRst
 
-    // Statistics AXI Stream Output Mapping
-    io.mAxisStat.tdata  := statsInst.io.mAxisStatTdata
-    io.mAxisStat.tvalid := statsInst.io.mAxisStatTvalid
-    statsInst.io.mAxisStatTready := io.mAxisStat.tready
-    io.mAxisStat.tlast  := statsInst.io.mAxisStatTlast
-    io.mAxisStat.tid    := statsInst.io.mAxisStatTid
-    io.mAxisStat.tuser  := statsInst.io.mAxisStatTuser
+
+    io.mAxisStat <> statsInst.io.mAxisStat
+
 
     // TX Status Mapping
     statsInst.io.txStartPacket := io.txStartPacket.orR

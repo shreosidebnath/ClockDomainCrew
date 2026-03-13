@@ -4,7 +4,59 @@ import chisel3._
 import chisel3.util._
 import _root_.circt.stage.ChiselStage
 
+import org.chiselware.cores.o01.t001.mac._
+
 class MacStats(val p: MacStatsParams) extends RawModule {
+  // val io = IO(new Bundle {
+  //   // Clocks and Resets
+  //   val rxClk = Input(Clock())
+  //   val rxRst = Input(Bool())
+  //   val txClk = Input(Clock())
+  //   val txRst = Input(Bool())
+  //   val statClk = Input(Clock())
+  //   val statRst = Input(Bool())
+
+  //   // Output Statistics AXI Stream
+  //   val mAxisStatTdata  = Output(UInt(p.dataW.W))
+  //   val mAxisStatTkeep  = Output(UInt(p.keepW.W))
+  //   val mAxisStatTstrb  = Output(UInt(p.keepW.W))
+  //   val mAxisStatTvalid = Output(Bool())
+  //   val mAxisStatTready = Input(Bool())
+  //   val mAxisStatTlast  = Output(Bool())
+  //   val mAxisStatTid    = Output(UInt(p.idW.W))
+  //   val mAxisStatTdest  = Output(UInt(p.destW.W))
+  //   val mAxisStatTuser  = Output(UInt(p.userW.W))
+
+  //   // TX Status Inputs
+  //   val txStartPacket     = Input(Bool())
+  //   val statTxByte        = Input(UInt(p.incW.W))
+  //   val statTxPktLen      = Input(UInt(16.W))
+  //   val statTxPktUcast    = Input(Bool())
+  //   val statTxPktMcast    = Input(Bool())
+  //   val statTxPktBcast    = Input(Bool())
+  //   val statTxPktGood     = Input(Bool())
+  //   val statTxErrUser     = Input(Bool())
+  //   val statTxErrUnderflow= Input(Bool())
+  //   val statTxErrOversize = Input(Bool())
+  //   val statTxMcf         = Input(Bool())
+
+  //   // RX Status Inputs
+  //   val rxStartPacket     = Input(Bool())
+  //   val statRxByte        = Input(UInt(p.incW.W))
+  //   val statRxPktLen      = Input(UInt(16.W))
+  //   val statRxErrBadFcs   = Input(Bool())
+  //   val statRxFifoDrop    = Input(Bool())
+  //   val statRxErrOversize = Input(Bool())
+  //   val statRxMcf         = Input(Bool())
+  //   val statRxErrBadBlock = Input(Bool())
+  //   val statRxErrFraming  = Input(Bool())
+  //   val statRxPktGood     = Input(Bool())
+  //   val statRxPktBad      = Input(Bool())
+  //   val statRxPktUcast    = Input(Bool())
+  //   val statRxPktMcast    = Input(Bool())
+  //   val statRxPktBcast    = Input(Bool())
+  // })
+
   val io = IO(new Bundle {
     // Clocks and Resets
     val rxClk = Input(Clock())
@@ -14,16 +66,17 @@ class MacStats(val p: MacStatsParams) extends RawModule {
     val statClk = Input(Clock())
     val statRst = Input(Bool())
 
-    // Output Statistics AXI Stream
-    val mAxisStatTdata  = Output(UInt(p.dataW.W))
-    val mAxisStatTkeep  = Output(UInt(p.keepW.W))
-    val mAxisStatTstrb  = Output(UInt(p.keepW.W))
-    val mAxisStatTvalid = Output(Bool())
-    val mAxisStatTready = Input(Bool())
-    val mAxisStatTlast  = Output(Bool())
-    val mAxisStatTid    = Output(UInt(p.idW.W))
-    val mAxisStatTdest  = Output(UInt(p.destW.W))
-    val mAxisStatTuser  = Output(UInt(p.userW.W))
+    // Output Statistics AXI Stream (USING EDWARD'S INTERFACE)
+    val mAxisStat = new AxisInterface(AxisInterfaceParams(
+        dataW = 16,
+        keepW = 1,
+        keepEn = false,
+        lastEn = false,
+        userEn = true,
+        userW = 1,
+        idEn = true,
+        idW = 8
+      ))
 
     // TX Status Inputs
     val txStartPacket     = Input(Bool())
@@ -54,6 +107,41 @@ class MacStats(val p: MacStatsParams) extends RawModule {
     val statRxPktMcast    = Input(Bool())
     val statRxPktBcast    = Input(Bool())
   })
+
+
+  val axisStatTx = new AxisInterface(AxisInterfaceParams(
+        dataW = 16,
+        keepW = 1,
+        keepEn = false,
+        lastEn = false,
+        userEn = true,
+        userW = 1,
+        idEn = true,
+        idW = 8
+  ))
+
+  val axisStatRx = new AxisInterface(AxisInterfaceParams(
+        dataW = 16,
+        keepW = 1,
+        keepEn = false,
+        lastEn = false,
+        userEn = true,
+        userW = 1,
+        idEn = true,
+        idW = 8
+  ))
+
+  val axisStatInt = Vec(2, new AxisInterface(AxisInterfaceParams(
+        dataW = 16,
+        keepW = 1,
+        keepEn = false,
+        lastEn = false,
+        userEn = true,
+        userW = 1,
+        idEn = true,
+        idW = 8
+  )))
+
 
   // --------------------------------------------------------
   // TX DOMAIN LOGIC
@@ -187,19 +275,30 @@ class MacStats(val p: MacStatsParams) extends RawModule {
   mux.io.s_axis(1).tdest  := rxFifo.io.mAxisTdest
   mux.io.s_axis(1).tuser  := rxFifo.io.mAxisTuser
 
+  // // Connect MUX to Top Level IO
+  // io.mAxisStatTdata  := mux.io.m_axis.tdata
+  // io.mAxisStatTkeep  := mux.io.m_axis.tkeep
+  // io.mAxisStatTstrb  := mux.io.m_axis.tstrb
+  // io.mAxisStatTvalid := mux.io.m_axis.tvalid
+  // mux.io.m_axis.tready := io.mAxisStatTready
+  // io.mAxisStatTlast  := mux.io.m_axis.tlast
+  // io.mAxisStatTid    := mux.io.m_axis.tid
+  // io.mAxisStatTdest  := mux.io.m_axis.tdest
+  // io.mAxisStatTuser  := mux.io.m_axis.tuser
+
   // Connect MUX to Top Level IO
-  io.mAxisStatTdata  := mux.io.m_axis.tdata
-  io.mAxisStatTkeep  := mux.io.m_axis.tkeep
-  io.mAxisStatTstrb  := mux.io.m_axis.tstrb
-  io.mAxisStatTvalid := mux.io.m_axis.tvalid
-  mux.io.m_axis.tready := io.mAxisStatTready
-  io.mAxisStatTlast  := mux.io.m_axis.tlast
-  io.mAxisStatTid    := mux.io.m_axis.tid
-  io.mAxisStatTdest  := mux.io.m_axis.tdest
-  io.mAxisStatTuser  := mux.io.m_axis.tuser
+  io.mAxisStat.tdata  := mux.io.m_axis.tdata
+  io.mAxisStat.tkeep  := mux.io.m_axis.tkeep
+  io.mAxisStat.tstrb  := mux.io.m_axis.tstrb
+  io.mAxisStat.tvalid := mux.io.m_axis.tvalid
+  mux.io.m_axis.tready := io.mAxisStat.tready
+  io.mAxisStat.tlast  := mux.io.m_axis.tlast
+  io.mAxisStat.tid    := mux.io.m_axis.tid
+  io.mAxisStat.tdest  := mux.io.m_axis.tdest
+  io.mAxisStat.tuser  := mux.io.m_axis.tuser
 }
 
-object MacStatsMain extends App {
+object Main extends App {
   val mainClassName = "Mac"
   val coreDir = s"modules/${mainClassName.toLowerCase()}"
   MacStatsParams.synConfigMap.foreach { case (configName, p) =>

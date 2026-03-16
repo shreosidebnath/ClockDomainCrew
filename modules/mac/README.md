@@ -1,4 +1,4 @@
-**Mac**
+**MAC**
 
 A parameterized Ethernet Media Access Control (MAC) core.
 

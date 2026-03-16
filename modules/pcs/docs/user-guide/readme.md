@@ -98,35 +98,105 @@ cfgTxPrbs31Enable = 1
 
 the PCS transmits PRBS31 data instead of normal Ethernet traffic.
 
+## Receive Path (RX PCS)
+
+The receive datapath converts encoded PCS blocks from the SERDES into XGMII data for the MAC.
+
+### RX Architecture
+
+
+SERDES RX | v +----------------+ | Block Sync | +----------------+ | v +----------------+ | Descrambler | +----------------+ | v +----------------+ | XGMII Decoder | +----------------+ | v XGMII RX
+
+
+### Block Lock
+
+The PCS monitors received synchronization headers to determine correct alignment of 64b/66b blocks.
+
+Once sufficient valid blocks are observed, block lock is asserted.
+
+rxBlockLock = 1
+
+Loss of synchronization clears block lock.
+
+### Descrambler
+
+The receive descrambler reverses the scrambling operation applied during transmission.
+
+The descrambler uses the same LFSR polynomial as the transmitter.
+
+### Error Detection
+
+The PCS monitors several error conditions:
+
+Signal	Description
+rxBadBlock	invalid block detected
+rxSequenceError	sequence error
+rxHighBer	high bit error rate detected
+
+These signals allow higher layers to detect link problems.
+
+
+## Configuration Parameters
+
+The PCS is configurable through parameters.
+
+Parameter	Description
+dataW	data width
+ctrlW	control width
+hdrW	header width
+bitReverse	bit order reversal
+scramblerDisable	disable scrambler
+prbs31En	enable PRBS31
+
+These parameters allow the PCS to be adapted for different interface requirements.
+
+
+## Status Signals
+
+The PCS provides status outputs to monitor link health.
+
+Signal	Description
+rxBlockLock	indicates block synchronization
+rxHighBer	high bit error rate detected
+rxErrorCount	accumulated errors
+txBadBlock	invalid TX block
+
+
+## Integration with MAC
+The PCS connects directly to the MAC through the XGMII interface.
+
+Typical system architecture:
+
+Application Logic
+       |
+       v
+      MAC
+       |
+       v
+      PCS
+       |
+       v
+     SERDES
+       |
+       v
+   Physical Link
+
+The PCS handles all encoding and decoding required by the Ethernet physical layer.
+
+
+## Summary 
+The PCS core implements a complete 10GBASE-R Physical Coding Sublayer including:
+
+- transmit encoding
+- receive decoding
+- scrambling / descrambling
+- block synchronization
+- error detection
+- PRBS31 test support
+
+The core is fully synthesizable and can be integrated into high-speed Ethernet FPGA or ASIC designs.
 
 
 
-SERDES Interface
-
-The PCS connects to the SERDES using a 64-bit datapath with a 2-bit synchronization header.
-
-Signal	Direction	Description
-serdesTxData	Output	encoded transmit data
-serdesTxHdr	Output	block header
-serdesTxDataValid	Output	transmit valid
-serdesRxData	Input	received encoded data
-serdesRxHdr	Input	received header
-serdesRxDataValid	Input	receive valid
 
 
-Implements IEEE 802.3 Clause 49 PCS functionality:
-- 64b/66b encoding/decoding
-- Scrambling/descrambling
-- Lane alignment and deskew
-
-## Interfaces
-
-- **Input**: XGMII (from MAC layer)
-- **Output**: Serialized data (to PMD/Transceiver)
-
-## Documentation Structure
-
-- `images/` - Block diagrams and architecture
-- `draw.io/` - Editable diagram sources
-- `wavedrom/` - Timing diagrams
-- `pdf/` - Compiled documentation

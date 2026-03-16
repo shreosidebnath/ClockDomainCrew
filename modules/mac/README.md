@@ -24,6 +24,7 @@ The MAC is implemented in Chisel and generates synthesizable SystemVerilog RTL.
 ## Getting Started
 
 It is recommended that the user reads the MAC User Guide which can be found in:
+
 modules/mac/docs/user-guide
 
 The user guide contains detailed documentation on:
@@ -63,6 +64,7 @@ These tools are only required for running regression tests and synthesis flows.
 ## Installation
 
 There are no special installation requirements 
+
 The MAC core can be cloned and used directly as part of the project repository.
 
 Example
@@ -125,6 +127,7 @@ sbt:ClockDomainCrew-core-mac> test
 ## Synthesis
 
 The MAC core is a fully synthesizable hardware design.
+
 The design supports synthesis flows using both open-source and commercial tools.
 
 Generated synthesis artifacts include:

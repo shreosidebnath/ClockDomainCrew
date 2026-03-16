@@ -28,13 +28,14 @@ It is recommended that the user reads the MAC User Guide which can be found in:
 modules/mac/docs/user-guide
 
 The user guide contains detailed documentation on:
--MAC architecture
--AXI Stream interfaces
--XGMII interface
--Transmit datapath
--Receive datapath
--configuration parameters
--statistics and monitoring signals
+
+- MAC architecture
+- AXI Stream interfaces
+- XGMII interface
+- Transmit datapath
+- Receive datapath
+- configuration parameters
+- statistics and monitoring signals
 
 ## Dependencies
 

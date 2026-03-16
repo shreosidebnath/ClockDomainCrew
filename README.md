@@ -130,4 +130,7 @@ Electrical Engineering Capstone Project
 
 ## License
 
+This project is licensed under the CERN-OHL-S v2 license. 
+
 See LICENSE.md for license information.
+

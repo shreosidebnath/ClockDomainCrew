@@ -125,20 +125,63 @@ The implementation uses concepts and structure inspired by the open-source Ether
 
 This project was used as a golden reference for architecture and module organization.
 
-## Building the Project
-The hardware design is written in Chisel and compiled using SBT.
+## Running the Project
+The primary way to interact with the project is through the provided Makefiles. The build system is split to support the MAC and PCS cores independently.
 
-Start the build environment:
+_(Note: You can substitute `Makefile.mac` with `Makefile.pcs` in any of the Make commands below to target the other module.)_
 
-sbt
+### Building (via sbt)
+```bash
+# Compile all modules
+sbt compile
 
-To generate RTL:
+# Compile specific module
+sbt "project mac" compile
+sbt "project pcs" compile
+```
 
-project core
+### Testing
 
-run
+Run the following command to execute the test suite for the MAC core:
+```bash
+make -f Makefile.mac test
+```
 
-Generated SystemVerilog will appear in the generated directories of each module.
+This is equivalent to running the following under the hood:
+```bash
+sbt "project mac" test
+```
+
+and writes output to:
+```bash
+modules/mac/generated/test.rpt
+```
+
+### Generating Verilog
+
+Generate SystemVerilog and synthesis collateral for the MAC core:
+```bash
+make -f Makefile.mac verilog
+```
+
+This is equivalent to running the following under the hood:
+```bash
+sbt "project mac" run
+```
+
+Entrypoint:
+```bash
+org.chiselware.cores.o01.t001.mac.Main
+```
+
+
+### Full regression Flow
+Run everything end-to-end (cleans the directory, runs tests with coverage, generates Verilog, synthesizes with Yosys, builds documentation, and checks for errors):
+
+```bash
+make -f Makefile.mac all
+```
+
 
 ## Simulation
 

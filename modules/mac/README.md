@@ -1,8 +1,8 @@
-#MAC
+# MAC
 
 A parameterized Ethernet Media Access Control (MAC) core.
 
-##Description
+## Description
 
 The MAC core implements the Ethernet Media Access Control layer responsible for transmitting and receiving Ethernet frames between application logic and the physical interface.
 The MAC connects a packet-based AXI-Stream interface to a 64-bit XGMII interface, enabling integration with high-speed Ethernet Physical Coding Sublayer (PCS) modules.
@@ -21,7 +21,7 @@ The design includes independent transmit and receive datapaths that perform the 
 The MAC is implemented in Chisel and generates synthesizable SystemVerilog RTL.
 
 
-**Getting Started**
+## Getting Started
 
 It is recommended that the user reads the MAC User Guide which can be found in:
 modules/mac/docs/user-guide
@@ -35,16 +35,16 @@ The user guide contains detailed documentation on:
 -configuration parameters
 -statistics and monitoring signals
 
-**Dependencies**
+## Dependencies
 
 The MAC core relies on the following tools for simulation, testing, and synthesis flows:
 
-**Required Tools**
+## Required Tools
 
 - sbt – Scala build tool used to compile Chisel code
 - Chisel3 – Hardware construction language used to generate RT
 
-**Optional Tools (for testing and synthesis)**
+## Optional Tools (for testing and synthesis)
 
 - Yosys (version 0.9 or later)
 Open-source synthesis framework used to generate gate-level netlists.
@@ -60,7 +60,7 @@ Commercial simulation tool from Synopsys.
 These tools are only required for running regression tests and synthesis flows.
 
 
-**Installation**
+## Installation
 
 There are no special installation requirements 
 The MAC core can be cloned and used directly as part of the project repository.
@@ -74,7 +74,7 @@ cd ClockDomainCrew
 The MAC core resides in:
 module/mac
 
-**Generating Verilog RTL**
+## Generating Verilog RTL
 
 The MAC is written in Chisel and generates synthesizable SystemVerilog RTL
 
@@ -97,7 +97,7 @@ The generated output inculdes:
 - configuration-specific build artifacts
 - synthesis test configurations
 
-**Running a Simulation**
+## Running a Simulation
 
 Simulation can be performed using several supported simulators.
 
@@ -122,7 +122,7 @@ sbt:ClockDomainCrew> project core
 
 sbt:ClockDomainCrew-core-mac> test
 
-**Synthesis**
+## Synthesis
 
 The MAC core is a fully synthesizable hardware design.
 The design supports synthesis flows using both open-source and commercial tools.
@@ -141,11 +141,11 @@ These directories include:
 
 The included flows allow users to run synthesis regressions out-of-the-box and can be adapted to commercial EDA tools.
 
-**Authors**
+## Authors
 
 ClockDomainCrew Capstone Team University of Calgary 2026
 
-**Version History**
+## Version History
 
 1.0.0
 Initial release of the MAC core.
@@ -160,6 +160,6 @@ Features include:
 - packet statistics
 - optional timestamp support
 
-**License**
+## License
 See the LICENSE.md file for license rights and limitations.
 

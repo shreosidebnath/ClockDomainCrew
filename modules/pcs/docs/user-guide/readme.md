@@ -243,10 +243,11 @@ The descrambler uses the same LFSR polynomial as the transmitter.
 
 The PCS monitors several error conditions:
 
-Signal	Description
-rxBadBlock	invalid block detected
-rxSequenceError	sequence error
-rxHighBer	high bit error rate detected
+| Signal | Description |
+|-------|-------------|
+| rxBadBlock | invalid block detected |
+| rxSequenceError | sequence error |
+| rxHighBer | high bit error rate detected |
 
 These signals allow higher layers to detect link problems.
 

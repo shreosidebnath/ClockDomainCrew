@@ -46,7 +46,9 @@ There are no special installation requirements.
 Clone the repository and build using sbt:
 
 git clone <https://github.com/shreosidebnath/ClockDomainCrew>
+
 cd ClockDomainCrew
+
 sbt
 
 The PCS core can be used standalone or integrated into larger Ethernet designs.
@@ -56,6 +58,7 @@ The PCS core can be used standalone or integrated into larger Ethernet designs.
 Example SystemVerilog RTL can be generated using the provided Chisel main application.
 
 Start sbt:
+
 sbt
 
 Then run the PCS project:

@@ -1,13 +1,11 @@
-#Mac
+**Mac**
 A parameterized Ethernet Media Access Control (MAC) core.
 
-##Description
+**Description**
 The MAC core implements the Ethernet Media Access Control layer responsible for transmitting and receiving Ethernet frames between application logic and the physical interface.
-
 The MAC connects a packet-based AXI-Stream interface to a 64-bit XGMII interface, enabling integration with high-speed Ethernet Physical Coding Sublayer (PCS) modules.
 
 The design includes independent transmit and receive datapaths that perform the following functions:
-
 - Ethernet frame generation
 - Ethernet frame reception
 - Frame Check Sequence (FCS) generation and verification
@@ -19,7 +17,7 @@ The design includes independent transmit and receive datapaths that perform the 
 
 The MAC is implemented in Chisel and generates synthesizable SystemVerilog RTL.
 
-#Getting Started 
+**Getting Started **
 It is recommended that the user reads the MAC User Guide which can be found in:
 modules/mac/docs/user-guide
 
@@ -119,10 +117,10 @@ These directories include:
 
 The included flows allow users to run synthesis regressions out-of-the-box and can be adapted to commercial EDA tools.
 
-Authors
-ClockDomainCrew Capstone Team
+**Authors**
+ClockDomainCrew Capstone Team University of Calgary 2026
 
-Version History
+**Version History**
 1.0.0
 Initial release of the MAC core.
 
@@ -136,6 +134,6 @@ Features include:
 - packet statistics
 - optional timestamp support
 
-License
+**License**
 See the LICENSE.md file for license rights and limitations.
 

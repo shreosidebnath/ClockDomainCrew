@@ -284,20 +284,21 @@ The PCS provides status outputs to monitor link health.
 The PCS connects directly to the MAC through the XGMII interface.
 
 Typical system architecture:
-
+```
 Application Logic
-       |
-       v
+       │
+       ▼
       MAC
-       |
-       v
+       │
+       ▼
       PCS
-       |
-       v
+       │
+       ▼
      SERDES
-       |
-       v
+       │
+       ▼
    Physical Link
+```
 
 The PCS handles all encoding and decoding required by the Ethernet physical layer.
 

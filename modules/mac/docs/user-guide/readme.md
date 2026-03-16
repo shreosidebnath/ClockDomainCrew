@@ -24,6 +24,7 @@ The design contains two primary datapaths:
 
 The MAC architecture consists of separate transmit and receive modules connected through a wrapper module.
 
+```
 Application Logic
        │
        ▼
@@ -44,6 +45,7 @@ Application Logic
        │
        ▼
  AXI Stream RX
+```
 
 The Mac wrapper module instantiates both datapaths and connects the XGMII interface signals.
 

@@ -20,23 +20,50 @@ Together these modules form the digital portion of a 10G Ethernet network interf
 
 ## System Architecture
 
-+----------------------+ | Application Logic | +----------+-----------+ | v +----------------------+ | MAC | | (XGMII Interface) | +----------+-----------+ | v +----------------------+ | PCS | | TX / RX Encoding | +----------+-----------+ | v +----------------------+ | SERDES | | Serializer / PHY | +----------+-----------+ | v Ethernet Link
+```
++----------------------+
+|   Application Logic  |
++----------+-----------+
+           │
+           ▼
++----------------------+
+|         MAC          |
+|    (XGMII Interface) |
++----------+-----------+
+           │
+           ▼
++----------------------+
+|         PCS          |
+|    TX / RX Encoding  |
++----------+-----------+
+           │
+           ▼
++----------------------+
+|        SERDES        |
+|    Serializer / PHY  |
++----------+-----------+
+           │
+           ▼
+        Ethernet Link
+```
 
 The MAC exchanges data with application logic while the PCS prepares the data for transmission over a high-speed serial physical interface.
 
 ## Repository Structure
 
+```
 ClockDomainCrew/
 ├── build.sbt
-├── Makefile.base         # Primary build + verification engine
-├── Makefile.pcs          # Injects PCS variables into Makefile.base
-├── Makefile.mac          # Injects MAC variables into Makefile.base
-├── docs/                 # Project-level reports and documentation
+├── Makefile.base          # Primary build + verification engine
+├── Makefile.pcs           # Injects PCS variables into Makefile.base
+├── Makefile.mac           # Injects MAC variables into Makefile.base
+├── docs/                  # Project-level reports and documentation
 ├── modules/
-│   ├── mac/              # MAC layer (standalone)
-│   ├── pcs/              # PCS layer (standalone)
-├── Scapy-Tests/          # Loopback tests using Scapy
-└── project/              # sbt plugins and build config
+│   ├── mac/               # MAC layer (standalone)
+│   └── pcs/               # PCS layer (standalone)
+├── Scapy-Tests/           # Loopback tests using Scapy
+└── project/               # sbt plugins and build configuration
+```
 
 ### modules/mac
 Contains the implementation of the Ethernet Media Access Control layer, including:

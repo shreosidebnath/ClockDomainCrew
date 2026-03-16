@@ -1,94 +1,31 @@
-# ClockDomainCrew
+# ClockDomainCrew – 10G Ethernet MAC + PCS
 
-Chisel-based 10 Gigabit Ethernet implementation following chiselware standards.
+This repository contains a hardware implementation of a 10 Gigabit Ethernet Media Access Control (MAC) and Physical Coding Sublayer (PCS) written in Chisel.
 
-## Modules
+The project was developed as a capstone design project and implements the digital logic required to transmit and receive Ethernet frames using a 10GBASE-R style architecture.
 
-### MAC - Media Access Control
-**Location:** `modules/mac/`
+The design converts Ethernet frames from the MAC layer into encoded data suitable for high-speed serial transmission and performs the reverse operation on receive.
 
-10G Ethernet MAC layer implementing IEEE 802.3 framing, CRC, and flow control.
-- Standalone module usable independently
-- AXI-Stream interface for packet data
-- XGMII interface to PCS layer
+## Project Overview
 
-**Status:** In development
+The Ethernet datapath is composed of two major components:
 
-### PCS - Physical Coding Sublayer
-**Location:** `modules/pcs/`
+### MAC (Media Access Control)
+Handles Ethernet frame formatting, control characters, and the XGMII interface.
 
-Physical coding sublayer implementing 64b/66b encoding and lane management.
-- Standalone module usable independently
-- XGMII interface from MAC layer
-- Serialized output to transceiver
+### PCS (Physical Coding Sublayer)
+Implements 64b/66b encoding, scrambling, synchronization, and decoding between the MAC and SERDES.
 
-**Status:** In development
+Together these modules form the digital portion of a 10G Ethernet network interface.
 
-### nfmac10g (Reference)
-**Location:** `modules/nfmac10g/`
+## System Architecture
 
-Original Verilog-to-Chisel translation. Kept for reference only.
-Not following chiselware standards - do not use as template.
++----------------------+ | Application Logic | +----------+-----------+ | v +----------------------+ | MAC | | (XGMII Interface) | +----------+-----------+ | v +----------------------+ | PCS | | TX / RX Encoding | +----------+-----------+ | v +----------------------+ | SERDES | | Serializer / PHY | +----------+-----------+ | v Ethernet Link
 
-## Running the Project
-The primary way to interact with the project is through the provided Makefiles. The build system is split to support the MAC and PCS cores independently.
+The MAC exchanges data with application logic while the PCS prepares the data for transmission over a high-speed serial physical interface.
 
-_(Note: You can substitute `Makefile.mac` with `Makefile.pcs` in any of the Make commands below to target the other module.)_
+## Repository Structure
 
-### Building (via sbt)
-```bash
-# Compile all modules
-sbt compile
-
-# Compile specific module
-sbt "project mac" compile
-sbt "project pcs" compile
-```
-
-### Testing
-
-Run the following command to execute the test suite for the MAC core:
-```bash
-make -f Makefile.mac test
-```
-
-This is equivalent to running the following under the hood:
-```bash
-sbt "project mac" test
-```
-
-and writes output to:
-```bash
-modules/mac/generated/test.rpt
-```
-
-### Generating Verilog
-
-Generate SystemVerilog and synthesis collateral for the MAC core:
-```bash
-make -f Makefile.mac verilog
-```
-
-This is equivalent to running the following under the hood:
-```bash
-sbt "project mac" run
-```
-
-Entrypoint:
-```bash
-org.chiselware.cores.o01.t001.mac.Main
-```
-
-
-### Full regression Flow
-Run everything end-to-end (cleans the directory, runs tests with coverage, generates Verilog, synthesizes with Yosys, builds documentation, and checks for errors):
-
-```bash
-make -f Makefile.mac all
-```
-
-## Project Structure
-```
 ClockDomainCrew/
 ├── build.sbt
 ├── Makefile.base         # Primary build + verification engine
@@ -98,31 +35,72 @@ ClockDomainCrew/
 ├── modules/
 │   ├── mac/              # MAC layer (standalone)
 │   ├── pcs/              # PCS layer (standalone)
-│   └── nfmac10g/         # Reference only (soon to be removed)
 ├── Scapy-Tests/          # Loopback tests using Scapy
 └── project/              # sbt plugins and build config
-```
 
-The following is the structure inside each mac and pcs project directories.
+### modules/mac
+Contains the implementation of the Ethernet Media Access Control layer, including:
 
-```
-...
-│
-├── modules/
-│   └── <core_name>/           # Core hardware module (mac or pcs)
-│       ├── docs/
-│       │   └── user-guide/    # LaTeX-based user guide
-│       ├── generated/         # Verilog, reports, coverage, synthesis output
-│       ├── src/
-│       │   ├── main/scala/    # Chisel sources
-│       │   └── test/scala/    # ChiselTest tests
-│       └── target/            # sbt build output
-```
+- AXI-Stream interfaces
+- XGMII transmit and receive logic
+- frame processing
 
-## Development Approach
+### modules/pcs
 
-Building incrementally following chiselware standards:
-1. Clean interface definitions
-2. Well-documented code with descriptive names
-3. Modular design for reusability
-4. Comprehensive testing at each phase
+Contains the Physical Coding Sublayer, including:
+- 64b/66b encoding and decoding
+- scrambling and descrambling
+- block synchronization
+- error detection
+
+## Reference Design 
+
+The implementation uses concepts and structure inspired by the open-source Ethernet core:
+- Taxi FPGA Ethernet Core
+
+This project was used as a golden reference for architecture and module organization.
+
+## Building the Project
+The hardware design is written in Chisel and compiled using SBT.
+
+Start the build environment:
+sbt
+
+To generate RTL:
+project core
+run
+
+Generated SystemVerilog will appear in the generated directories of each module.
+
+## Simulation
+
+Simulations can be executed using several supported Verilog simulators:
+- Verilator
+- Icarus Verilog
+- Synopsys VCS
+
+Run the included tests with:
+
+sbt
+project core
+test
+
+## Documentation
+
+Detailed documentation for each module can be found in the user guides:
+
+modules/mac/docs/user-guide
+modules/pcs/docs/user-guide
+
+These guides describe the internal architecture, interfaces, and configuration parameters of each subsystem.
+
+## Authors
+
+ClockDomainCrew
+University of Calgary
+2026
+Electrical Engineering Capstone Project
+
+## License
+
+See LICENSE.md for license information.

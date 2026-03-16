@@ -116,7 +116,9 @@ Initial release including TX and RX PCS implementation.
 
 ## License
 
-See the LICENSE.md file for license rights and limitations.
+This project is licensed under the CERN-OHL-S v2 license. 
+
+See LICENSE.md for license information.
 
 
 

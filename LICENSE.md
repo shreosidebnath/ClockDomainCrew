@@ -1,98 +1,69 @@
-# Apache License
+# CERN Open Hardware License Version 2 – Strongly Reciprocal (CERN-OHL-S-2.0)
 
-Version 2.0, January 2004
-http://www.apache.org/licenses/
+Copyright © 2026 ClockDomainCrew
+University of Calgary – Schulich School of Engineering
 
-Copyright 2026 ClockDomainCrew
+This Source describes Open Hardware and is licensed under the
+**CERN-OHL-S v2 (Strongly Reciprocal)**.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+You may redistribute and modify this documentation and make products using it
+under the terms of the CERN-OHL-S v2 license.
 
-http://www.apache.org/licenses/LICENSE-2.0
+This license ensures that any modifications to the design, documentation, or
+derivative hardware must also be released under the same license.
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+You should have received a copy of the CERN-OHL-S v2 license along with this
+source. If not, see:
+
+https://ohwr.org/cern_ohl_s_v2.txt
 
 ---
 
-## Apache License
+## Summary of License Terms
 
-Version 2.0, January 2004
+Under the CERN-OHL-S v2 license you are permitted to:
 
-TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+* Use the hardware design and documentation
+* Modify the source and create derivative works
+* Manufacture and distribute products based on the design
+* Share the design publicly
 
-### 1. Definitions
+The following conditions apply:
 
-"License" shall mean the terms and conditions for use, reproduction,
-and distribution as defined by Sections 1 through 9 of this document.
+* Any modified versions of the design **must also be released under CERN-OHL-S v2**
+* You must **retain copyright notices and license notices**
+* You must **make the complete corresponding source available** when distributing products based on the design
 
-"Licensor" shall mean the copyright owner or entity authorized by
-the copyright owner that is granting the License.
+---
 
-"Legal Entity" shall mean the union of the acting entity and all
-other entities that control, are controlled by, or are under common
-control with that entity.
+## Warranty Disclaimer
 
-"Source" form shall mean the preferred form for making modifications,
-including but not limited to software source code, documentation
-source, and configuration files.
+This documentation and the associated hardware designs are provided **“as is”** without warranty of any kind, either expressed or implied, including but not limited to:
 
-"Object" form shall mean any form resulting from mechanical
-transformation or translation of a Source form.
+* merchantability
+* fitness for a particular purpose
+* non-infringement
 
-### 2. Grant of Copyright License
+The authors shall not be held liable for any damages arising from the use of this design.
 
-Subject to the terms and conditions of this License, each Contributor
-hereby grants to You a perpetual, worldwide, non-exclusive, no-charge,
-royalty-free, irrevocable copyright license to reproduce, prepare
-Derivative Works of, publicly display, publicly perform, sublicense,
-and distribute the Work and such Derivative Works in Source or Object form.
+---
 
-### 3. Grant of Patent License
+## Full License Text
 
-Subject to the terms and conditions of this License, each Contributor
-hereby grants to You a perpetual, worldwide, non-exclusive, no-charge,
-royalty-free, irrevocable patent license to make, have made, use,
-offer to sell, sell, import, and otherwise transfer the Work.
+The complete license text is available at:
 
-### 4. Redistribution
+https://ohwr.org/cern_ohl_s_v2.txt
 
-You may reproduce and distribute copies of the Work or Derivative Works
-thereof in any medium, with or without modifications, provided that
-You meet the following conditions:
+or
 
-* You must give any other recipients of the Work a copy of this License.
-* You must cause any modified files to carry prominent notices stating
-  that You changed the files.
-* You must retain all copyright, patent, trademark, and attribution notices.
+https://opensource.org/license/cern-ohl-s/
 
-### 5. Submission of Contributions
+---
 
-Unless You explicitly state otherwise, any Contribution intentionally
-submitted for inclusion in the Work by You to the Licensor shall be
-under the terms and conditions of this License.
+## Attribution
 
-### 6. Trademarks
+If you use or build upon this project, please acknowledge the original work:
 
-This License does not grant permission to use the trade names,
-trademarks, service marks, or product names of the Licensor.
-
-### 7. Disclaimer of Warranty
-
-Unless required by applicable law or agreed to in writing, the Work
-is provided on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS
-OF ANY KIND.
-
-### 8. Limitation of Liability
-
-In no event and under no legal theory shall any Contributor be liable
-for any damages arising from the use of the Work.
-
-### 9. Accepting Warranty or Additional Liability
-
-While redistributing the Work, you may choose to offer support,
-warranty, or liability obligations, but only on your own behalf.
+ClockDomainCrew
+10G Ethernet MAC + PCS Capstone Project
+University of Calgary

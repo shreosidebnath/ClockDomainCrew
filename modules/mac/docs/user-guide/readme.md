@@ -275,9 +275,9 @@ Transmit statistics:
 ```
 | Signal          | Description                  |
 | --------------- | ---------------------------- |
-| `statTxPktLen`  | Length of transmitted packet |
-| `statTxPktGood` | Valid transmitted packet     |
-| `statTxPktBad`  | Packet transmission error    |
+| statTxPktLen  | Length of transmitted packet |
+| statTxPktGood | Valid transmitted packet     |
+| statTxPktBad  | Packet transmission error    |
 
 ```
 Receive statistics:
@@ -285,12 +285,12 @@ Receive statistics:
 ```
 | Signal              | Description               |
 | ------------------- | ------------------------- |
-| `statRxPktLen`      | Length of received packet |
-| `statRxPktGood`     | Valid received packet     |
-| `statRxPktBad`      | Packet error              |
-| `statRxErrBadFcs`   | CRC error                 |
-| `statRxErrOversize` | Oversized frame           |
-| `statRxErrFraming`  | Framing error             |
+| statRxPktLen      | Length of received packet |
+| statRxPktGood     | Valid received packet     |
+| statRxPktBad      | Packet error              |
+| statRxErrBadFcs   | CRC error                 |
+| statRxErrOversize | Oversized frame           |
+| statRxErrFraming  | Framing error             |
 
 ```
 
@@ -301,9 +301,9 @@ Configuration parameters:
 ```
 | Parameter     | Description         |
 | ------------- | ------------------- |
-| `ptpTsEn`     | Enable timestamping |
-| `ptpTsFmtTod` | Timestamp format    |
-| `ptpTsW`      | Timestamp width     |
+| ptpTsEn       | Enable timestamping |
+| ptpTsFmtTod   | Timestamp format    |
+| ptpTsW        | Timestamp width     |
 
 ```
 When enabled, timestamps are attached to transmitted or received packets through metadata fields.

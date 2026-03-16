@@ -178,6 +178,7 @@ Minimum frame length: 64 bytes
 Ethernet requires a minimum delay between consecutive frames.
 
 Default gap:12 bytes
+
 The transmit module inserts idle characters on the XGMII interface to enforce the inter-frame gap.
 
 

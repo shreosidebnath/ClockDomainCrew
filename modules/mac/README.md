@@ -1,8 +1,8 @@
-**MAC**
+#MAC
 
 A parameterized Ethernet Media Access Control (MAC) core.
 
-**Description**
+##Description
 
 The MAC core implements the Ethernet Media Access Control layer responsible for transmitting and receiving Ethernet frames between application logic and the physical interface.
 The MAC connects a packet-based AXI-Stream interface to a 64-bit XGMII interface, enabling integration with high-speed Ethernet Physical Coding Sublayer (PCS) modules.

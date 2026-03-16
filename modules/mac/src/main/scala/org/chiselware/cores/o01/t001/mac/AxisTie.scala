@@ -12,7 +12,6 @@ class AxisTie(
     val mAxis = new AxisInterface(mParams)
   })
 
-  // Extract and combine parameters (Equivalent to SV localparams)
   val dataW = sParams.dataW
   val keepEn = sParams.keepEn && mParams.keepEn
   val keepW = sParams.keepW
@@ -22,7 +21,7 @@ class AxisTie(
   val destEn = sParams.destEn && mParams.destEn
   val userEn = sParams.userEn && mParams.userEn
 
-  // Check configuration (Equivalent to SV $fatal checks)
+  // Check configuration
   require(
     mParams.dataW == dataW,
     s"Error: Interface DATA_W parameter mismatch (m_axis: ${mParams.dataW}, s_axis: $dataW)"
@@ -43,7 +42,6 @@ class AxisTie(
   if (keepEn) {
     io.mAxis.tkeep := io.sAxis.tkeep
   } else {
-    // Equivalent to '1 in SystemVerilog
     io.mAxis.tkeep := Fill(mParams.keepW, 1.U(1.W))
   }
 
@@ -78,15 +76,13 @@ class AxisTie(
   }
 }
 
-// 2. The Companion Object (The Magic Factory)
+// 2. The Companion Object
 object AxisTie {
-  // This takes the ACTUAL interface objects you already created in your parent module
   def apply(
       sAxisIn: AxisInterface,
       mAxisOut: AxisInterface
     ): Unit = {
 
-    // Extract the parameters directly from the passed objects!
     val sParams = sAxisIn.p
     val mParams = mAxisOut.p
 

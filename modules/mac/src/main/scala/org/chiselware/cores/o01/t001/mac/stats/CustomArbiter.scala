@@ -132,31 +132,31 @@ object CustomArbiter {
   ))
 }
 
-object Main extends App {
-  val mainClassName = "Mac"
-  val coreDir = s"modules/${mainClassName.toLowerCase()}"
-  CustomArbiterParams.synConfigMap.foreach { case (configName, p) =>
-    println(s"Generating Verilog for config: $configName")
-    ChiselStage.emitSystemVerilog(
-      new CustomArbiter(
-        ports = p.ports, 
-        arbRoundRobin = p.arbRoundRobin,
-        arbBlock = p.arbBlock,
-        arbBlockAck = p.arbBlockAck,
-        lsbHighPrio = p.lsbHighPrio
-      ),
-      firtoolOpts = Array(
-        "--lowering-options=disallowLocalVariables,disallowPackedArrays",
-        "--disable-all-randomization",
-        "--strip-debug-info",
-        "--split-verilog",
-        s"-o=${coreDir}/generated/synTestCases/$configName"
-      )
-    )
-    // Synthesis collateral generation
-    sdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-    YosysTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
-    StaTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
-    RunScriptFile.create(mainClassName, CustomArbiterParams.synConfigs, s"${coreDir}/generated/synTestCases")
-  }
-}
+// object Main extends App {
+//   val mainClassName = "Mac"
+//   val coreDir = s"modules/${mainClassName.toLowerCase()}"
+//   CustomArbiterParams.synConfigMap.foreach { case (configName, p) =>
+//     println(s"Generating Verilog for config: $configName")
+//     ChiselStage.emitSystemVerilog(
+//       new CustomArbiter(
+//         ports = p.ports, 
+//         arbRoundRobin = p.arbRoundRobin,
+//         arbBlock = p.arbBlock,
+//         arbBlockAck = p.arbBlockAck,
+//         lsbHighPrio = p.lsbHighPrio
+//       ),
+//       firtoolOpts = Array(
+//         "--lowering-options=disallowLocalVariables,disallowPackedArrays",
+//         "--disable-all-randomization",
+//         "--strip-debug-info",
+//         "--split-verilog",
+//         s"-o=${coreDir}/generated/synTestCases/$configName"
+//       )
+//     )
+//     // Synthesis collateral generation
+//     sdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
+//     YosysTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
+//     StaTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
+//     RunScriptFile.create(mainClassName, CustomArbiterParams.synConfigs, s"${coreDir}/generated/synTestCases")
+//   }
+// }

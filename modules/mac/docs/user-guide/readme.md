@@ -314,12 +314,12 @@ Key configuration parameters include:
 ```
 | Parameter     | Description                 |
 | ------------- | --------------------------- |
-| `dataW`       | AXI data width              |
-| `keepW`       | Byte enable width           |
-| `minFrameLen` | Minimum Ethernet frame size |
-| `ptpTsEn`     | Enable timestamp support    |
-| `txTagW`      | TX tag width                |
-| `userW`       | User signal width           |
+| dataW       | AXI data width              |
+| keepW       | Byte enable width           |
+| minFrameLen | Minimum Ethernet frame size |
+| ptpTsEn     | Enable timestamp support    |
+| txTagW      | TX tag width                |
+| userW       | User signal width           |
 
 ```
 

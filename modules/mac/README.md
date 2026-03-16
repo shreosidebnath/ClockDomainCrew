@@ -41,8 +41,8 @@ The MAC core relies on the following tools for simulation, testing, and synthesi
 
 **Required Tools**
 
--sbt – Scala build tool used to compile Chisel code
--Chisel3 – Hardware construction language used to generate RT
+- sbt – Scala build tool used to compile Chisel code
+- Chisel3 – Hardware construction language used to generate RT
 
 **Optional Tools (for testing and synthesis)**
 
@@ -78,13 +78,18 @@ module/mac
 
 The MAC is written in Chisel and generates synthesizable SystemVerilog RTL
 
-To generate RTLL
+To generate RTL
+
 $ sbt
+
 sbt:ClockDomainCrew>
+
 sbt:ClockDomainCrew> project core
+
 sbt:ClockDomainCrew-core-mac> run
 
 Generated RTL files will appear in:
+
 modules/mac/generated
 
 The generated output inculdes:
@@ -93,7 +98,9 @@ The generated output inculdes:
 - synthesis test configurations
 
 **Running a Simulation**
+
 Simulation can be performed using several supported simulators.
+
 Supported simulators include:
 - Verilator
 - iVerilog
@@ -105,13 +112,18 @@ Simulation tests verify the correct operation of:
 - CRC generation
 - padding logic
 - inter-frame gap enforcement
+
 Tests can be executed with:
 $ sbt
+
 sbt:ClockDomainCrew>
+
 sbt:ClockDomainCrew> project core
+
 sbt:ClockDomainCrew-core-mac> test
 
 **Synthesis**
+
 The MAC core is a fully synthesizable hardware design.
 The design supports synthesis flows using both open-source and commercial tools.
 
@@ -130,9 +142,11 @@ These directories include:
 The included flows allow users to run synthesis regressions out-of-the-box and can be adapted to commercial EDA tools.
 
 **Authors**
+
 ClockDomainCrew Capstone Team University of Calgary 2026
 
 **Version History**
+
 1.0.0
 Initial release of the MAC core.
 

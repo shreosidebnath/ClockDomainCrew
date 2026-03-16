@@ -36,13 +36,15 @@ The PCS performs block encoding, scrambling, synchronization, and error detectio
 
 The PCS connects to the MAC through an XGMII interface.
 
-Signal   	Direction	Description
-xgmiiTxd	Input	transmit data
-xgmiiTxc	Input	transmit control
-xgmiiTxValid	Input	TX data valid
-xgmiiRxd	Output	receive data
-xgmiiRxc	Output	receive control
-xgmiiRxValid	Output	RX data valid
+
+| Signal | Direction | Description |
+|-------|-----------|-------------|
+| xgmiiTxd | Input | transmit data |
+| xgmiiTxc | Input | transmit control |
+| xgmiiTxValid | Input | TX data valid |
+| xgmiiRxd | Output | receive data |
+| xgmiiRxc | Output | receive control |
+| xgmiiRxValid | Output | RX data valid |
 
 
 ## Transmit Path (TX PCS)

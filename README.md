@@ -91,10 +91,13 @@ This project was used as a golden reference for architecture and module organiza
 The hardware design is written in Chisel and compiled using SBT.
 
 Start the build environment:
+
 sbt
 
 To generate RTL:
+
 project core
+
 run
 
 Generated SystemVerilog will appear in the generated directories of each module.
@@ -117,6 +120,7 @@ test
 Detailed documentation for each module can be found in the user guides:
 
 modules/mac/docs/user-guide
+
 modules/pcs/docs/user-guide
 
 These guides describe the internal architecture, interfaces, and configuration parameters of each subsystem.

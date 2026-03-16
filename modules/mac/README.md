@@ -70,7 +70,7 @@ The MAC core can be cloned and used directly as part of the project repository.
 
 Example
 
-git clone<https://github.com/shreosidebnath/ClockDomainCrew>
+git clone  <https://github.com/shreosidebnath/ClockDomainCrew>
 
 cd ClockDomainCrew
 

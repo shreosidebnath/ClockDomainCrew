@@ -83,7 +83,7 @@ Contains the Physical Coding Sublayer, including:
 ## Reference Design 
 
 The implementation uses concepts and structure inspired by the open-source Ethernet core:
-- Taxi FPGA Ethernet Core
+- Ninja Taxi FPGA Ethernet Core
 
 This project was used as a golden reference for architecture and module organization.
 

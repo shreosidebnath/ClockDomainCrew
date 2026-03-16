@@ -161,5 +161,8 @@ Features include:
 - optional timestamp support
 
 ## License
-See the LICENSE.md file for license rights and limitations.
+
+This project is licensed under the CERN-OHL-S v2 license. 
+
+See LICENSE.md for license information.
 

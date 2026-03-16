@@ -3,8 +3,10 @@
 A parameterized Ethernet Media Access Control (MAC) core.
 
 **Description**
+
 The MAC core implements the Ethernet Media Access Control layer responsible for transmitting and receiving Ethernet frames between application logic and the physical interface.
 The MAC connects a packet-based AXI-Stream interface to a 64-bit XGMII interface, enabling integration with high-speed Ethernet Physical Coding Sublayer (PCS) modules.
+
 
 The design includes independent transmit and receive datapaths that perform the following functions:
 - Ethernet frame generation
@@ -18,7 +20,9 @@ The design includes independent transmit and receive datapaths that perform the 
 
 The MAC is implemented in Chisel and generates synthesizable SystemVerilog RTL.
 
-**Getting Started **
+
+**Getting Started**
+
 It is recommended that the user reads the MAC User Guide which can be found in:
 modules/mac/docs/user-guide
 
@@ -32,13 +36,16 @@ The user guide contains detailed documentation on:
 -statistics and monitoring signals
 
 **Dependencies**
+
 The MAC core relies on the following tools for simulation, testing, and synthesis flows:
 
 **Required Tools**
+
 -sbt – Scala build tool used to compile Chisel code
 -Chisel3 – Hardware construction language used to generate RT
 
 **Optional Tools (for testing and synthesis)**
+
 - Yosys (version 0.9 or later)
 Open-source synthesis framework used to generate gate-level netlists.
 - OpenSTA (version 2.4.0 or later)
@@ -54,10 +61,12 @@ These tools are only required for running regression tests and synthesis flows.
 
 
 **Installation**
+
 There are no special installation requirements 
 The MAC core can be cloned and used directly as part of the project repository.
 
 Example
+
 git clone<https://github.com/shreosidebnath/ClockDomainCrew>
 cd ClockDomainCrew
 
@@ -65,6 +74,7 @@ The MAC core resides in:
 module/mac
 
 **Generating Verilog RTL**
+
 The MAC is written in Chisel and generates synthesizable SystemVerilog RTL
 
 To generate RTLL

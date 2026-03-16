@@ -18,6 +18,44 @@ Implements 64b/66b encoding, scrambling, synchronization, and decoding between t
 
 Together these modules form the digital portion of a 10G Ethernet network interface.
 
+## License 
+![License: CERN-OHL-S-2.0](https://img.shields.io/badge/license-CERN--OHL--S--2.0-blue)
+
+This project is licensed under the **CERN Open Hardware Licence v2 – Strongly Reciprocal (CERN-OHL-S-2.0)**.
+
+Under this license you are free to:
+- Use the hardware design and documentation
+- Modify the source and create derivative works
+- Manufacture and distribute products based on the design
+- Share the design publicly
+
+However, the following conditions apply:
+- Any modifications or derivative works must also be released under **CERN-OHL-S-2.0**
+- Copyright and license notices must be retained
+- When distributing products based on this design, the **complete corresponding source** must be made available
+
+This design is provided **“as is” without warranty**. The authors are not liable for any damages resulting from its use.
+
+See the `LICENSE.md` file or the official license text for full details:
+https://ohwr.org/cern_ohl_s_v2.txt
+
+### Upstream Work
+
+This project is based in part on the taxi repository:
+
+https://github.com/fpganinja/taxi
+
+Original work:
+Copyright (c) 2015–2025 FPGA Ninja, LLC  
+Author: Alex Forencich
+
+Modifications and additional development:
+Copyright (c) 2026 ClockDomainCrew  
+University of Calgary – Schulich School of Engineering
+
+Project Sponsor:
+ChiselWare
+
 ## System Architecture
 
 ```
@@ -131,10 +169,3 @@ ClockDomainCrew
 University of Calgary
 2026
 Electrical Engineering Capstone Project
-
-## License
-
-This project is licensed under the CERN-OHL-S v2 license. 
-
-See LICENSE.md for license information.
-

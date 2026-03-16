@@ -1,3 +1,13 @@
+// SPDX-License-Identifier: CERN-OHL-S-2.0
+/*
+Copyright (c) 2015-2025 FPGA Ninja, LLC
+Authors:
+- Alex Forencich
+
+Modifications:
+Copyright (c) 2026 ClockDomainCrew
+University of Calgary – Schulich School of Engineering
+*/
 package org.chiselware.cores.o01.t001.pcs.rx
 import _root_.circt.stage.ChiselStage
 import chisel3._

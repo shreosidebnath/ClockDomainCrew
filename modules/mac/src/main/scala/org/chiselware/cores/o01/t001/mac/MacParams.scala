@@ -24,16 +24,17 @@ case class MacParams(
   ptpTsEn: Boolean = false,
   ptpTsFmtTod: Boolean = true,
   ptpTsW: Int = 96,
-  pfcEn: Boolean = false,
-  pauseEn: Boolean = false,
-  statEn: Boolean = true,
+  statEn: Boolean = false,
   statTxLevel: Int = 1,
   statRxLevel: Int = 1,
   statIdBase: Int = 0,
   statUpdatePeriod: Int = 1024,
   statStrEn: Boolean = false,
   statPrefixStr: String = "MAC"
-)
+) {
+  require(dataW == 64, s"Error: Interface width must be 64 (instance dataW=$dataW)")
+  require(ctrlW * 8 == dataW, "Error: Interface requires byte (8-bit) granularity")
+}
 
 object MacParams {
   val simConfigMap: LinkedHashMap[String, MacParams] = 

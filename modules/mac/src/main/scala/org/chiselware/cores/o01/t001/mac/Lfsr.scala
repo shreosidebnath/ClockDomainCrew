@@ -30,10 +30,10 @@ class Lfsr(
   })
 
   // --- Procedural Generation of Next State Logic (Matrix Calculation) ---
-  // In Chisel, we perform the "simulation" of the LFSR shifting at elaboration time (Scala)
+  // The LFSR shifting is done at elaboration time
   // to build the XOR dependencies for the hardware.
 
-  // 1. Initialize dependency trackers
+  // Initialize dependency trackers
   // vState[i] tracks which input state bits affect bit i
   // vData[i] tracks which input data bits affect bit i
   case class LfsrSimState(
@@ -49,7 +49,7 @@ class Lfsr(
     vOutData = Array.fill(dataW)(BigInt(0))
   )
 
-  // 2. Simulate the LFSR shifting loop 'dataW' times
+  // Simulate the LFSR shifting loop 'dataW' times
   val simResult = (0 until dataW).foldLeft(initState) { (s, k) =>
       val dataIdx = if (reverse) k else (dataW - 1 - k)
       val stateVal0 = s.vState(lfsrW - 1)
@@ -164,7 +164,7 @@ class Lfsr(
       }
   }
 
-  // --- 3. Generate Hardware Logic from Masks ---
+  // Generate Hardware Logic from Masks ---
 
   // State Output
   val nextState = Wire(Vec(n = lfsrW, gen = Bool()))

@@ -235,17 +235,6 @@ class MacStats(val p: MacStatsParams) extends RawModule {
   mux.io.s_axis(1).tdest  := rxFifo.io.mAxisTdest
   mux.io.s_axis(1).tuser  := rxFifo.io.mAxisTuser
 
-  // // Connect MUX to Top Level IO
-  // io.mAxisStatTdata  := mux.io.m_axis.tdata
-  // io.mAxisStatTkeep  := mux.io.m_axis.tkeep
-  // io.mAxisStatTstrb  := mux.io.m_axis.tstrb
-  // io.mAxisStatTvalid := mux.io.m_axis.tvalid
-  // mux.io.m_axis.tready := io.mAxisStatTready
-  // io.mAxisStatTlast  := mux.io.m_axis.tlast
-  // io.mAxisStatTid    := mux.io.m_axis.tid
-  // io.mAxisStatTdest  := mux.io.m_axis.tdest
-  // io.mAxisStatTuser  := mux.io.m_axis.tuser
-
   // Connect MUX to Top Level IO
   io.mAxisStat.tdata  := mux.io.m_axis.tdata
   io.mAxisStat.tkeep  := mux.io.m_axis.tkeep
@@ -256,20 +245,4 @@ class MacStats(val p: MacStatsParams) extends RawModule {
   io.mAxisStat.tid    := mux.io.m_axis.tid
   io.mAxisStat.tdest  := mux.io.m_axis.tdest
   io.mAxisStat.tuser  := mux.io.m_axis.tuser
-}
-
-object Main extends App {
-  val mainClassName = "Mac"
-  val coreDir = s"modules/${mainClassName.toLowerCase()}"
-  MacStatsParams.synConfigMap.foreach { case (configName, p) =>
-    ChiselStage.emitSystemVerilog(
-      new MacStats(p),
-      firtoolOpts = Array(
-        "-o", s"${coreDir}/generated/synTestCases/$configName", 
-        "--split-verilog", 
-        "--strip-debug-info",
-        "--preserve-aggregate=all" // Keeps the IO names clean for Vivado
-      )
-    )
-  }
 }

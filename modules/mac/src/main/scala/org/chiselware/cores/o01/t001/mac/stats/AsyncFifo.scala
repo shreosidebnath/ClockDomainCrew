@@ -102,14 +102,3 @@ class AsyncFifo(val p: AsyncFifoParams) extends RawModule {
     io.mAxisTuser  := dataOutReg(payloadWidth - 1)
   }
 }
-
-object AsyncFifoMain extends App {
-  val mainClassName = "Mac"
-  val coreDir = s"modules/${mainClassName.toLowerCase()}"
-  AsyncFifoParams.synConfigMap.foreach { case (configName, p) =>
-    ChiselStage.emitSystemVerilog(
-      new AsyncFifo(p),
-      firtoolOpts = Array("-o", s"${coreDir}/generated/synTestCases/$configName", "--split-verilog", "--strip-debug-info")
-    )
-  }
-}

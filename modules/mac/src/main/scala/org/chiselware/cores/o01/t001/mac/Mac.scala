@@ -16,44 +16,12 @@ import org.chiselware.cores.o01.t001.mac.tx.Axis2Xgmii64
 import org.chiselware.cores.o01.t001.mac.stats.{MacStats, MacStatsParams}
 import org.chiselware.syn.{ RunScriptFile, StaTclFile, YosysTclFile }
 
-class Mac(
-    val dataW: Int = 64,
-    val ctrlW: Int = 8,
-    val txGbxIfEn: Boolean = false,
-    val rxGbxIfEn: Boolean = false,
-    val gbxCnt: Int = 1,
-    val paddingEn: Boolean = true,
-    val dicEn: Boolean = true,
-    val minFrameLen: Int = 64,
-    val ptpTsEn: Boolean = false,
-    val ptpTsFmtTod: Boolean = true,
-    val ptpTsW: Int = 96,
-    val pfcEn: Boolean = false,
-    val pauseEn: Boolean = false,
-    val statEn: Boolean = true,
-    val statTxLevel: Int = 1,
-    val statRxLevel: Int = 1,
-    val statIdBase: Int = 0,
-    val statUpdatePeriod: Int = 1024,
-    val statStrEn: Boolean = false,
-    val statPrefixStr: String = "MAC") extends RawModule {
-
-  val keepW = dataW / 8
-  val macCtrlEn = pauseEn || pfcEn
+class Mac(val p: MacParams) extends RawModule {
+  val keepW = p.dataW / 8
   val txUserW = 1
-  val rxUserW = (if (ptpTsEn) ptpTsW else 0) + 1
-  val txUserWInt = (if (macCtrlEn) 1 else 0) + txUserW
-  val txTagW = 8 // Extracted from s_axis_tx.ID_W
-
-  // Check configuration
-  require(
-    dataW == 64,
-    s"Error: Interface width must be 64 (instance dataW=$dataW)"
-  )
-  require(
-    keepW * 8 == dataW && ctrlW * 8 == dataW,
-    "Error: Interface requires byte (8-bit) granularity"
-  )
+  val rxUserW = (if (p.ptpTsEn) p.ptpTsW else 0) + 1
+  val txUserWInt = txUserW
+  val txTagW = 8
 
   val io = IO(new Bundle {
     // Explicit Clocks and Resets
@@ -66,7 +34,7 @@ class Mac(
 
     // Transmit interface (AXI stream)
     val sAxisTx = Flipped(new AxisInterface(AxisInterfaceParams(
-      dataW = dataW,
+      dataW = p.dataW,
       keepW = keepW,
       idEn = true,
       idW = txTagW,
@@ -83,7 +51,7 @@ class Mac(
     // Receive interface (AXI stream)
     val mAxisRx =
       new AxisInterface(AxisInterfaceParams(
-        dataW = dataW,
+        dataW = p.dataW,
         keepW = keepW,
         userEn = true,
         userW = rxUserW
@@ -103,20 +71,20 @@ class Mac(
       ))
 
     // XGMII interface
-    val xgmiiRxd = Input(UInt(dataW.W))
-    val xgmiiRxc = Input(UInt(ctrlW.W))
+    val xgmiiRxd = Input(UInt(p.dataW.W))
+    val xgmiiRxc = Input(UInt(p.ctrlW.W))
     val xgmiiRxValid = Input(Bool())
-    val xgmiiTxd = Output(UInt(dataW.W))
-    val xgmiiTxc = Output(UInt(ctrlW.W))
+    val xgmiiTxd = Output(UInt(p.dataW.W))
+    val xgmiiTxc = Output(UInt(p.ctrlW.W))
     val xgmiiTxValid = Output(Bool())
 
-    val txGbxReqSync = Input(UInt(gbxCnt.W))
+    val txGbxReqSync = Input(UInt(p.gbxCnt.W))
     val txGbxReqStall = Input(Bool())
-    val txGbxSync = Output(UInt(gbxCnt.W))
+    val txGbxSync = Output(UInt(p.gbxCnt.W))
 
     // PTP
-    val txPtpTs = Input(UInt(ptpTsW.W))
-    val rxPtpTs = Input(UInt(ptpTsW.W))
+    val txPtpTs = Input(UInt(p.ptpTsW.W))
+    val rxPtpTs = Input(UInt(p.ptpTsW.W))
 
     // Link-level Flow Control (LFC)
     val txLfcReq = Input(Bool())
@@ -233,7 +201,7 @@ class Mac(
 
   // Internal Interface declarations
   val axisTxInt = Wire(new AxisInterface(AxisInterfaceParams(
-    dataW = dataW,
+    dataW = p.dataW,
     keepW = keepW,
     idEn = true,
     idW = txTagW,
@@ -241,7 +209,7 @@ class Mac(
     userW = txUserWInt
   )))
   val axisRxInt = Wire(new AxisInterface(AxisInterfaceParams(
-    dataW = dataW,
+    dataW = p.dataW,
     keepW = keepW,
     userEn = true,
     userW = rxUserW
@@ -252,12 +220,12 @@ class Mac(
   // -------------------------------------------------------------
   withClockAndReset(io.rxClk, io.rxRst) {
     val axisXgmiiRxInst = Module(new Xgmii2Axis64(
-      dataW = dataW,
-      ctrlW = ctrlW,
-      gbxIfEn = rxGbxIfEn,
-      ptpTsEn = ptpTsEn,
-      ptpTsFmtTod = ptpTsFmtTod,
-      ptpTsW = ptpTsW
+      dataW = p.dataW,
+      ctrlW = p.ctrlW,
+      gbxIfEn = p.rxGbxIfEn,
+      ptpTsEn = p.ptpTsEn,
+      ptpTsFmtTod = p.ptpTsFmtTod,
+      ptpTsW = p.ptpTsW
     ))
 
     // Inputs
@@ -294,17 +262,16 @@ class Mac(
   // -------------------------------------------------------------
   withClockAndReset(io.txClk, io.txRst) {
     val axisXgmiiTxInst = Module(new Axis2Xgmii64(
-      dataW = dataW,
-      ctrlW = ctrlW,
-      gbxIfEn = txGbxIfEn,
-      gbxCnt = gbxCnt,
-      paddingEn = paddingEn,
-      dicEn = dicEn,
-      minFrameLen = minFrameLen,
-      ptpTsEn = ptpTsEn,
-      ptpTsFmtTod = ptpTsFmtTod,
-      ptpTsW = ptpTsW,
-      txCplCtrlInTuser = macCtrlEn
+      dataW = p.dataW,
+      ctrlW = p.ctrlW,
+      gbxIfEn = p.txGbxIfEn,
+      gbxCnt = p.gbxCnt,
+      paddingEn = p.paddingEn,
+      dicEn = p.dicEn,
+      minFrameLen = p.minFrameLen,
+      ptpTsEn = p.ptpTsEn,
+      ptpTsFmtTod = p.ptpTsFmtTod,
+      ptpTsW = p.ptpTsW,
     ))
 
     // Inputs
@@ -338,13 +305,6 @@ class Mac(
     io.statTxErrUnderflow := axisXgmiiTxInst.io.statTxErrUnderflow
   }
 
-  // -------------------------------------------------------------
-  // MAC Control / Bridging Logic
-  // -------------------------------------------------------------
-  if (macCtrlEn) {
-    // Currently not implemented
-  } else {
-
     // Connect external TX input to internal TX MAC
     AxisTie(io.sAxisTx, axisTxInt)
 
@@ -374,16 +334,15 @@ class Mac(
     io.statRxPfcXon := 0.U
     io.statRxPfcXoff := 0.U
     io.statRxPfcPaused := 0.U
-  }
 
-  if (statEn) {
+  if (p.statEn) {
     val statsInst = Module(new MacStats(MacStatsParams(
-      statTxLevel = statTxLevel,
-      statRxLevel = statRxLevel,
-      statIdBase = statIdBase,
-      statUpdatePeriod = statUpdatePeriod,
-      statStrEn = statStrEn,
-      statPrefixStr = statPrefixStr,
+      statTxLevel = p.statTxLevel,
+      statRxLevel = p.statRxLevel,
+      statIdBase = p.statIdBase,
+      statUpdatePeriod = p.statUpdatePeriod,
+      statStrEn = p.statStrEn,
+      statPrefixStr = p.statPrefixStr,
       incW = 4
     )))
 
@@ -442,21 +401,7 @@ class Mac(
 }
 
 object Mac {
-  def apply(p: MacParams): Mac = Module(new Mac(
-    dataW = p.dataW,
-    ctrlW = p.ctrlW,
-    txGbxIfEn = p.txGbxIfEn,
-    rxGbxIfEn = p.rxGbxIfEn,
-    gbxCnt = p.gbxCnt,
-    paddingEn = p.paddingEn,
-    dicEn = p.dicEn,
-    minFrameLen = p.minFrameLen,
-    ptpTsEn = p.ptpTsEn,
-    ptpTsFmtTod = p.ptpTsFmtTod,
-    ptpTsW = p.ptpTsW,
-    pfcEn = p.pfcEn,
-    pauseEn = p.pauseEn
-  ))
+  def apply(p: MacParams): Mac = Module(new Mac(p))
 }
 
 object Main extends App {
@@ -465,28 +410,7 @@ object Main extends App {
   MacParams.synConfigMap.foreach { case (configName, p) =>
     println(s"Generating Verilog for config: $configName")
     ChiselStage.emitSystemVerilog(
-      new Mac(
-        dataW = p.dataW,
-        ctrlW = p.ctrlW,
-        txGbxIfEn = p.txGbxIfEn,
-        rxGbxIfEn = p.rxGbxIfEn,
-        gbxCnt = p.gbxCnt,
-        paddingEn = p.paddingEn,
-        dicEn = p.dicEn,
-        minFrameLen = p.minFrameLen,
-        ptpTsEn = p.ptpTsEn,
-        ptpTsFmtTod = p.ptpTsFmtTod,
-        ptpTsW = p.ptpTsW,
-        pfcEn = p.pfcEn,
-        pauseEn = p.pauseEn,
-        statEn = p.statEn,
-        statTxLevel = p.statTxLevel,
-        statRxLevel = p.statRxLevel,
-        statIdBase = p.statIdBase,
-        statUpdatePeriod = p.statUpdatePeriod,
-        statStrEn = p.statStrEn,
-        statPrefixStr = p.statPrefixStr
-      ),
+      new Mac(p),
       firtoolOpts = Array(
         "--lowering-options=disallowLocalVariables,disallowPackedArrays",
         "--disable-all-randomization",

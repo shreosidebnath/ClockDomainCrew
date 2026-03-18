@@ -50,18 +50,5 @@ object StatsCollectParams {
   )
 
   val simConfigMap = synConfigMap
-
   val synConfigs = synConfigMap.keys.mkString(" ")
-}
-
-object StatsCollectSdcFile {
-  def create(sdcFilePath: String): Unit = {
-    val sdcFileData = ""
-    val sdcFileDir = new File(sdcFilePath)
-    sdcFileDir.mkdirs()
-    val sdcFileName = new File(s"$sdcFilePath/StatsCollect.sdc")
-    val sdcFile = new PrintWriter(sdcFileName)
-    sdcFile.write(sdcFileData)
-    sdcFile.close()
-  }
 }

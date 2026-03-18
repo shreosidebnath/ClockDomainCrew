@@ -23,6 +23,8 @@ class MacTb(val p: MacParams) extends Module {
     val rxRst = Input(Bool())
     val txClk = Input(Clock())
     val txRst = Input(Bool())
+    val statClk = Input(Clock())
+    val statRst = Input(Bool())
     
     val sAxisTx = Flipped(
       new AxisInterface(
@@ -55,6 +57,18 @@ class MacTb(val p: MacParams) extends Module {
         userW = rxUserW
       )
     )
+
+    val mAxisStat =
+      new AxisInterface(AxisInterfaceParams(
+        dataW = 16,
+        keepW = 1,
+        keepEn = false,
+        lastEn = false,
+        userEn = true,
+        userW = 1,
+        idEn = true,
+        idW = 8
+      ))
 
     val xgmiiRxd = Input(UInt(p.dataW.W))
     val xgmiiRxc = Input(UInt(p.ctrlW.W))
@@ -115,6 +129,7 @@ class MacTb(val p: MacParams) extends Module {
     val statRxErrBadBlock = Output(Bool())
     val statRxErrFraming = Output(Bool())
     val statRxErrPreamble = Output(Bool())
+    val statRxFifoDrop = Input(Bool())
 
     val statTxMcf = Output(Bool())
     val statRxMcf = Output(Bool())
@@ -181,32 +196,19 @@ class MacTb(val p: MacParams) extends Module {
     val cfgRxPfcEn = Input(Bool())
   })
 
-  private val dut = Module(
-    new Mac(
-      dataW = p.dataW,
-      ctrlW = p.ctrlW,
-      txGbxIfEn = p.txGbxIfEn,
-      rxGbxIfEn = p.rxGbxIfEn,
-      gbxCnt = p.gbxCnt,
-      paddingEn = p.paddingEn,
-      dicEn = p.dicEn,
-      minFrameLen = p.minFrameLen,
-      ptpTsEn = p.ptpTsEn,
-      ptpTsFmtTod = p.ptpTsFmtTod,
-      ptpTsW = p.ptpTsW,
-      pfcEn = p.pfcEn,
-      pauseEn = p.pauseEn
-    )
-  )
+  private val dut = Module(new Mac(p))
 
-dut.io.rxClk := io.rxClk
+  dut.io.rxClk := io.rxClk
   dut.io.rxRst := io.rxRst
   dut.io.txClk := io.txClk
   dut.io.txRst := io.txRst
+  dut.io.statClk := io.statClk
+  dut.io.statRst := io.statRst
 
   io.sAxisTx <> dut.io.sAxisTx
   dut.io.mAxisTxCpl <> io.mAxisTxCpl
   dut.io.mAxisRx <> io.mAxisRx
+  dut.io.mAxisStat <> io.mAxisStat
 
   dut.io.xgmiiRxd := io.xgmiiRxd
   dut.io.xgmiiRxc := io.xgmiiRxc
@@ -267,6 +269,7 @@ dut.io.rxClk := io.rxClk
   io.statRxErrBadBlock := dut.io.statRxErrBadBlock
   io.statRxErrFraming := dut.io.statRxErrFraming
   io.statRxErrPreamble := dut.io.statRxErrPreamble
+  dut.io.statRxFifoDrop := io.statRxFifoDrop
 
   io.statTxMcf := dut.io.statTxMcf
   io.statRxMcf := dut.io.statRxMcf

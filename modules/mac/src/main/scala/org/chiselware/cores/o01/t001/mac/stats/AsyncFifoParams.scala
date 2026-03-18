@@ -68,15 +68,3 @@ object AsyncFifoParams {
   val simConfigMap = synConfigMap
   val synConfigs = synConfigMap.keys.mkString(" ")
 }
-
-object AsyncFifoSdcFile {
-  def create(sdcFilePath: String): Unit = {
-    val sdcFileData = ""
-    val sdcFileDir = new File(sdcFilePath)
-    sdcFileDir.mkdirs()
-    val sdcFileName = new File(s"$sdcFilePath/AsyncFifo.sdc")
-    val sdcFile = new PrintWriter(sdcFileName)
-    sdcFile.write(sdcFileData)
-    sdcFile.close()
-  }
-}

@@ -12,6 +12,17 @@ package org.chiselware.cores.o01.t001.pcs.rx
 import chisel3._
 import chisel3.util._
 
+/** PCS Receive Bit Error Rate (BER) Monitor
+  *
+  * This module monitors the health of the 10GBASE-R link by counting sync header 
+  * violations. According to the IEEE 802.3 standard, if more than 16 invalid 
+  * sync headers are detected within a 125 microsecond window, the 'rxHighBer' 
+  * status is asserted, signaling a degraded link.
+  *
+  * @constructor create a new BER monitor
+  * @param count125Us the number of clock cycles that represent a 125us window
+  * @author ClockDomainCrew
+  */
 class PcsRxBerMon(val count125Us: Double = 125000.0 / 6.4) extends Module {
   val hdrW = 2
   val io = IO(new Bundle {

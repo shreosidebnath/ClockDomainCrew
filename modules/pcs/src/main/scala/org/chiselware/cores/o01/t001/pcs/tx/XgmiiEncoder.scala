@@ -12,57 +12,18 @@ package org.chiselware.cores.o01.t001.pcs.tx
 import chisel3._
 import chisel3.util._
 
-object XgmiiEncoderConstants {
-  // XGMII Control Codes
-  val XgmiiIdle = 0x07.U(8.W)
-  val XgmiiLpi = 0x06.U(8.W)
-  val XgmiiStart = 0xfb.U(8.W)
-  val XgmiiTerm = 0xfd.U(8.W)
-  val XgmiiError = 0xfe.U(8.W)
-  val XgmiiSeqOs = 0x9c.U(8.W)
-  val XgmiiRes0 = 0x1c.U(8.W)
-  val XgmiiRes1 = 0x3c.U(8.W)
-  val XgmiiRes2 = 0x7c.U(8.W)
-  val XgmiiRes3 = 0xbc.U(8.W)
-  val XgmiiRes4 = 0xdc.U(8.W)
-  val XgmiiRes5 = 0xf7.U(8.W)
-  val XgmiiSigOs = 0x5c.U(8.W)
-
-  // 10GBASE-R Control Codes
-  val CtrlIdle = 0x00.U(7.W)
-  val CtrlLpi = 0x06.U(7.W)
-  val CtrlError = 0x1e.U(7.W)
-  val CtrlRes0 = 0x2d.U(7.W)
-  val CtrlRes1 = 0x33.U(7.W)
-  val CtrlRes2 = 0x4b.U(7.W)
-  val CtrlRes3 = 0x55.U(7.W)
-  val CtrlRes4 = 0x66.U(7.W)
-  val CtrlRes5 = 0x78.U(7.W)
-
-  val OSeqOs = 0x0.U(4.W)
-  val OSigOs = 0xf.U(4.W)
-
-  val SyncData = "b10".U(2.W)
-  val SyncCtrl = "b01".U(2.W)
-
-  // Block Types
-  val BlockTypeCtrl = 0x1e.U(8.W)
-  val BlockTypeOs4 = 0x2d.U(8.W)
-  val BlockTypeStart4 = 0x33.U(8.W)
-  val BlockTypeOsStart = 0x66.U(8.W)
-  val BlockTypeOs04 = 0x55.U(8.W)
-  val BlockTypeStart0 = 0x78.U(8.W)
-  val BlockTypeOs0 = 0x4b.U(8.W)
-  val BlockTypeTerm0 = 0x87.U(8.W)
-  val BlockTypeTerm1 = 0x99.U(8.W)
-  val BlockTypeTerm2 = 0xaa.U(8.W)
-  val BlockTypeTerm3 = 0xb4.U(8.W)
-  val BlockTypeTerm4 = 0xcc.U(8.W)
-  val BlockTypeTerm5 = 0xd2.U(8.W)
-  val BlockTypeTerm6 = 0xe1.U(8.W)
-  val BlockTypeTerm7 = 0xff.U(8.W)
-}
-
+/** XGMII to 64b/66b Block Encoder
+  *
+  * Implements the encoding table defined in IEEE 802.3-2012. It compresses 
+  * 8 bits of XGMII control/data into 7-bit control codes and a 1-byte Block Type Field.
+  *
+  * @constructor create a new 64b/66b encoder
+  * @param dataW input data width (32 or 64)
+  * @param ctrlW input control width (typically 8 for 64-bit data)
+  * @param gbxIfEn enable gearbox handshaking
+  * @param gbxCnt number of sync signals
+  * @author ClockDomainCrew
+  */
 class XgmiiEncoder(
     val dataW: Int = 64,
     val ctrlW: Int = 8,
@@ -385,4 +346,55 @@ class XgmiiEncoder(
   }
 
   io.txBadBlock := txBadBlockReg
+}
+
+object XgmiiEncoderConstants {
+  // XGMII Control Codes
+  val XgmiiIdle = 0x07.U(8.W)
+  val XgmiiLpi = 0x06.U(8.W)
+  val XgmiiStart = 0xfb.U(8.W)
+  val XgmiiTerm = 0xfd.U(8.W)
+  val XgmiiError = 0xfe.U(8.W)
+  val XgmiiSeqOs = 0x9c.U(8.W)
+  val XgmiiRes0 = 0x1c.U(8.W)
+  val XgmiiRes1 = 0x3c.U(8.W)
+  val XgmiiRes2 = 0x7c.U(8.W)
+  val XgmiiRes3 = 0xbc.U(8.W)
+  val XgmiiRes4 = 0xdc.U(8.W)
+  val XgmiiRes5 = 0xf7.U(8.W)
+  val XgmiiSigOs = 0x5c.U(8.W)
+
+  // 10GBASE-R Control Codes
+  val CtrlIdle = 0x00.U(7.W)
+  val CtrlLpi = 0x06.U(7.W)
+  val CtrlError = 0x1e.U(7.W)
+  val CtrlRes0 = 0x2d.U(7.W)
+  val CtrlRes1 = 0x33.U(7.W)
+  val CtrlRes2 = 0x4b.U(7.W)
+  val CtrlRes3 = 0x55.U(7.W)
+  val CtrlRes4 = 0x66.U(7.W)
+  val CtrlRes5 = 0x78.U(7.W)
+
+  val OSeqOs = 0x0.U(4.W)
+  val OSigOs = 0xf.U(4.W)
+
+  val SyncData = "b10".U(2.W)
+  val SyncCtrl = "b01".U(2.W)
+
+  // Block Types
+  val BlockTypeCtrl = 0x1e.U(8.W)
+  val BlockTypeOs4 = 0x2d.U(8.W)
+  val BlockTypeStart4 = 0x33.U(8.W)
+  val BlockTypeOsStart = 0x66.U(8.W)
+  val BlockTypeOs04 = 0x55.U(8.W)
+  val BlockTypeStart0 = 0x78.U(8.W)
+  val BlockTypeOs0 = 0x4b.U(8.W)
+  val BlockTypeTerm0 = 0x87.U(8.W)
+  val BlockTypeTerm1 = 0x99.U(8.W)
+  val BlockTypeTerm2 = 0xaa.U(8.W)
+  val BlockTypeTerm3 = 0xb4.U(8.W)
+  val BlockTypeTerm4 = 0xcc.U(8.W)
+  val BlockTypeTerm5 = 0xd2.U(8.W)
+  val BlockTypeTerm6 = 0xe1.U(8.W)
+  val BlockTypeTerm7 = 0xff.U(8.W)
 }

@@ -12,6 +12,18 @@ package org.chiselware.cores.o01.t001.pcs.rx
 import chisel3._
 import chisel3.util._
 
+/** PCS Receive Frame Synchronizer (Block Lock)
+  *
+  * This module achieves block lock by searching for valid 2-bit sync headers (01 or 10).
+  * If the synchronizer detects 64 consecutive valid headers, it asserts 'rxBlockLock'.
+  * If it detects 16 invalid headers within a 64-block window, it loses lock and 
+  * pulses 'serdesRxBitslip' to shift the alignment by one bit and try again.
+  *
+  * @constructor create a new Frame Synchronizer
+  * @param bitslipHighCycles number of cycles to hold the bitslip pulse high
+  * @param bitslipLowCycles dead-time (cooldown) between bitslip attempts
+  * @author ClockDomainCrew
+  */
 class PcsRxFrameSync(
     bitslipHighCycles: Int = 0,
     bitslipLowCycles: Int = 7) extends Module {

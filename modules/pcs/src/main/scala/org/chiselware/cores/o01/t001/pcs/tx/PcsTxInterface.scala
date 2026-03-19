@@ -13,6 +13,21 @@ import chisel3._
 import chisel3.util._
 import org.chiselware.cores.o01.t001.pcs.Lfsr
 
+
+/** PCS Transmit Physical Interface logic
+  *
+  * Performs scrambling of the 64-bit payload using the polynomial $G(x) = 1 + x^{39} + x^{58}$.
+  * This ensures DC balance and sufficient transition density on the high-speed serial link.
+  *
+  * @constructor create the TX interface logic
+  * @param dataW bus width (32 or 64)
+  * @param gbxIfEn enable gearbox flow control
+  * @param bitReverse reverse output bits for SERDES lane orientation
+  * @param scramblerDisable bypass scrambling (for loopback testing)
+  * @param prbs31En enable PRBS31 generation for bit error rate testing (BERT)
+  * @param serdesPipeline output register stages
+  * @author ClockDomainCrew
+  */
 class PcsTxInterface(
     val dataW: Int = 64,
     val gbxIfEn: Boolean = true,

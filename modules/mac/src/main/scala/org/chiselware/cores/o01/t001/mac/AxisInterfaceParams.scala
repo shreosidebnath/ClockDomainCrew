@@ -10,6 +10,15 @@ University of Calgary – Schulich School of Engineering
 */
 package org.chiselware.cores.o01.t001.mac
 
+/** Parameter configuration for AXI-Stream interfaces
+  * * @param dataW Data width in bits
+  * @param keepW Keep signal width (usually dataW/8)
+  * @param keepEn Enable TKEEP signal
+  * @param strbEn Enable TSTRB signal
+  * @param lastEn Enable TLAST signal
+  * @param idEn   Enable TID signal
+  * @param userEn Enable TUSER signal
+  */
 case class AxisInterfaceParams(
     dataW: Int,
     keepW: Int,

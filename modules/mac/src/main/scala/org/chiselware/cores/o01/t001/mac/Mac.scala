@@ -16,6 +16,15 @@ import org.chiselware.cores.o01.t001.mac.tx.Axis2Xgmii64
 import org.chiselware.cores.o01.t001.mac.stats.{MacStats, MacStatsParams}
 import org.chiselware.syn.{ RunScriptFile, StaTclFile, YosysTclFile }
 
+/** Top-level Ethernet Media Access Controller (MAC)
+  * * This module integrates the TX and RX paths, providing a bridge between 
+  * AXI-Stream user interfaces and the XGMII physical layer interface. 
+  * It includes support for PTP timestamping and Link/Priority Flow Control.
+  *
+  * @constructor create a new Mac core
+  * @param p configuration parameters defined in [[MacParams]]
+  * @author ClockDomainCrew
+  */
 class Mac(val p: MacParams) extends RawModule {
   val keepW = p.dataW / 8
   val txUserW = 1
@@ -24,7 +33,7 @@ class Mac(val p: MacParams) extends RawModule {
   val txTagW = 8
 
   val io = IO(new Bundle {
-    // Explicit Clocks and Resets
+    // Clock and Reset
     val rxClk = Input(Clock())
     val rxRst = Input(Bool())
     val txClk = Input(Clock())
@@ -32,7 +41,7 @@ class Mac(val p: MacParams) extends RawModule {
     val statClk = Input(Clock())
     val statRst = Input(Bool())
 
-    // Transmit interface (AXI stream)
+    // Transmit interface (AXI-stream sink)
     val sAxisTx = Flipped(new AxisInterface(AxisInterfaceParams(
       dataW = p.dataW,
       keepW = keepW,
@@ -41,6 +50,8 @@ class Mac(val p: MacParams) extends RawModule {
       userEn = true,
       userW = txUserW
     )))
+
+    // Transmit completion status 
     val mAxisTxCpl =
       new AxisInterface(AxisInterfaceParams(
         dataW = 96,
@@ -48,7 +59,7 @@ class Mac(val p: MacParams) extends RawModule {
         idW = 8
       ))
 
-    // Receive interface (AXI stream)
+    // Receive interface (AXI-stream source)
     val mAxisRx =
       new AxisInterface(AxisInterfaceParams(
         dataW = p.dataW,
@@ -57,7 +68,7 @@ class Mac(val p: MacParams) extends RawModule {
         userW = rxUserW
       ))
 
-    // Stat interface (AXI stream)
+    // Statistics interface (AXI-stream)
     val mAxisStat =
       new AxisInterface(AxisInterfaceParams(
         dataW = 16,
@@ -70,7 +81,7 @@ class Mac(val p: MacParams) extends RawModule {
         idW = 8
       ))
 
-    // XGMII interface
+    // Physical layer interface (XGMII)
     val xgmiiRxd = Input(UInt(p.dataW.W))
     val xgmiiRxc = Input(UInt(p.ctrlW.W))
     val xgmiiRxValid = Input(Bool())
@@ -78,11 +89,12 @@ class Mac(val p: MacParams) extends RawModule {
     val xgmiiTxc = Output(UInt(p.ctrlW.W))
     val xgmiiTxValid = Output(Bool())
 
+    // Gearbox and Synchronization
     val txGbxReqSync = Input(UInt(p.gbxCnt.W))
     val txGbxReqStall = Input(Bool())
     val txGbxSync = Output(UInt(p.gbxCnt.W))
 
-    // PTP
+    // Precision Time Protocol (PTP)
     val txPtpTs = Input(UInt(p.ptpTsW.W))
     val rxPtpTs = Input(UInt(p.ptpTsW.W))
 
@@ -105,7 +117,7 @@ class Mac(val p: MacParams) extends RawModule {
     val txPauseReq = Input(Bool())
     val txPauseAck = Output(Bool())
 
-    // Status
+    // Status and Monitoring Signals
     val txStartPacket = Output(UInt(2.W))
     val statTxByte = Output(UInt(4.W))
     val statTxPktLen = Output(UInt(16.W))
@@ -137,6 +149,7 @@ class Mac(val p: MacParams) extends RawModule {
     val statRxErrPreamble = Output(Bool())
     val statRxFifoDrop = Input(Bool())
 
+    // Control Frame Statistics
     val statTxMcf = Output(Bool())
     val statRxMcf = Output(Bool())
     val statTxLfcPkt = Output(Bool())
@@ -156,7 +169,7 @@ class Mac(val p: MacParams) extends RawModule {
     val statRxPfcXoff = Output(UInt(8.W))
     val statRxPfcPaused = Output(UInt(8.W))
 
-    // Configuration
+    // Runtime Configuration
     val cfgTxMaxPktLen = Input(UInt(16.W))
     val cfgTxIfg = Input(UInt(8.W))
     val cfgTxEnable = Input(Bool())
@@ -226,7 +239,7 @@ class Mac(val p: MacParams) extends RawModule {
       ptpTsW = p.ptpTsW
     ))
 
-    // Inputs
+    // XGMII to AXI-Stream Mapping
     axisXgmiiRxInst.io.xgmiiRxd := io.xgmiiRxd
     axisXgmiiRxInst.io.xgmiiRxc := io.xgmiiRxc
     axisXgmiiRxInst.io.xgmiiRxValid := io.xgmiiRxValid
@@ -234,9 +247,10 @@ class Mac(val p: MacParams) extends RawModule {
     axisXgmiiRxInst.io.cfgRxMaxPktLen := io.cfgRxMaxPktLen
     axisXgmiiRxInst.io.cfgRxEnable := io.cfgRxEnable
 
-    // Outputs
+
     axisRxInt <> axisXgmiiRxInst.io.mAxisRx
 
+    // Route Status Signals to Top IO
     io.rxStartPacket := axisXgmiiRxInst.io.rxStartPacket
     io.statRxByte := axisXgmiiRxInst.io.statRxByte
     io.statRxPktLen := axisXgmiiRxInst.io.statRxPktLen
@@ -270,7 +284,7 @@ class Mac(val p: MacParams) extends RawModule {
       ptpTsW = p.ptpTsW,
     ))
 
-    // Inputs
+    // AXI-Stream to XGMII Mapping
     axisXgmiiTxInst.io.sAxisTx <> axisTxInt
 
     io.txGbxSync := axisXgmiiTxInst.io.txGbxSync
@@ -281,12 +295,12 @@ class Mac(val p: MacParams) extends RawModule {
     axisXgmiiTxInst.io.cfgTxIfg := io.cfgTxIfg
     axisXgmiiTxInst.io.cfgTxEnable := io.cfgTxEnable
 
-    // Outputs
     io.mAxisTxCpl <> axisXgmiiTxInst.io.mAxisTxCpl
     io.xgmiiTxd := axisXgmiiTxInst.io.xgmiiTxd
     io.xgmiiTxc := axisXgmiiTxInst.io.xgmiiTxc
     io.xgmiiTxValid := axisXgmiiTxInst.io.xgmiiTxValid
 
+    // Route Status Signals to Top IO
     io.txStartPacket := axisXgmiiTxInst.io.txStartPacket
     io.statTxByte := axisXgmiiTxInst.io.statTxByte
     io.statTxPktLen := axisXgmiiTxInst.io.statTxPktLen
@@ -307,7 +321,8 @@ class Mac(val p: MacParams) extends RawModule {
     // Connect internal RX MAC to external RX output
     AxisTie(axisRxInt, io.mAxisRx)
 
-    // Tie off unused flow-control outputs securely
+    // --- Signal Tie-offs ---
+    // Unused flow-control outputs are tied to safe defaults
     io.rxLfcReq := false.B
     io.rxPfcReq := 0.U
     io.txPauseAck := false.B
@@ -331,6 +346,7 @@ class Mac(val p: MacParams) extends RawModule {
     io.statRxPfcXoff := 0.U
     io.statRxPfcPaused := 0.U
 
+  // Statistics Collection Submodule (Mapped to statClk domain)
   if (p.statEn) {
     val statsInst = Module(new MacStats(MacStatsParams(
       statTxLevel = p.statTxLevel,
@@ -385,6 +401,7 @@ class Mac(val p: MacParams) extends RawModule {
 
   }
   else {
+    // Nullify stats interface if disabled
     io.mAxisStat.tdata := 0.U
     io.mAxisStat.tkeep := 1.U
     io.mAxisStat.tstrb := io.mAxisStat.tkeep

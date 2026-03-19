@@ -32,6 +32,46 @@ object Axis2Xgmii64Constants {
   val StateIfg = 6.U(3.W)
 }
 
+/** AXI-Stream to XGMII Transmit MAC (64-bit)
+  *
+  * This module encapsulates the logic required to take raw data from an AXI-Stream
+  * interface, encapsulate it into an Ethernet frame (including preamble, SFD, 
+  * padding, and CRC), and drive it onto an XGMII bus. It handles the transition
+  * between the user-side streaming interface and the physical layer requirements
+  * of 10G Ethernet.
+  *
+  * @constructor Create a new AXI-to-XGMII transmitter
+  * * @param gbxIfEn 
+  * Enable Gearbox Interface. When true, the module respects the `txGbxReqStall` 
+  * input and provides `txGbxSync` for physical layers (like 10GBASE-R) that 
+  * require periodic alignment of data blocks.
+  * * @param gbxCnt 
+  * Defines the width of the gearbox synchronization bus. This determines 
+  * how many synchronization/header bits are handled for the physical layer 
+  * coding (e.g., 64b/66b).
+  * * @param paddingEn 
+  * Enable Frame Padding. If true, any input frame shorter than [[minFrameLen]] 
+  * will be automatically padded with zeros before the FCS (CRC) is appended 
+  * to meet Ethernet standards.
+  * * @param dicEn 
+  * Enable Deficit Idle Count (DIC). When enabled, the MAC tracks "remainder" 
+  * idle bytes to maintain a strict 12-byte average Inter-Frame Gap (IFG) 
+  * across multiple packets, even when packets start on non-aligned XGMII lanes.
+  * * @param minFrameLen 
+  * Specifies the minimum Ethernet frame length in bytes (standard is 64). 
+  * Frames shorter than this will be padded if [[paddingEn]] is active.
+  * * @param ptpTsEn 
+  * Enable Precision Time Protocol (PTP) Timestamping. When true, the module 
+  * captures the value of `ptpTs` at the moment the Start-of-Frame (SOF) 
+  * delimiter is transmitted and reports it via the `mAxisTxCpl` interface.
+  * * @param ptpTsFmtTod 
+  * PTP Timestamp Format. If true, assumes Time-of-Day (ToD) format (96-bit). 
+  * If false, treats the timestamp as a raw 64-bit binary counter.
+  * * @param ptpTsW 
+  * Defines the total bit width of the PTP timestamp input (typically 96 for ToD).
+  *
+  * @author ClockDomainCrew
+  */
 class Axis2Xgmii64(
     val gbxIfEn: Boolean = true,
     val gbxCnt: Int = 1,
@@ -55,6 +95,7 @@ class Axis2Xgmii64(
   val minLenW = log2Ceil(minFrameLen - 4 - ctrlW + 1 + 1)
 
   val io = IO(new Bundle {
+    // Input AXI-Stream Sink
     val sAxisTx = Flipped(new AxisInterface(AxisInterfaceParams(
       dataW = dataW,
       keepW = keepW,
@@ -63,6 +104,7 @@ class Axis2Xgmii64(
       userEn = true,
       userW = userW
     )))
+    // Output Completion Status (provides PTP timestamps for sent packets)
     val mAxisTxCpl =
       new AxisInterface(AxisInterfaceParams(
         dataW = 96,
@@ -70,20 +112,25 @@ class Axis2Xgmii64(
         idW = 8
       ))
 
+    // XGMII Physical Interface
     val xgmiiTxd = Output(UInt(dataW.W))
     val xgmiiTxc = Output(UInt(ctrlW.W))
     val xgmiiTxValid = Output(Bool())
 
+    // Clock domain synchronization
     val txGbxReqSync = Input(UInt(gbxCnt.W))
     val txGbxReqStall = Input(Bool())
     val txGbxSync = Output(UInt(gbxCnt.W))
 
+    // PTP Reference Timestamp
     val ptpTs = Input(UInt(ptpTsW.W))
 
+    // Configuration
     val cfgTxMaxPktLen = Input(UInt(16.W))
     val cfgTxIfg = Input(UInt(8.W))
     val cfgTxEnable = Input(Bool())
 
+    // Statistics and Monitoring
     val txStartPacket = Output(UInt(2.W))
     val statTxByte = Output(UInt(4.W))
     val statTxPktLen = Output(UInt(16.W))

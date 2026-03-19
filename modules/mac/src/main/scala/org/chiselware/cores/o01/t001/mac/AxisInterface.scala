@@ -11,6 +11,7 @@ University of Calgary – Schulich School of Engineering
 package org.chiselware.cores.o01.t001.mac
 import chisel3._
 
+/** A standard AXI-Stream Bundle definition */
 class AxisInterface(val p: AxisInterfaceParams) extends Bundle {
   // By default, this interface is for outputs (src)
   // Flipped() can be used to create a sink (snk).

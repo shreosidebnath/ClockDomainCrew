@@ -12,6 +12,15 @@ package org.chiselware.cores.o01.t001.mac
 import chisel3._
 import chisel3.util._
 
+/** Bridge module to connect two AXI-Stream interfaces
+  *
+  * Handles parameter checking and automatic signal tie-offs for signals
+  * like tstrb, tid, or tuser if they are missing in the source or sink.
+  *
+  * @param sParams Source (input) interface parameters
+  * @param mParams Sink (output) interface parameters
+  * @author ClockDomainCrew
+  */
 class AxisTie(
     sParams: AxisInterfaceParams,
     mParams: AxisInterfaceParams) extends RawModule {

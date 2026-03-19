@@ -13,6 +13,25 @@ package org.chiselware.cores.o01.t001.pcs
 import java.io.{File, PrintWriter}
 import scala.collection.mutable.LinkedHashMap
 
+/** Configuration parameters for the 10GBASE-R PCS core.
+  *
+  * @constructor create a new PCS configuration
+  * @param dataW width of the internal data bus (typically 32 or 64)
+  * @param ctrlW width of the control/keep bus (typically dataW / 8)
+  * @param hdrW width of the 64b/66b sync header (2 bits)
+  * @param txGbxIfEn enable gearbox interface for the TX path
+  * @param rxGbxIfEn enable gearbox interface for the RX path
+  * @param bitReverse if true, reverses bit order for SERDES compatibility
+  * @param scramblerDisable if true, disables the polynomial scrambler (for debugging)
+  * @param prbs31En enable hardware generation/checking of PRBS31 test patterns
+  * @param txSerdesPipeline number of pipeline stages in the TX SERDES interface
+  * @param rxSerdesPipeline number of pipeline stages in the RX SERDES interface
+  * @param bitslipHighCycles number of cycles to hold the bitslip pulse high
+  * @param bitslipLowCycles dead-time (cooldown) between bitslip attempts
+  * @param count125Us constant used to calculate the 125us window for BER monitoring
+  *
+  * @author ClockDomainCrew
+  */
 case class PcsParams(
   dataW: Int = 64,
   ctrlW: Int = 8,
@@ -28,12 +47,12 @@ case class PcsParams(
   bitslipLowCycles: Int = 7,
   count125Us: Double = 125000.0 / 6.4,
 ) {
+  // Validation checks for bus widths
   require(dataW == 32 || dataW == 64, "Error: Interface width must be 32 or 64")
   require(ctrlW * 8 == dataW, "Error: Interface requires byte (8-bit) granularity")
 }
 
 object PcsParams {
-
   val simConfigMap = LinkedHashMap[String, PcsParams](
     "config" -> PcsParams(),
   )

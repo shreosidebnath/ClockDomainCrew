@@ -15,6 +15,16 @@ import org.chiselware.cores.o01.t001.pcs.rx.PcsRx
 import org.chiselware.cores.o01.t001.pcs.tx.PcsTx
 import org.chiselware.syn.{ RunScriptFile, StaTclFile, YosysTclFile }
 
+/** 10GBASE-R Physical Coding Sublayer (PCS) Top-Level
+  *
+  * This module implements the 64b/66b PCS layer as defined in IEEE 802.3.
+  * It performs 64b/66b encoding, scrambling, and gearboxing for the Transmit path,
+  * and block synchronization, descrambling, and decoding for the Receive path.
+  *
+  * @constructor create a new PCS module
+  * @param p configuration parameters defined in [[PcsParams]]
+  * @author ClockDomainCrew
+  */
 class Pcs(val p: PcsParams) extends RawModule {
   val io = IO(new Bundle {
     val rxClk = Input(Clock())

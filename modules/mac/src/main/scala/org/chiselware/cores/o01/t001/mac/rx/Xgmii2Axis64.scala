@@ -21,29 +21,55 @@ object Xgmii2Axis64Constants {
   val XgmiiTerm = "hfd".U(8.W)
   val XgmiiError = "hfe".U(8.W)
 
-  val StateIdle = 0.U(2.W)
-  val StatePayload = 1.U(2.W)
-  val StateLast = 2.U(2.W)
+  val StateIdle = 0.U(2.W) // Searching for XGMII Start control characters
+  val StatePayload = 1.U(2.W) // Streaming data to AXI-Stream mAxisRx
+  val StateLast = 2.U(2.W) // Finalizing packet after XGMII Terminate (for swapped lanes)
 }
 
+/** XGMII to AXI-Stream Receive MAC (64-bit)
+  *
+  * This module monitors the XGMII physical interface for incoming Ethernet frames.
+  * It handles preamble validation, SFD detection, multi-lane alignment (swapping),
+  * CRC-32 verification (FCS), and extracts PTP timestamps for the user application.
+  *
+  * @constructor Create a new XGMII-to-AXI receiver
+  * @param gbxIfEn 
+  * Enable Gearbox Interface. When true, the module only processes data when 
+  * `xgmiiRxValid` is high, allowing integration with physical layers that 
+  * use block-based alignment (like 10GBASE-R).
+  * @param ptpTsEn 
+  * Enable Precision Time Protocol (PTP) Timestamping. When true, the module 
+  * captures the `ptpTs` value at the moment of SOF detection and prepends it 
+  * to the AXI-Stream `tuser` bus.
+  * @param ptpTsFmtTod 
+  * PTP Timestamp Format. If true, treats the timestamp as a 96-bit Time-of-Day 
+  * (ToD) format. If false, treats it as a raw 64-bit binary counter.
+  * @param ptpTsW 
+  * Defines the total bit width of the PTP timestamp bus (typically 96).
+  *
+  * @author ClockDomainCrew
+  */
 class Xgmii2Axis64(
     val gbxIfEn: Boolean = true,
     val ptpTsEn: Boolean = false,
     val ptpTsFmtTod: Boolean = true,
     val ptpTsW: Int = 96) extends Module {
-
   import Xgmii2Axis64Constants._
   
   val dataW = 64
   val ctrlW = 8
   val keepW = dataW / 8
+
+  // User width includes PTP timestamp (if enabled) plus a 1-bit error flag.
   val userW = (if (ptpTsEn) ptpTsW else 0) + 1
 
   val io = IO(new Bundle {
+    // XGMII Physical Interface (Sink)
     val xgmiiRxd = Input(UInt(dataW.W))
     val xgmiiRxc = Input(UInt(ctrlW.W))
     val xgmiiRxValid = Input(Bool())
 
+    // AXI-Stream Master Interface (Source)
     val mAxisRx =
       new AxisInterface(AxisInterfaceParams(
         dataW = dataW,
@@ -52,11 +78,14 @@ class Xgmii2Axis64(
         userW = userW
       ))
 
+    // Reference clock timestamp from the PTP clock domain.
     val ptpTs = Input(UInt(ptpTsW.W))
 
+    // Configuration
     val cfgRxMaxPktLen = Input(UInt(16.W))
     val cfgRxEnable = Input(Bool())
 
+    // Receive Statistics and Monitoring
     val rxStartPacket = Output(UInt(2.W))
     val statRxByte = Output(UInt(4.W))
     val statRxPktLen = Output(UInt(16.W))

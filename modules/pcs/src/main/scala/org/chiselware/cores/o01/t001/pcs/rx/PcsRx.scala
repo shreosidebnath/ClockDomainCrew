@@ -11,6 +11,26 @@ University of Calgary – Schulich School of Engineering
 package org.chiselware.cores.o01.t001.pcs.rx
 import chisel3._
 
+/** PCS Receive Path Top-Level
+  *
+  * This module integrates the Physical Interface (Descrambler, Frame Sync, BER Monitor)
+  * and the XGMII Decoder. It transforms the raw 66-bit blocks from the SERDES
+  * into standard 64-bit XGMII data and control signals.
+  *
+  * @constructor create a new PCS RX path
+  * @param dataW internal data width
+  * @param ctrlW control width
+  * @param hdrW sync header width
+  * @param gbxIfEn enable gearbox handshaking for clock-data alignment
+  * @param bitReverse reverse bit order for specific SERDES architectures
+  * @param scramblerDisable bypass the descrambler for debug/loopback
+  * @param prbs31En enable hardware checking of PRBS31 test patterns
+  * @param serdesPipeline number of input pipeline stages
+  * @param bitslipHighCycles number of cycles to hold the bitslip pulse high
+  * @param bitslipLowCycles dead-time (cooldown) between bitslip attempts
+  * @param count125Us constant used for the 125us Bit Error Rate (BER) window
+  * @author ClockDomainCrew
+  */
 class PcsRx(
     val dataW: Int = 64,
     val ctrlW: Int = 8,

@@ -13,7 +13,23 @@ import chisel3._
 import chisel3.util._
 import org.chiselware.cores.o01.t001.pcs.Lfsr
 
-/** 10G Ethernet PHY RX IF
+/** PCS Receive Physical Interface logic
+  *
+  * Handles the low-level processing of 66-bit blocks. This includes bit reversal,
+  * pipelining, self-synchronizing descrambling (polynomial $1 + x^{39} + x^{58}$),
+  * PRBS31 checking, and high-level link monitoring (Watchdog, BER, Frame Sync).
+  *
+  * @constructor create the RX interface logic
+  * @param dataW bus width (32 or 64)
+  * @param gbxIfEn enable gearbox flow control
+  * @param bitReverse reverse input bits from SERDES
+  * @param scramblerDisable bypass descrambling
+  * @param prbs31En enable PRBS31 error checking
+  * @param serdesPipeline input register stages
+  * @param bitslipHighCycles number of cycles to hold the bitslip pulse high
+  * @param bitslipLowCycles dead-time (cooldown) between bitslip attempts
+  * @param count125Us cycles in a 125 microsecond window
+  * @author ClockDomainCrew
   */
 class PcsRxInterface(
     val dataW: Int = 64,

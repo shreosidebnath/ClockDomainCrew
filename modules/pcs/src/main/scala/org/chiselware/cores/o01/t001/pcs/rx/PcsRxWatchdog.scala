@@ -12,6 +12,17 @@ package org.chiselware.cores.o01.t001.pcs.rx
 import chisel3._
 import chisel3.util._
 
+/** PCS Receive Watchdog and Status Monitor
+  *
+  * The Watchdog acts as a fail-safe for the PCS RX path. It monitors for 
+  * 'Bad Blocks' and 'Sequence Errors' reported by the decoder. If the link 
+  * remains unhealthy or fails to see any Control Headers over a period of 
+  * time, it can issue a 'serdesRxResetReq' to force a hardware-level re-initialization.
+  *
+  * @constructor create a new RX Watchdog
+  * @param count125us cycles representing a 125us timeout window
+  * @author ClockDomainCrew
+  */
 class PcsRxWatchdog(val count125us: Double = (125000.0 / 6.4)) extends Module {
   val hdrW = 2
   val io = IO(new Bundle {

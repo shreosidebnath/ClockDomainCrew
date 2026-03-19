@@ -11,6 +11,18 @@ University of Calgary – Schulich School of Engineering
 package org.chiselware.cores.o01.t001.pcs
 import chisel3._
 
+
+/** Parametric Linear Feedback Shift Register (LFSR)
+  * * This module calculates the LFSR matrix at elaboration time to generate 
+  * the optimal XOR-based hardware implementation for the next state.
+  *
+  * @param lfsrW width of the LFSR state
+  * @param lfsrPoly polynomial representation (BigInt)
+  * @param lfsrGalois if true, uses Galois configuration; otherwise Fibonacci
+  * @param lfsrFeedForward enables feedforward logic for CRC-like operations
+  * @param reverse mirrors the bit ordering of the input/output
+  * @author ClockDomainCrew
+  */
 class Lfsr(
     val lfsrW: Int = 31,
     val lfsrPoly: BigInt = BigInt("10000001", 16),

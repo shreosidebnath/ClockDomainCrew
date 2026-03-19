@@ -11,6 +11,23 @@ University of Calgary – Schulich School of Engineering
 package org.chiselware.cores.o01.t001.pcs.tx
 import chisel3._
 
+
+/** PCS Transmit Path Top-Level
+  *
+  * Integrates the XGMII Encoder and the PCS TX Interface. It converts 64-bit 
+  * XGMII data/control signals into encoded, scrambled 66-bit blocks (64b data + 2b header).
+  *
+  * @constructor create a new PCS TX path
+  * @param dataW internal data width (64)
+  * @param ctrlW control width (8)
+  * @param hdrW sync header width (2)
+  * @param gbxIfEn enable gearbox handshaking
+  * @param bitReverse reverse bit order for specific SERDES architectures
+  * @param scramblerDisable bypass the $x^{58} + x^{39} + 1$ scrambler
+  * @param prbs31En enable internal PRBS31 pattern generation
+  * @param serdesPipeline number of output pipeline stages
+  * @author ClockDomainCrew
+  */
 class PcsTx(
     val dataW: Int = 64,
     val ctrlW: Int = 8,

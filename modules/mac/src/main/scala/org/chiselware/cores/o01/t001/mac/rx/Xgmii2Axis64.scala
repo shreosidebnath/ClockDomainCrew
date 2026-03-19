@@ -9,13 +9,9 @@ Copyright (c) 2026 ClockDomainCrew
 University of Calgary – Schulich School of Engineering
 */
 package org.chiselware.cores.o01.t001.mac.rx
-import _root_.circt.stage.ChiselStage
 import chisel3._
 import chisel3.util._
-import org.chiselware.cores.o01.t001.mac.{
-  AxisInterface, AxisInterfaceParams, Lfsr
-}
-import org.chiselware.syn.{ RunScriptFile, StaTclFile, YosysTclFile }
+import org.chiselware.cores.o01.t001.mac.{AxisInterface, AxisInterfaceParams, Lfsr}
 
 object Xgmii2Axis64Constants {
   val EthPre = "h55".U(8.W)
@@ -31,30 +27,17 @@ object Xgmii2Axis64Constants {
 }
 
 class Xgmii2Axis64(
-    val dataW: Int = 64,
-    val ctrlW: Int = 8,
-    val gbxIfEn: Boolean = false,
+    val gbxIfEn: Boolean = true,
     val ptpTsEn: Boolean = false,
     val ptpTsFmtTod: Boolean = true,
     val ptpTsW: Int = 96) extends Module {
 
   import Xgmii2Axis64Constants._
-
+  
+  val dataW = 64
+  val ctrlW = 8
   val keepW = dataW / 8
-  val userW =
-    (if (ptpTsEn)
-       ptpTsW
-     else
-       0) + 1
-
-  require(
-    dataW == 64,
-    s"Error: Interface width must be 64 (instance dataW=$dataW)"
-  )
-  require(
-    keepW * 8 == dataW && ctrlW * 8 == dataW,
-    "Error: Interface requires byte (8-bit) granularity"
-  )
+  val userW = (if (ptpTsEn) ptpTsW else 0) + 1
 
   val io = IO(new Bundle {
     val xgmiiRxd = Input(UInt(dataW.W))
@@ -601,54 +584,4 @@ class Xgmii2Axis64(
 
   lastTsReg := io.ptpTs(19, 0)
   tsIncReg := io.ptpTs(19, 0) - lastTsReg
-}
-
-object Xgmii2Axis64 {
-  def apply(p: Xgmii2Axis64Params): Xgmii2Axis64 = Module(new Xgmii2Axis64(
-    dataW = p.dataW,
-    ctrlW = p.ctrlW,
-    gbxIfEn = p.gbxIfEn,
-    ptpTsEn = p.ptpTsEn,
-    ptpTsFmtTod = p.ptpTsFmtTod,
-    ptpTsW = p.ptpTsW
-  ))
-}
-
-object Main extends App {
-  val MainClassName = "Mac"
-  val coreDir = s"modules/${MainClassName.toLowerCase()}"
-  Xgmii2Axis64Params.synConfigMap.foreach { case (configName, p) =>
-    println(s"Generating Verilog for config: $configName")
-    ChiselStage.emitSystemVerilog(
-      new Xgmii2Axis64(
-        dataW = p.dataW,
-        ctrlW = p.ctrlW,
-        gbxIfEn = p.gbxIfEn,
-        ptpTsEn = p.ptpTsEn,
-        ptpTsFmtTod = p.ptpTsFmtTod,
-        ptpTsW = p.ptpTsW
-      ),
-      firtoolOpts = Array(
-        "--lowering-options=disallowLocalVariables,disallowPackedArrays",
-        "--disable-all-randomization",
-        "--strip-debug-info",
-        "--split-verilog",
-        s"-o=${coreDir}/generated/synTestCases/$configName"
-      )
-    )
-    SdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-    YosysTclFile.create(
-      MainClassName,
-      s"${coreDir}/generated/synTestCases/$configName"
-    )
-    StaTclFile.create(
-      MainClassName,
-      s"${coreDir}/generated/synTestCases/$configName"
-    )
-    RunScriptFile.create(
-      MainClassName,
-      Xgmii2Axis64Params.synConfigs,
-      s"${coreDir}/generated/synTestCases"
-    )
-  }
 }

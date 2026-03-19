@@ -11,16 +11,11 @@ University of Calgary – Schulich School of Engineering
 package org.chiselware.cores.o01.t001.pcs.rx
 import chisel3._
 import chisel3.util._
-import _root_.circt.stage.ChiselStage
-import org.chiselware.syn.{ RunScriptFile, StaTclFile, YosysTclFile }
 
 class PcsRxFrameSync(
-    hdrW: Int = 2,
-    bitslipHighCycles: Int = 1,
+    bitslipHighCycles: Int = 0,
     bitslipLowCycles: Int = 7) extends Module {
-
-  require(hdrW == 2, "Error: HDR_W must be 2")
-
+  val hdrW = 2
   val io = IO(new Bundle {
     // SERDES interface
     val serdesRxHdr = Input(UInt(hdrW.W))
@@ -30,6 +25,7 @@ class PcsRxFrameSync(
     // Status
     val rxBlockLock = Output(Bool())
   })
+
 
   val bitslipMaxCycles =
     if (bitslipHighCycles > bitslipLowCycles)
@@ -64,8 +60,8 @@ class PcsRxFrameSync(
   }.elsewhen(!io.serdesRxHdrValid) {
     // wait for header - do nothing (defaults hold)
   }.elsewhen(
-    io.serdesRxHdr === PcsRxFrameSync.SyncCtrl ||
-      io.serdesRxHdr === PcsRxFrameSync.SyncData
+    io.serdesRxHdr === PcsRxFrameSyncConstants.SyncCtrl ||
+      io.serdesRxHdr === PcsRxFrameSyncConstants.SyncData
   ) {
     // valid header
     shCountNext := shCountReg + 1.U
@@ -106,38 +102,7 @@ class PcsRxFrameSync(
   io.rxBlockLock := rxBlockLockReg
 }
 
-object PcsRxFrameSync {
+object PcsRxFrameSyncConstants {
   val SyncData = "b10".U(2.W)
   val SyncCtrl = "b01".U(2.W)
-
-  def apply(p: PcsRxFrameSyncParams)
-      : PcsRxFrameSync = Module(new PcsRxFrameSync(
-    hdrW = p.hdrW,
-    bitslipHighCycles = p.bitslipHighCycles,
-    bitslipLowCycles = p.bitslipLowCycles
-  ))
 }
-
-// object Main extends App {
-//   val MainClassName = "Pcs"
-//   val coreDir = s"modules/${MainClassName.toLowerCase()}"
-//   PcsRxFrameSyncParams.SynConfigMap.foreach { case (configName, p) =>
-//     println(s"Generating Verilog for config: $configName")
-//     ChiselStage.emitSystemVerilog(
-//       new PcsRxFrameSync(
-//         hdrW = p.hdrW, bitslipHighCycles = p.bitslipHighCycles, bitslipLowCycles = p.bitslipLowCycles
-//       ),
-//       firtoolOpts = Array(
-//         "--lowering-options=disallowLocalVariables,disallowPackedArrays",
-//         "--disable-all-randomization",
-//         "--strip-debug-info",
-//         "--split-verilog",
-//         s"-o=${coreDir}/generated/synTestCases/$configName"
-//       )
-//     )
-//     SdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-//     YosysTclFile.create(MainClassName, s"${coreDir}/generated/synTestCases/$configName")
-//     StaTclFile.create(MainClassName, s"${coreDir}/generated/synTestCases/$configName")
-//     RunScriptFile.create(MainClassName, PcsRxFrameSyncParams.SynConfigs, s"${coreDir}/generated/synTestCases")
-//   }
-// }

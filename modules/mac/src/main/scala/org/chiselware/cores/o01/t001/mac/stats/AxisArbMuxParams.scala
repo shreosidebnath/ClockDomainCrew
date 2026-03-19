@@ -38,15 +38,3 @@ object AxisArbMuxParams {
   val simConfigMap = synConfigMap
   val synConfigs = synConfigMap.keys.mkString(" ")
 }
-
-object AxisArbMuxSdcFile {
-  def create(sdcFilePath: String): Unit = {
-    val sdcFileData = ""
-    val sdcFileDir = new File(sdcFilePath)
-    sdcFileDir.mkdirs()
-    val sdcFileName = new File(s"$sdcFilePath/AxisArbMux.sdc")
-    val sdcFile = new PrintWriter(sdcFileName)
-    sdcFile.write(sdcFileData)
-    sdcFile.close()
-  }
-}

@@ -11,10 +11,8 @@ University of Calgary – Schulich School of Engineering
 package org.chiselware.cores.o01.t001.pcs.tx
 import chisel3._
 import chisel3.util._
-import _root_.circt.stage.ChiselStage
-import org.chiselware.syn.{ RunScriptFile, StaTclFile, YosysTclFile }
 
-object XgmiiEncoder {
+object XgmiiEncoderConstants {
   // XGMII Control Codes
   val XgmiiIdle = 0x07.U(8.W)
   val XgmiiLpi = 0x06.U(8.W)
@@ -63,27 +61,19 @@ object XgmiiEncoder {
   val BlockTypeTerm5 = 0xd2.U(8.W)
   val BlockTypeTerm6 = 0xe1.U(8.W)
   val BlockTypeTerm7 = 0xff.U(8.W)
-
-  def apply(p: XgmiiEncoderParams): XgmiiEncoder = Module(new XgmiiEncoder(
-    dataW = p.dataW,
-    ctrlW = p.ctrlW,
-    hdrW = p.hdrW,
-    gbxIfEn = p.gbxIfEn,
-    gbxCnt = p.gbxCnt
-  ))
 }
 
 class XgmiiEncoder(
     val dataW: Int = 64,
     val ctrlW: Int = 8,
-    val hdrW: Int = 2,
-    val gbxIfEn: Boolean = false,
+    val gbxIfEn: Boolean = true,
     val gbxCnt: Int = 1) extends Module {
 
-  import XgmiiEncoder._
+  import XgmiiEncoderConstants._
 
   require(dataW == 32 || dataW == 64, "Error: Interface width must be 32 or 64")
-
+  require(ctrlW * 8 == dataW, "Error: Interface requires byte (8-bit) granularity")
+  val hdrW = 2
   val io = IO(new Bundle {
     val xgmiiTxd = Input(UInt(dataW.W))
     val xgmiiTxc = Input(UInt(ctrlW.W))
@@ -396,27 +386,3 @@ class XgmiiEncoder(
 
   io.txBadBlock := txBadBlockReg
 }
-
-// object Main extends App {
-//   val MainClassName = "Pcs"
-//   val coreDir = s"modules/${MainClassName.toLowerCase()}"
-//   XgmiiEncoderParams.SynConfigMap.foreach { case (configName, p) =>
-//     println(s"Generating Verilog for config: $configName")
-//     ChiselStage.emitSystemVerilog(
-//       new XgmiiEncoder(
-//         dataW = p.dataW, ctrlW = p.ctrlW, hdrW = p.hdrW, gbxIfEn = p.gbxIfEn, gbxCnt = p.gbxCnt
-//       ),
-//       firtoolOpts = Array(
-//         "--lowering-options=disallowLocalVariables,disallowPackedArrays",
-//         "--disable-all-randomization",
-//         "--strip-debug-info",
-//         "--split-verilog",
-//         s"-o=${coreDir}/generated/synTestCases/$configName"
-//       )
-//     )
-//     SdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-//     YosysTclFile.create(MainClassName, s"${coreDir}/generated/synTestCases/$configName")
-//     StaTclFile.create(MainClassName, s"${coreDir}/generated/synTestCases/$configName")
-//     RunScriptFile.create(MainClassName, XgmiiEncoderParams.SynConfigs, s"${coreDir}/generated/synTestCases")
-//   }
-// }

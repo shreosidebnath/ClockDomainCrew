@@ -9,13 +9,11 @@ Copyright (c) 2026 ClockDomainCrew
 University of Calgary – Schulich School of Engineering
 */
 package org.chiselware.cores.o01.t001.mac.tx
-import _root_.circt.stage.ChiselStage
 import chisel3._
 import chisel3.util._
 import org.chiselware.cores.o01.t001.mac.{
   AxisInterface, AxisInterfaceParams, Lfsr
 }
-import org.chiselware.syn.{ RunScriptFile, StaTclFile, YosysTclFile }
 
 object Axis2Xgmii64Constants {
   val EthPre = "h55".U(8.W)
@@ -35,40 +33,26 @@ object Axis2Xgmii64Constants {
 }
 
 class Axis2Xgmii64(
-    val dataW: Int = 64,
-    val ctrlW: Int = 8,
-    val gbxIfEn: Boolean = false,
+    val gbxIfEn: Boolean = true,
     val gbxCnt: Int = 1,
     val paddingEn: Boolean = true,
     val dicEn: Boolean = true,
     val minFrameLen: Int = 64,
     val ptpTsEn: Boolean = false,
     val ptpTsFmtTod: Boolean = true,
-    val ptpTsW: Int = 96,
-    val txCplCtrlInTuser: Boolean = true) extends Module {
+    val ptpTsW: Int = 96) extends Module {
 
   import Axis2Xgmii64Constants._
 
+  val dataW = 64
+  val ctrlW = 8
   val keepW = dataW / 8
-  val userW =
-    if (txCplCtrlInTuser)
-      2
-    else
-      1
+  val userW = 1
 
   val txTagW = 8
 
   val emptyW = log2Ceil(keepW + 1)
   val minLenW = log2Ceil(minFrameLen - 4 - ctrlW + 1 + 1)
-
-  require(
-    dataW == 64,
-    s"Error: Interface width must be 64 (instance dataW=$dataW)"
-  )
-  require(
-    keepW * 8 == dataW && ctrlW * 8 == dataW,
-    "Error: Interface requires byte (8-bit) granularity"
-  )
 
   val io = IO(new Bundle {
     val sAxisTx = Flipped(new AxisInterface(AxisInterfaceParams(
@@ -757,17 +741,10 @@ class Axis2Xgmii64(
         startPacketReg := "b01".U
       }
 
-      if (txCplCtrlInTuser) {
-        if (ptpTsFmtTod)
-          mAxisTxCplValidIntReg := (io.sAxisTx.tuser >> 1) === 0.U
-        else
-          mAxisTxCplValidReg := (io.sAxisTx.tuser >> 1) === 0.U
-      } else {
-        if (ptpTsFmtTod)
-          mAxisTxCplValidIntReg := true.B
-        else
-          mAxisTxCplValidReg := true.B
-      }
+      if (ptpTsFmtTod)
+        mAxisTxCplValidIntReg := true.B
+      else
+        mAxisTxCplValidReg := true.B
     }
 
     for (i <- 0 until 7) {
@@ -797,65 +774,4 @@ class Axis2Xgmii64(
   txGbxSyncReg := io.txGbxReqSync
   lastTsReg := io.ptpTs(19, 0)
   tsIncReg := io.ptpTs(19, 0) - lastTsReg
-}
-
-object Axis2Xgmii64 {
-  def apply(p: Axis2Xgmii64Params): Axis2Xgmii64 = Module(new Axis2Xgmii64(
-    dataW = p.dataW,
-    ctrlW = p.ctrlW,
-    gbxIfEn = p.gbxIfEn,
-    gbxCnt = p.gbxCnt,
-    paddingEn = p.paddingEn,
-    dicEn = p.dicEn,
-    minFrameLen = p.minFrameLen,
-    ptpTsEn = p.ptpTsEn,
-    ptpTsFmtTod = p.ptpTsFmtTod,
-    ptpTsW = p.ptpTsW,
-    txCplCtrlInTuser = p.txCplCtrlInTuser
-  ))
-}
-
-object Main extends App {
-  val MainClassName = "Mac"
-  val coreDir = s"modules/${MainClassName.toLowerCase()}"
-  Axis2Xgmii64Params.synConfigMap.foreach { case (configName, p) =>
-    println(s"Generating Verilog for config: $configName")
-    ChiselStage.emitSystemVerilog(
-      new Axis2Xgmii64(
-        dataW = p.dataW,
-        ctrlW = p.ctrlW,
-        gbxIfEn = p.gbxIfEn,
-        gbxCnt = p.gbxCnt,
-        paddingEn = p.paddingEn,
-        dicEn = p.dicEn,
-        minFrameLen = p.minFrameLen,
-        ptpTsEn = p.ptpTsEn,
-        ptpTsFmtTod = p.ptpTsFmtTod,
-        ptpTsW = p.ptpTsW,
-        txCplCtrlInTuser = p.txCplCtrlInTuser
-      ),
-      firtoolOpts = Array(
-        "--lowering-options=disallowLocalVariables,disallowPackedArrays",
-        "--disable-all-randomization",
-        "--strip-debug-info",
-        "--split-verilog",
-        s"-o=${coreDir}/generated/synTestCases/$configName"
-      )
-    )
-    SdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-
-    YosysTclFile.create(
-      MainClassName,
-      s"${coreDir}/generated/synTestCases/$configName"
-    )
-    StaTclFile.create(
-      MainClassName,
-      s"${coreDir}/generated/synTestCases/$configName"
-    )
-    RunScriptFile.create(
-      MainClassName,
-      Axis2Xgmii64Params.synConfigs,
-      s"${coreDir}/generated/synTestCases"
-    )
-  }
 }

@@ -11,18 +11,18 @@ University of Calgary – Schulich School of Engineering
 package org.chiselware.cores.o01.t001.pcs.tx
 import chisel3._
 import chisel3.util._
-import _root_.circt.stage.ChiselStage
-import org.chiselware.syn.{ RunScriptFile, StaTclFile, YosysTclFile }
 import org.chiselware.cores.o01.t001.pcs.Lfsr
 
 class PcsTxInterface(
     val dataW: Int = 64,
-    val hdrW: Int = 2,
-    val gbxIfEn: Boolean = false,
-    val bitReverse: Boolean = false,
+    val gbxIfEn: Boolean = true,
+    val bitReverse: Boolean = true,
     val scramblerDisable: Boolean = false,
     val prbs31En: Boolean = false,
-    val serdesPipeline: Int = 0) extends Module {
+    val serdesPipeline: Int = 1) extends Module {
+
+  require(dataW == 32 || dataW == 64, "Error: Interface width must be 32 or 64")
+  val hdrW = 2
   val io = IO(new Bundle {
     val encodedTxData = Input(UInt(dataW.W))
     val encodedTxDataValid = Input(Bool())
@@ -120,41 +120,3 @@ class PcsTxInterface(
   io.serdesTxGbxSync :=
     ShiftRegister(RegNext(io.txGbxSync), serdesPipeline)
 }
-
-object PcsTxInterface {
-  def apply(p: PcsTxInterfaceParams)
-      : PcsTxInterface = Module(new PcsTxInterface(
-    dataW = p.dataW,
-    hdrW = p.hdrW,
-    gbxIfEn = p.gbxIfEn,
-    bitReverse = p.bitReverse,
-    scramblerDisable = p.scramblerDisable,
-    prbs31En = p.prbs31En,
-    serdesPipeline = p.serdesPipeline
-  ))
-}
-
-// object Main extends App {
-//   val MainClassName = "Pcs"
-//   val coreDir = s"modules/${MainClassName.toLowerCase()}"
-//   PcsTxInterfaceParams.SynConfigMap.foreach { case (configName, p) =>
-//     println(s"Generating Verilog for config: $configName")
-//     ChiselStage.emitSystemVerilog(
-//       new PcsTxInterface(
-//         dataW = p.dataW, hdrW = p.hdrW, gbxIfEn = p.gbxIfEn, bitReverse = p.bitReverse,
-//         scramblerDisable = p.scramblerDisable, prbs31En = p.prbs31En, serdesPipeline = p.serdesPipeline
-//       ),
-//       firtoolOpts = Array(
-//         "--lowering-options=disallowLocalVariables,disallowPackedArrays",
-//         "--disable-all-randomization",
-//         "--strip-debug-info",
-//         "--split-verilog",
-//         s"-o=${coreDir}/generated/synTestCases/$configName"
-//       )
-//     )
-//     SdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-//     YosysTclFile.create(MainClassName, s"${coreDir}/generated/synTestCases/$configName")
-//     StaTclFile.create(MainClassName, s"${coreDir}/generated/synTestCases/$configName")
-//     RunScriptFile.create(MainClassName, PcsTxInterfaceParams.SynConfigs, s"${coreDir}/generated/synTestCases")
-//   }
-// }

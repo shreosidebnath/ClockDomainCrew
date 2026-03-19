@@ -177,30 +177,3 @@ class StatsCollect(val p: StatsCollectParams) extends Module {
   io.m_axis_stat_tdest := 0.U
   io.m_axis_stat_tuser := Mux(p.strEn.B, tuserReg, 0.U)
 }
-
-object StatsCollect {
-  def apply(p: StatsCollectParams): StatsCollect = Module(new StatsCollect(p))
-}
-
-// FIRTOOL Build Object
-object StatsCollectMain extends App {
-  val mainClassName = "Mac"
-  val coreDir = s"modules/${mainClassName.toLowerCase()}"
-  StatsCollectParams.synConfigMap.foreach { case (configName, p) =>
-    println(s"Generating Verilog for config: $configName")
-    ChiselStage.emitSystemVerilog(
-      new StatsCollect(p),
-      firtoolOpts = Array(
-        "--lowering-options=disallowLocalVariables,disallowPackedArrays",
-        "--disable-all-randomization",
-        "--strip-debug-info",
-        "--split-verilog",
-        s"-o=${coreDir}/generated/synTestCases/$configName"
-      )
-    )
-    StatsCollectSdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-    YosysTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
-    StaTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
-    RunScriptFile.create(mainClassName, StatsCollectParams.synConfigs, s"${coreDir}/generated/synTestCases")
-  }
-}

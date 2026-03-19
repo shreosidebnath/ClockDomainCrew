@@ -63,21 +63,7 @@ class PcsTb(val p: PcsParams) extends Module {
     val cfgRxPrbs31Enable = Input(Bool())
   })
 
-  val dut = Module(new Pcs(
-    dataW = p.dataW,
-    ctrlW = p.ctrlW,
-    hdrW = p.hdrW,
-    txGbxIfEn = p.txGbxIfEn,
-    rxGbxIfEn = p.rxGbxIfEn,
-    bitReverse = p.bitReverse,
-    scramblerDisable = p.scramblerDisable,
-    prbs31En = p.prbs31En,
-    txSerdesPipeline = p.txSerdesPipeline,
-    rxSerdesPipeline = p.rxSerdesPipeline,
-    bitslipHighCycles = p.bitslipHighCycles,
-    bitslipLowCycles = p.bitslipLowCycles,
-    count125Us = p.count125Us
-  ))
+  val dut = Module(new Pcs(p))
 
   // Clock & Reset Wiring
   dut.io.rxClk := io.rxClk

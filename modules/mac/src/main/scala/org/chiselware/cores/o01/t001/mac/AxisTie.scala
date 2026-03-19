@@ -86,7 +86,6 @@ class AxisTie(
   }
 }
 
-// 2. The Companion Object
 object AxisTie {
   def apply(
       sAxisIn: AxisInterface,

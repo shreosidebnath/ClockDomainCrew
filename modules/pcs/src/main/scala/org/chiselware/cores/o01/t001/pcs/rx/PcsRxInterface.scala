@@ -9,29 +9,26 @@ Copyright (c) 2026 ClockDomainCrew
 University of Calgary – Schulich School of Engineering
 */
 package org.chiselware.cores.o01.t001.pcs.rx
-import _root_.circt.stage.ChiselStage
 import chisel3._
 import chisel3.util._
 import org.chiselware.cores.o01.t001.pcs.Lfsr
-import org.chiselware.syn.{ RunScriptFile, StaTclFile, YosysTclFile }
 
 /** 10G Ethernet PHY RX IF
   */
 class PcsRxInterface(
     val dataW: Int = 64,
-    val hdrW: Int = 2,
-    val gbxIfEn: Boolean = false,
-    val bitReverse: Boolean = false,
+    val gbxIfEn: Boolean = true,
+    val bitReverse: Boolean = true,
     val scramblerDisable: Boolean = false,
     val prbs31En: Boolean = false,
-    val serdesPipeline: Int = 0,
-    val bitslipHighCycles: Int = 1,
+    val serdesPipeline: Int = 1,
+    val bitslipHighCycles: Int = 0,
     val bitslipLowCycles: Int = 7,
     val count125Us: Double = 125000 / 6.4) extends Module {
 
   require(dataW == 32 || dataW == 64, "Error: Interface width must be 32 or 64")
-  require(hdrW == 2, "Error: HDR_W must be 2")
-
+  val hdrW = 2
+  
   val io = IO(new Bundle {
     // 10GBASE-R encoded interface
     val encodedRxData = Output(UInt(dataW.W))
@@ -59,6 +56,7 @@ class PcsRxInterface(
     val cfgRxPrbs31Enable = Input(Bool())
   })
 
+  
   val useHdrVld = gbxIfEn || dataW != 64
 
   // --- Bit Reversal ---
@@ -204,7 +202,6 @@ class PcsRxInterface(
 
   // --- Submodule Instantiations ---
   val frameSyncInst = Module(new PcsRxFrameSync(
-    hdrW = hdrW,
     bitslipHighCycles = bitslipHighCycles,
     bitslipLowCycles = bitslipLowCycles
   ))
@@ -214,7 +211,6 @@ class PcsRxInterface(
   io.rxBlockLock := frameSyncInst.io.rxBlockLock
 
   val berMonInst = Module(new PcsRxBerMon(
-    hdrW = hdrW,
     count125Us = count125Us
   ))
   berMonInst.io.serdesRxHdr := serdesRxHdrInt
@@ -222,7 +218,6 @@ class PcsRxInterface(
   io.rxHighBer := berMonInst.io.rxHighBer
 
   val watchdogInst = Module(new PcsRxWatchdog(
-    hdrW = hdrW,
     count125us = count125Us
   ))
   watchdogInst.io.serdesRxHdr := serdesRxHdrInt
@@ -234,52 +229,3 @@ class PcsRxInterface(
   watchdogInst.io.rxHighBer := io.rxHighBer
   io.rxStatus := watchdogInst.io.rxStatus
 }
-
-object PcsRxInterface {
-  def apply(p: PcsRxInterfaceParams)
-      : PcsRxInterface = Module(new PcsRxInterface(
-    dataW = p.dataW,
-    hdrW = p.hdrW,
-    gbxIfEn = p.gbxIfEn,
-    bitReverse = p.bitReverse,
-    scramblerDisable = p.scramblerDisable,
-    prbs31En = p.prbs31En,
-    serdesPipeline = p.serdesPipeline,
-    bitslipHighCycles = p.bitslipHighCycles,
-    bitslipLowCycles = p.bitslipLowCycles,
-    count125Us = p.count125Us
-  ))
-}
-
-// object Main extends App {
-//   val MainClassName = "Pcs"
-//   val coreDir = s"modules/${MainClassName.toLowerCase()}"
-//   PcsRxInterfaceParams.SynConfigMap.foreach { case (configName, p) =>
-//     println(s"Generating Verilog for config: $configName")
-//     ChiselStage.emitSystemVerilog(
-//       new PcsRxInterface(
-//         dataW = p.dataW,
-//         hdrW = p.hdrW,
-//         gbxIfEn = p.gbxIfEn,
-//         bitReverse = p.bitReverse,
-//         scramblerDisable = p.scramblerDisable,
-//         prbs31En = p.prbs31En,
-//         serdesPipeline = p.serdesPipeline,
-//         bitslipHighCycles = p.bitslipHighCycles,
-//         bitslipLowCycles = p.bitslipLowCycles,
-//         count125Us = p.count125Us
-//       ),
-//       firtoolOpts = Array(
-//         "--lowering-options=disallowLocalVariables,disallowPackedArrays",
-//         "--disable-all-randomization",
-//         "--strip-debug-info",
-//         "--split-verilog",
-//         s"-o=${coreDir}/generated/synTestCases/$configName"
-//       )
-//     )
-//     SdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-//     YosysTclFile.create(MainClassName, s"${coreDir}/generated/synTestCases/$configName")
-//     StaTclFile.create(MainClassName, s"${coreDir}/generated/synTestCases/$configName")
-//     RunScriptFile.create(MainClassName, PcsRxInterfaceParams.SynConfigs, s"${coreDir}/generated/synTestCases")
-//   }
-// }

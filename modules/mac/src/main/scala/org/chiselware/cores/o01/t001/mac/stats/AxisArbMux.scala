@@ -14,31 +14,30 @@ import chisel3._
 import chisel3.util._
 import _root_.circt.stage.ChiselStage
 import scala.collection.mutable.LinkedHashMap
+import org.chiselware.cores.o01.t001.mac.{AxisInterface, AxisInterfaceParams}
 
-
-// 2. AXI-Stream Bundle definition
-class AxisStream(p: AxisArbMuxParams) extends Bundle {
-  val tdata  = UInt(p.dataW.W)
-  val tkeep  = UInt(p.keepW.W)
-  val tstrb  = UInt(p.keepW.W)
-  val tvalid = Bool()
-  val tready = Flipped(Bool())
-  val tlast  = Bool()
-  val tid    = UInt(p.idW.W)
-  val tdest  = UInt(p.destW.W)
-  val tuser  = UInt(p.userW.W)
-}
-
-
-
-// 4. The Main Multiplexer Module
 class AxisArbMux(val p: AxisArbMuxParams) extends Module {
   val io = IO(new Bundle {
-    val s_axis = Vec(p.sCount, Flipped(new AxisStream(p)))
-    val m_axis = new AxisStream(p)
+    val s_axis = Vec(p.sCount, Flipped(new AxisInterface(
+      AxisInterfaceParams(
+        dataW = p.dataW,
+        keepW = p.keepW,
+        idW = p.idW,
+        destW = p.destW,
+        userW = p.userW
+      )
+    )))
+    val m_axis = new AxisInterface(
+      AxisInterfaceParams(
+        dataW = p.dataW,
+        keepW = p.keepW,
+        idW = p.idW,
+        destW = p.destW,
+        userW = p.userW
+      )
+    )
   })
 
-  // Instantiate the custom arbiter
   val arbiter = Module(new CustomArbiter(p.sCount, p.arbRoundRobin, p.arbBlock, p.arbBlockAck, p.arbLsbHighPrio))
   
   // Pipeline Registers
@@ -179,23 +178,4 @@ class AxisArbMux(val p: AxisArbMuxParams) extends Module {
     temp_m_axis_tdest_reg  := current_s_tdest
     temp_m_axis_tuser_reg  := current_s_tuser
   }
-}
-
-// 5. Generator Object
-object AxisArbMuxMain extends App {
-  val mainClassName = "Mac"
-  val coreDir = s"modules/${mainClassName.toLowerCase()}"
-  
-  // Generating a 2-port mux specifically for the TX/RX stats aggregation
-  val p = AxisArbMuxParams(sCount = 2) 
-
-  ChiselStage.emitSystemVerilog(
-    new AxisArbMux(p),
-    firtoolOpts = Array(
-      "-o", s"${coreDir}/generated/synTestCases/stat_mux_inst", 
-      "--split-verilog", 
-      "--strip-debug-info",
-      "--preserve-aggregate=all"
-    )
-  )
 }

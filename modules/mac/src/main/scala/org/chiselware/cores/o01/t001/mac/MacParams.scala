@@ -24,7 +24,7 @@ case class MacParams(
   ptpTsEn: Boolean = false,
   ptpTsFmtTod: Boolean = true,
   ptpTsW: Int = 96,
-  statEn: Boolean = false,
+  statEn: Boolean = true,
   statTxLevel: Int = 1,
   statRxLevel: Int = 1,
   statIdBase: Int = 0,

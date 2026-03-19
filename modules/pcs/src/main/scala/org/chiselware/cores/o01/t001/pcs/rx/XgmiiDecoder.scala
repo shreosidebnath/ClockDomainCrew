@@ -11,10 +11,8 @@ University of Calgary – Schulich School of Engineering
 package org.chiselware.cores.o01.t001.pcs.rx
 import chisel3._
 import chisel3.util._
-import _root_.circt.stage.ChiselStage
-import org.chiselware.syn.{ RunScriptFile, StaTclFile, YosysTclFile }
 
-object XgmiiDecoder {
+object XgmiiDecoderConstants {
   // XGMII Control Codes
   val XgmiiIdle = 0x07.U(8.W)
   val XgmiiLpi = 0x06.U(8.W)
@@ -63,24 +61,18 @@ object XgmiiDecoder {
   val BlockTypeTerm5 = 0xd2.U(8.W)
   val BlockTypeTerm6 = 0xe1.U(8.W)
   val BlockTypeTerm7 = 0xff.U(8.W)
-
-  def apply(p: XgmiiDecoderParams): XgmiiDecoder = Module(new XgmiiDecoder(
-    dataW = p.dataW,
-    ctrlW = p.ctrlW,
-    hdrW = p.hdrW,
-    gbxIfEn = p.gbxIfEn
-  ))
 }
 
 class XgmiiDecoder(
     val dataW: Int = 64,
     val ctrlW: Int = 8,
-    val hdrW: Int = 2,
-    val gbxIfEn: Boolean = false) extends Module {
+    val gbxIfEn: Boolean = true) extends Module {
 
-  import XgmiiDecoder._
+  import XgmiiDecoderConstants._
 
   require(dataW == 32 || dataW == 64, "Error: Interface width must be 32 or 64")
+  require(ctrlW * 8 == dataW, "Error: Interface requires byte (8-bit) granularity")
+  val hdrW = 2
 
   val io = IO(new Bundle {
     val encodedRxData = Input(UInt(dataW.W))
@@ -444,27 +436,3 @@ class XgmiiDecoder(
   rxSequenceErrorReg := rxSequenceErrorNext
   frameReg := frameNext
 }
-
-// object Main extends App {
-//   val MainClassName = "Pcs"
-//   val coreDir = s"modules/${MainClassName.toLowerCase()}"
-//   XgmiiDecoderParams.SynConfigMap.foreach { case (configName, p) =>
-//     println(s"Generating Verilog for config: $configName")
-//     ChiselStage.emitSystemVerilog(
-//       new XgmiiDecoder(
-//         dataW = p.dataW, ctrlW = p.ctrlW, hdrW = p.hdrW, gbxIfEn = p.gbxIfEn
-//       ),
-//       firtoolOpts = Array(
-//         "--lowering-options=disallowLocalVariables,disallowPackedArrays",
-//         "--disable-all-randomization",
-//         "--strip-debug-info",
-//         "--split-verilog",
-//         s"-o=${coreDir}/generated/synTestCases/$configName"
-//       )
-//     )
-//     SdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-//     YosysTclFile.create(MainClassName, s"${coreDir}/generated/synTestCases/$configName")
-//     StaTclFile.create(MainClassName, s"${coreDir}/generated/synTestCases/$configName")
-//     RunScriptFile.create(MainClassName, XgmiiDecoderParams.SynConfigs, s"${coreDir}/generated/synTestCases")
-//   }
-// }

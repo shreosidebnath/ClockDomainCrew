@@ -9,20 +9,18 @@ Copyright (c) 2026 ClockDomainCrew
 University of Calgary – Schulich School of Engineering
 */
 package org.chiselware.cores.o01.t001.pcs.rx
-import _root_.circt.stage.ChiselStage
 import chisel3._
-import org.chiselware.syn.{ RunScriptFile, StaTclFile, YosysTclFile }
 
 class PcsRx(
     val dataW: Int = 64,
     val ctrlW: Int = 8,
     val hdrW: Int = 2,
-    val gbxIfEn: Boolean = false,
-    val bitReverse: Boolean = false,
+    val gbxIfEn: Boolean = true,
+    val bitReverse: Boolean = true,
     val scramblerDisable: Boolean = false,
     val prbs31En: Boolean = false,
-    val serdesPipeline: Int = 0,
-    val bitslipHighCycles: Int = 1,
+    val serdesPipeline: Int = 1,
+    val bitslipHighCycles: Int = 0,
     val bitslipLowCycles: Int = 7,
     val count125Us: Double = 125000.0 / 6.4) extends Module {
   val io = IO(new Bundle {
@@ -56,7 +54,6 @@ class PcsRx(
   // -------------------------------------------------------------------------
   val rxIf = Module(new PcsRxInterface(
     dataW = dataW,
-    hdrW = hdrW,
     gbxIfEn = gbxIfEn,
     bitReverse = bitReverse,
     scramblerDisable = scramblerDisable,
@@ -88,7 +85,6 @@ class PcsRx(
   val decoder = Module(new XgmiiDecoder(
     dataW = dataW,
     ctrlW = ctrlW,
-    hdrW = hdrW,
     gbxIfEn = gbxIfEn
   ))
 
@@ -114,64 +110,4 @@ class PcsRx(
   // Also expose these status signals to the top level
   io.rxBadBlock := decoder.io.rxBadBlock
   io.rxSequenceError := decoder.io.rxSequenceError
-}
-
-object PcsRx {
-  def apply(p: PcsRxParams): PcsRx = Module(new PcsRx(
-    dataW = p.dataW,
-    ctrlW = p.ctrlW,
-    hdrW = p.hdrW,
-    gbxIfEn = p.gbxIfEn,
-    bitReverse = p.bitReverse,
-    scramblerDisable = p.scramblerDisable,
-    prbs31En = p.prbs31En,
-    serdesPipeline = p.serdesPipeline,
-    bitslipHighCycles = p.bitslipHighCycles,
-    bitslipLowCycles = p.bitslipLowCycles,
-    count125Us = p.count125Us
-  ))
-}
-
-object Main extends App {
-  val MainClassName = "Pcs"
-  val coreDir = s"modules/${MainClassName.toLowerCase()}"
-  PcsRxParams.SynConfigMap.foreach { case (configName, p) =>
-    println(s"Generating Verilog for config: $configName")
-    ChiselStage.emitSystemVerilog(
-      new PcsRx(
-        dataW = p.dataW,
-        ctrlW = p.ctrlW,
-        hdrW = p.hdrW,
-        gbxIfEn = p.gbxIfEn,
-        bitReverse = p.bitReverse,
-        scramblerDisable = p.scramblerDisable,
-        prbs31En = p.prbs31En,
-        serdesPipeline = p.serdesPipeline,
-        bitslipHighCycles = p.bitslipHighCycles,
-        bitslipLowCycles = p.bitslipLowCycles,
-        count125Us = p.count125Us
-      ),
-      firtoolOpts = Array(
-        "--lowering-options=disallowLocalVariables,disallowPackedArrays",
-        "--disable-all-randomization",
-        "--strip-debug-info",
-        "--split-verilog",
-        s"-o=${coreDir}/generated/synTestCases/$configName"
-      )
-    )
-    SdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-    YosysTclFile.create(
-      MainClassName,
-      s"${coreDir}/generated/synTestCases/$configName"
-    )
-    StaTclFile.create(
-      MainClassName,
-      s"${coreDir}/generated/synTestCases/$configName"
-    )
-    RunScriptFile.create(
-      MainClassName,
-      PcsRxParams.SynConfigs,
-      s"${coreDir}/generated/synTestCases"
-    )
-  }
 }

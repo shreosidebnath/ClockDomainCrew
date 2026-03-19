@@ -15,47 +15,34 @@ import org.chiselware.cores.o01.t001.pcs.rx.PcsRx
 import org.chiselware.cores.o01.t001.pcs.tx.PcsTx
 import org.chiselware.syn.{ RunScriptFile, StaTclFile, YosysTclFile }
 
-class Pcs(
-    val dataW: Int = 64,
-    val ctrlW: Int = 8,
-    val hdrW: Int = 2,
-    val txGbxIfEn: Boolean = false,
-    val rxGbxIfEn: Boolean = false,
-    val bitReverse: Boolean = false,
-    val scramblerDisable: Boolean = false,
-    val prbs31En: Boolean = false,
-    val txSerdesPipeline: Int = 0,
-    val rxSerdesPipeline: Int = 0,
-    val bitslipHighCycles: Int = 1,
-    val bitslipLowCycles: Int = 7,
-    val count125Us: Double = 125000.0 / 6.4) extends RawModule {
+class Pcs(val p: PcsParams) extends RawModule {
   val io = IO(new Bundle {
     val rxClk = Input(Clock())
     val rxRst = Input(Bool())
     val txClk = Input(Clock())
     val txRst = Input(Bool())
 
-    val xgmiiTxd = Input(UInt(dataW.W))
-    val xgmiiTxc = Input(UInt(ctrlW.W))
+    val xgmiiTxd = Input(UInt(p.dataW.W))
+    val xgmiiTxc = Input(UInt(p.ctrlW.W))
     val xgmiiTxValid = Input(Bool())
-    val xgmiiRxd = Output(UInt(dataW.W))
-    val xgmiiRxc = Output(UInt(ctrlW.W))
+    val xgmiiRxd = Output(UInt(p.dataW.W))
+    val xgmiiRxc = Output(UInt(p.ctrlW.W))
     val xgmiiRxValid = Output(Bool())
     val txGbxReqSync = Output(Bool())
     val txGbxReqStall = Output(Bool())
     val txGbxSync = Input(Bool())
 
     // SERDES interface
-    val serdesTxData = Output(UInt(dataW.W))
+    val serdesTxData = Output(UInt(p.dataW.W))
     val serdesTxDataValid = Output(Bool())
-    val serdesTxHdr = Output(UInt(hdrW.W))
+    val serdesTxHdr = Output(UInt(p.hdrW.W))
     val serdesTxHdrValid = Output(Bool())
     val serdesTxGbxReqSync = Input(Bool())
     val serdesTxGbxReqStall = Input(Bool())
     val serdesTxGbxSync = Output(Bool())
-    val serdesRxData = Input(UInt(dataW.W))
+    val serdesRxData = Input(UInt(p.dataW.W))
     val serdesRxDataValid = Input(Bool())
-    val serdesRxHdr = Input(UInt(hdrW.W))
+    val serdesRxHdr = Input(UInt(p.hdrW.W))
     val serdesRxHdrValid = Input(Bool())
     val serdesRxBitslip = Output(Bool())
     val serdesRxResetReq = Output(Bool())
@@ -79,17 +66,17 @@ class Pcs(
   // -------------------------------------------------------------------------
   withClockAndReset(clock = io.rxClk, reset = io.rxRst) {
     val rx = Module(new PcsRx(
-      dataW = dataW,
-      ctrlW = ctrlW,
-      hdrW = hdrW,
-      gbxIfEn = rxGbxIfEn,
-      bitReverse = bitReverse,
-      scramblerDisable = scramblerDisable,
-      prbs31En = prbs31En,
-      serdesPipeline = rxSerdesPipeline,
-      bitslipHighCycles = bitslipHighCycles,
-      bitslipLowCycles = bitslipLowCycles,
-      count125Us = count125Us
+      dataW = p.dataW,
+      ctrlW = p.ctrlW,
+      hdrW = p.hdrW,
+      gbxIfEn = p.rxGbxIfEn,
+      bitReverse = p.bitReverse,
+      scramblerDisable = p.scramblerDisable,
+      prbs31En = p.prbs31En,
+      serdesPipeline = p.rxSerdesPipeline,
+      bitslipHighCycles = p.bitslipHighCycles,
+      bitslipLowCycles = p.bitslipLowCycles,
+      count125Us = p.count125Us
     ))
 
     // XGMII Output
@@ -124,14 +111,14 @@ class Pcs(
   // -------------------------------------------------------------------------
   withClockAndReset(clock = io.txClk, reset = io.txRst) {
     val tx = Module(new PcsTx(
-      dataW = dataW,
-      ctrlW = ctrlW,
-      hdrW = hdrW,
-      gbxIfEn = txGbxIfEn,
-      bitReverse = bitReverse,
-      scramblerDisable = scramblerDisable,
-      prbs31En = prbs31En,
-      serdesPipeline = txSerdesPipeline
+      dataW = p.dataW,
+      ctrlW = p.ctrlW,
+      hdrW = p.hdrW,
+      gbxIfEn = p.txGbxIfEn,
+      bitReverse = p.bitReverse,
+      scramblerDisable = p.scramblerDisable,
+      prbs31En = p.prbs31En,
+      serdesPipeline = p.txSerdesPipeline
     ))
 
     // XGMII Input
@@ -164,21 +151,7 @@ class Pcs(
 }
 
 object Pcs {
-  def apply(p: PcsParams): Pcs = Module(new Pcs(
-    dataW = p.dataW,
-    ctrlW = p.ctrlW,
-    hdrW = p.hdrW,
-    txGbxIfEn = p.txGbxIfEn,
-    rxGbxIfEn = p.rxGbxIfEn,
-    bitReverse = p.bitReverse,
-    scramblerDisable = p.scramblerDisable,
-    prbs31En = p.prbs31En,
-    txSerdesPipeline = p.txSerdesPipeline,
-    rxSerdesPipeline = p.rxSerdesPipeline,
-    bitslipHighCycles = p.bitslipHighCycles,
-    bitslipLowCycles = p.bitslipLowCycles,
-    count125Us = p.count125Us
-  ))
+  def apply(p: PcsParams): Pcs = Module(new Pcs(p))
 }
 
 object Main extends App {
@@ -187,21 +160,7 @@ object Main extends App {
   PcsParams.SynConfigMap.foreach { case (configName, p) =>
     println(s"Generating Verilog for config: $configName")
     ChiselStage.emitSystemVerilog(
-      new Pcs(
-        dataW = p.dataW,
-        ctrlW = p.ctrlW,
-        hdrW = p.hdrW,
-        txGbxIfEn = p.txGbxIfEn,
-        rxGbxIfEn = p.rxGbxIfEn,
-        bitReverse = p.bitReverse,
-        scramblerDisable = p.scramblerDisable,
-        prbs31En = p.prbs31En,
-        txSerdesPipeline = p.txSerdesPipeline,
-        rxSerdesPipeline = p.rxSerdesPipeline,
-        bitslipHighCycles = p.bitslipHighCycles,
-        bitslipLowCycles = p.bitslipLowCycles,
-        count125Us = p.count125Us
-      ),
+      new Pcs(p),
       firtoolOpts = Array(
         "--lowering-options=disallowLocalVariables,disallowPackedArrays",
         "--disable-all-randomization",

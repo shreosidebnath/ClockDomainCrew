@@ -33,8 +33,6 @@ object Axis2Xgmii64Constants {
 }
 
 class Axis2Xgmii64(
-    val dataW: Int = 64,
-    val ctrlW: Int = 8,
     val gbxIfEn: Boolean = true,
     val gbxCnt: Int = 1,
     val paddingEn: Boolean = true,
@@ -46,6 +44,8 @@ class Axis2Xgmii64(
 
   import Axis2Xgmii64Constants._
 
+  val dataW = 64
+  val ctrlW = 8
   val keepW = dataW / 8
   val userW = 1
 
@@ -53,15 +53,6 @@ class Axis2Xgmii64(
 
   val emptyW = log2Ceil(keepW + 1)
   val minLenW = log2Ceil(minFrameLen - 4 - ctrlW + 1 + 1)
-
-  require(
-    dataW == 64,
-    s"Error: Interface width must be 64 (instance dataW=$dataW)"
-  )
-  require(
-    ctrlW * 8 == dataW,
-    "Error: Interface requires byte (8-bit) granularity"
-  )
 
   val io = IO(new Bundle {
     val sAxisTx = Flipped(new AxisInterface(AxisInterfaceParams(

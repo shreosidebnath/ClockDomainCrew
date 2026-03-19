@@ -11,12 +11,10 @@ University of Calgary – Schulich School of Engineering
 package org.chiselware.cores.o01.t001.pcs.rx
 import chisel3._
 import chisel3.util._
-import _root_.circt.stage.ChiselStage
-import org.chiselware.syn.{ RunScriptFile, StaTclFile, YosysTclFile }
 
-class PcsRxBerMon(
-    val hdrW: Int = 2,
-    val count125Us: Double = 125000.0 / 6.4) extends Module {
+class PcsRxBerMon(val count125Us: Double = 125000.0 / 6.4) extends Module {
+
+  val hdrW = 2
   val io = IO(new Bundle {
     // SERDES interface
     val serdesRxHdr = Input(UInt(hdrW.W))
@@ -25,8 +23,6 @@ class PcsRxBerMon(
     // Status
     val rxHighBer = Output(Bool())
   })
-
-  require(hdrW == 2, "Error: HDR_W must be 2")
 
   val count125UsInt = count125Us.toInt
   val countW = log2Ceil(count125UsInt + 1)
@@ -46,8 +42,8 @@ class PcsRxBerMon(
   // 2. Main BER Logic
   when(io.serdesRxHdrValid) {
     val isValidHeader =
-      io.serdesRxHdr === PcsRxBerMon.SyncCtrl ||
-        io.serdesRxHdr === PcsRxBerMon.SyncData
+      io.serdesRxHdr === PcsRxBerMonConstants.SyncCtrl ||
+        io.serdesRxHdr === PcsRxBerMonConstants.SyncData
 
     when(isValidHeader) {
       when(berCountReg =/= 15.U) {
@@ -74,36 +70,7 @@ class PcsRxBerMon(
   }
 }
 
-object PcsRxBerMon {
+object PcsRxBerMonConstants {
   val SyncData = "b10".U(2.W)
   val SyncCtrl = "b01".U(2.W)
-
-  def apply(p: PcsRxBerMonParams): PcsRxBerMon = Module(new PcsRxBerMon(
-    hdrW = p.hdrW,
-    count125Us = p.count125Us
-  ))
 }
-
-// object Main extends App {
-//   val MainClassName = "Pcs"
-//   val coreDir = s"modules/${MainClassName.toLowerCase()}"
-//   PcsRxBerMonParams.SynConfigMap.foreach { case (configName, p) =>
-//     println(s"Generating Verilog for config: $configName")
-//     ChiselStage.emitSystemVerilog(
-//       new PcsRxBerMon(
-//         hdrW = p.hdrW, count125Us = p.count125Us
-//       ),
-//       firtoolOpts = Array(
-//         "--lowering-options=disallowLocalVariables,disallowPackedArrays",
-//         "--disable-all-randomization",
-//         "--strip-debug-info",
-//         "--split-verilog",
-//         s"-o=${coreDir}/generated/synTestCases/$configName"
-//       )
-//     )
-//     SdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-//     YosysTclFile.create(MainClassName, s"${coreDir}/generated/synTestCases/$configName")
-//     StaTclFile.create(MainClassName, s"${coreDir}/generated/synTestCases/$configName")
-//     RunScriptFile.create(MainClassName, PcsRxBerMonParams.SynConfigs, s"${coreDir}/generated/synTestCases")
-//   }
-// }

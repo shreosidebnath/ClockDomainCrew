@@ -11,12 +11,9 @@ University of Calgary – Schulich School of Engineering
 package org.chiselware.cores.o01.t001.pcs.rx
 import chisel3._
 import chisel3.util._
-import _root_.circt.stage.ChiselStage
-import org.chiselware.syn.{ RunScriptFile, StaTclFile, YosysTclFile }
 
-class PcsRxWatchdog(
-    val hdrW: Int = 2,
-    val count125us: Double = (125000.0 / 6.4)) extends Module {
+class PcsRxWatchdog(val count125us: Double = (125000.0 / 6.4)) extends Module {
+  val hdrW = 2
   val io = IO(new Bundle {
     val serdesRxHdr = Input(UInt(hdrW.W))
     val serdesRxHdrValid = Input(Bool())
@@ -30,7 +27,6 @@ class PcsRxWatchdog(
     val rxStatus = Output(Bool())
   })
 
-  // Constants - moved to companion object per scala-009
   val count125UsInt = count125us.toInt
 
   // Registers
@@ -109,36 +105,3 @@ class PcsRxWatchdog(
   rxStatusReg := rxStatusNext
   serdesRxResetReqReg := serdesRxResetReqNext
 }
-
-object PcsRxWatchdog {
-  val SyncCtrl = "b01".U(2.W)
-
-  def apply(p: PcsRxWatchdogParams): PcsRxWatchdog = Module(new PcsRxWatchdog(
-    hdrW = p.hdrW,
-    count125us = p.count125us
-  ))
-}
-
-// object Main extends App {
-//   val MainClassName = "Pcs"
-//   val coreDir = s"modules/${MainClassName.toLowerCase()}"
-//   PcsRxWatchdogParams.SynConfigMap.foreach { case (configName, p) =>
-//     println(s"Generating Verilog for config: $configName")
-//     ChiselStage.emitSystemVerilog(
-//       new PcsRxWatchdog(
-//         hdrW = p.hdrW, count125us = p.count125us
-//       ),
-//       firtoolOpts = Array(
-//         "--lowering-options=disallowLocalVariables,disallowPackedArrays",
-//         "--disable-all-randomization",
-//         "--strip-debug-info",
-//         "--split-verilog",
-//         s"-o=${coreDir}/generated/synTestCases/$configName"
-//       )
-//     )
-//     SdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-//     YosysTclFile.create(MainClassName, s"${coreDir}/generated/synTestCases/$configName")
-//     StaTclFile.create(MainClassName, s"${coreDir}/generated/synTestCases/$configName")
-//     RunScriptFile.create(MainClassName, PcsRxWatchdogParams.SynConfigs, s"${coreDir}/generated/synTestCases")
-//   }
-// }

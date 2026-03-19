@@ -220,8 +220,6 @@ class Mac(val p: MacParams) extends RawModule {
   // -------------------------------------------------------------
   withClockAndReset(io.rxClk, io.rxRst) {
     val axisXgmiiRxInst = Module(new Xgmii2Axis64(
-      dataW = p.dataW,
-      ctrlW = p.ctrlW,
       gbxIfEn = p.rxGbxIfEn,
       ptpTsEn = p.ptpTsEn,
       ptpTsFmtTod = p.ptpTsFmtTod,
@@ -262,8 +260,6 @@ class Mac(val p: MacParams) extends RawModule {
   // -------------------------------------------------------------
   withClockAndReset(io.txClk, io.txRst) {
     val axisXgmiiTxInst = Module(new Axis2Xgmii64(
-      dataW = p.dataW,
-      ctrlW = p.ctrlW,
       gbxIfEn = p.txGbxIfEn,
       gbxCnt = p.gbxCnt,
       paddingEn = p.paddingEn,

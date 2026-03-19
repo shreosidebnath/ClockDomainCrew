@@ -31,26 +31,17 @@ object Xgmii2Axis64Constants {
 }
 
 class Xgmii2Axis64(
-    val dataW: Int = 64,
-    val ctrlW: Int = 8,
     val gbxIfEn: Boolean = true,
     val ptpTsEn: Boolean = false,
     val ptpTsFmtTod: Boolean = true,
     val ptpTsW: Int = 96) extends Module {
 
   import Xgmii2Axis64Constants._
-
+  
+  val dataW = 64
+  val ctrlW = 8
   val keepW = dataW / 8
   val userW = (if (ptpTsEn) ptpTsW else 0) + 1
-
-  require(
-    dataW == 64,
-    s"Error: Interface width must be 64 (instance dataW=$dataW)"
-  )
-  require(
-    ctrlW * 8 == dataW,
-    "Error: Interface requires byte (8-bit) granularity"
-  )
 
   val io = IO(new Bundle {
     val xgmiiRxd = Input(UInt(dataW.W))

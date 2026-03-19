@@ -84,7 +84,21 @@ object MacParams {
   */
 object SdcFile {
   def create(sdcFilePath: String): Unit = {
-    val sdcFileData = ""
+    val sdcFileData = """|# Clocks: 156.25 MHz for 10GbE
+         |create_clock -name tx_clk -period 6.4 [get_ports {txClk}]
+         |create_clock -name rx_clk -period 6.4 [get_ports {rxClk}]
+         |create_clock -name stat_clk -period 10.0 [get_ports {statClk}]
+         |
+         |# Define asynchronous relationships
+         |set_clock_groups -asynchronous \
+         |    -group [get_clocks {tx_clk}] \
+         |    -group [get_clocks {rx_clk}] \
+         |    -group [get_clocks {stat_clk}]
+         |
+         |# False paths for resets
+         |set_false_path -from [get_ports {txRst rxRst statRst}]
+         |""".stripMargin
+         
     val sdcFileDir = new File(sdcFilePath)
     sdcFileDir.mkdirs()
     

@@ -73,7 +73,23 @@ object PcsParams {
 
 object SdcFile {
   def create(sdcFilePath: String): Unit = {
-    val sdcFileData = ""
+    val sdcFileData = 
+      """|# 10GBASE-R PCS Constraints
+         |# Clocks: 156.25 MHz
+         |create_clock -name tx_pcs_clk -period 6.4 [get_ports {txClk}]
+         |create_clock -name rx_pcs_clk -period 6.4 [get_ports {rxClk}]
+         |
+         |# Treat TX and RX as independent domains
+         |set_clock_groups -asynchronous \
+         |    -group [get_clocks {tx_pcs_clk}] \
+         |    -group [get_clocks {rx_pcs_clk}]
+         |
+         |# Status signals are typically synchronized by higher level logic
+         |set_false_path -through [get_ports {rxStatus rxBlockLock rxHighBer}]
+         |
+         |# Global Resets
+         |set_false_path -from [get_ports {txRst rxRst}]
+         |""".stripMargin
     val sdcFileDir = new File(sdcFilePath)
     sdcFileDir.mkdirs()
     val sdcFileName = new File(s"$sdcFilePath/Pcs.sdc")

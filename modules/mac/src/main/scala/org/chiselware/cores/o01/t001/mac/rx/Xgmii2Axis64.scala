@@ -9,13 +9,9 @@ Copyright (c) 2026 ClockDomainCrew
 University of Calgary – Schulich School of Engineering
 */
 package org.chiselware.cores.o01.t001.mac.rx
-import _root_.circt.stage.ChiselStage
 import chisel3._
 import chisel3.util._
-import org.chiselware.cores.o01.t001.mac.{
-  AxisInterface, AxisInterfaceParams, Lfsr
-}
-import org.chiselware.syn.{ RunScriptFile, StaTclFile, YosysTclFile }
+import org.chiselware.cores.o01.t001.mac.{AxisInterface, AxisInterfaceParams, Lfsr}
 
 object Xgmii2Axis64Constants {
   val EthPre = "h55".U(8.W)

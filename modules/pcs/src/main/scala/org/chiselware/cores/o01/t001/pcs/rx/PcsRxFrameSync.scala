@@ -13,9 +13,8 @@ import chisel3._
 import chisel3.util._
 
 class PcsRxFrameSync(
-  bitslipHighCycles: Int = 0,
-  bitslipLowCycles: Int = 7) extends Module {
-  
+    bitslipHighCycles: Int = 0,
+    bitslipLowCycles: Int = 7) extends Module {
   val hdrW = 2
   val io = IO(new Bundle {
     // SERDES interface

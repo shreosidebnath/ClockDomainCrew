@@ -9,7 +9,6 @@ Copyright (c) 2026 ClockDomainCrew
 University of Calgary – Schulich School of Engineering
 */
 package org.chiselware.cores.o01.t001.mac
-
 import chisel3._
 
 class MacTb(val p: MacParams) extends Module {

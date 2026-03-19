@@ -13,7 +13,6 @@ import chisel3._
 import chisel3.util._
 
 class PcsRxBerMon(val count125Us: Double = 125000.0 / 6.4) extends Module {
-
   val hdrW = 2
   val io = IO(new Bundle {
     // SERDES interface

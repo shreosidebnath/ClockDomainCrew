@@ -9,9 +9,7 @@ Copyright (c) 2026 ClockDomainCrew
 University of Calgary – Schulich School of Engineering
 */
 package org.chiselware.cores.o01.t001.mac
-import _root_.circt.stage.ChiselStage
 import chisel3._
-import org.chiselware.syn.{ RunScriptFile, StaTclFile, YosysTclFile }
 
 class Lfsr(
     val lfsrW: Int = 31,
@@ -181,7 +179,6 @@ class Lfsr(
 
     val dataContrib = (0 until dataW)
       .filter(b => ((simResult.vData(maskI) >> b) & 1) == 1)
-      // dataIn does NOT need mirroring here because dataIdx was flipped in the sim loop
       .map(b => io.dataIn(b))
 
     val allContribs = stateContrib ++ (if (dataInEn) dataContrib else Seq())
@@ -224,43 +221,3 @@ class Lfsr(
   }
   io.dataOut := dataOutWire.asUInt
 }
-
-object Lfsr {
-  def apply(p: LfsrParams): Lfsr = Module(new Lfsr(
-    lfsrW = p.lfsrW,
-    lfsrPoly = p.lfsrPoly,
-    lfsrGalois = p.lfsrGalois,
-    lfsrFeedForward = p.lfsrFeedForward,
-    reverse = p.reverse,
-    dataW = p.dataW,
-    dataInEn = p.dataInEn,
-    dataOutEn = p.dataOutEn
-  ))
-}
-
-// object Main extends App {
-//   val mainClassName = "Mac"
-//   val coreDir = s"modules/${mainClassName.toLowerCase()}"
-//   LfsrParams.synConfigMap.foreach { case (configName, p) =>
-//     println(s"Generating Verilog for config: $configName")
-//     ChiselStage.emitSystemVerilog(
-//       new Lfsr(
-//         lfsrW = p.lfsrW, lfsrPoly = p.lfsrPoly, lfsrGalois = p.lfsrGalois,
-//         lfsrFeedForward = p.lfsrFeedForward, reverse = p.reverse, dataW = p.dataW,
-//         dataInEn = p.dataInEn, dataOutEn = p.dataOutEn
-//       ),
-//       firtoolOpts = Array(
-//         "--lowering-options=disallowLocalVariables,disallowPackedArrays",
-//         "--disable-all-randomization",
-//         "--strip-debug-info",
-//         "--split-verilog",
-//         s"-o=${coreDir}/generated/synTestCases/$configName"
-//       )
-//     )
-//     // Synthesis collateral generation
-//     SdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
-//     YosysTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
-//     StaTclFile.create(mainClassName, s"${coreDir}/generated/synTestCases/$configName")
-//     RunScriptFile.create(mainClassName, LfsrParams.synConfigs, s"${coreDir}/generated/synTestCases")
-//   }
-// }

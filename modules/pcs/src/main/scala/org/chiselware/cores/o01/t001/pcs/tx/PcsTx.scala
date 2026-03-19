@@ -9,9 +9,7 @@ Copyright (c) 2026 ClockDomainCrew
 University of Calgary – Schulich School of Engineering
 */
 package org.chiselware.cores.o01.t001.pcs.tx
-import _root_.circt.stage.ChiselStage
 import chisel3._
-import org.chiselware.syn.{ RunScriptFile, StaTclFile, YosysTclFile }
 
 class PcsTx(
     val dataW: Int = 64,

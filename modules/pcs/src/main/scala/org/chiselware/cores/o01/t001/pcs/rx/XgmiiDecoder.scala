@@ -67,9 +67,7 @@ class XgmiiDecoder(
     val dataW: Int = 64,
     val ctrlW: Int = 8,
     val gbxIfEn: Boolean = true) extends Module {
-
   import XgmiiDecoderConstants._
-
   require(dataW == 32 || dataW == 64, "Error: Interface width must be 32 or 64")
   require(ctrlW * 8 == dataW, "Error: Interface requires byte (8-bit) granularity")
   val hdrW = 2

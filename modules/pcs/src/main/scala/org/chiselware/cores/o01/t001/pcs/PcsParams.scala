@@ -88,30 +88,27 @@ object SdcFile {
     val sdcFileData =
       s"""
       |# --- 10GBASE-R PCS Timing Constraints ---
-      |create_clock -name tx_pcs_clk -period $period -waveform {0 $fallingEdge} [get_ports {txClk}]
-      |create_clock -name rx_pcs_clk -period $period -waveform {0 $fallingEdge} [get_ports {rxClk}]
+      |create_clock -name tx_pcs_clk -period $period -waveform {0 $fallingEdge} [get_ports {io_txClk}]
+      |create_clock -name rx_pcs_clk -period $period -waveform {0 $fallingEdge} [get_ports {io_rxClk}]
       |
       |# --- Asynchronous Clock Groups ---
       |set_clock_groups -asynchronous \\
       |    -group [get_clocks {tx_pcs_clk}] \\
       |    -group [get_clocks {rx_pcs_clk}]
       |
-      |# --- IO Delays (Calculated at ${inputDelayPct * 100}% of period) ---
+      |# --- IO Delays ---
       |
       |# XGMII Side (Interfacing with MAC)
-      |set_input_delay -clock [get_clocks {tx_pcs_clk}] $inputDelay [get_ports {xgmiiTxd[*] xgmiiTxc[*] xgmiiTxValid}]
-      |set_output_delay -clock [get_clocks {rx_pcs_clk}] $outputDelay [get_ports {xgmiiRxd[*] xgmiiRxc[*] xgmiiRxValid}]
+      |set_input_delay -clock [get_clocks {tx_pcs_clk}] $inputDelay [get_ports {io_xgmiiTxd[*] io_xgmiiTxc[*] io_xgmiiTxValid}]
+      |set_output_delay -clock [get_clocks {rx_pcs_clk}] $outputDelay [get_ports {io_xgmiiRxd[*] io_xgmiiRxc[*] io_xgmiiRxValid}]
       |
       |# SERDES Side (Interfacing with Transceiver/PMA)
-      |set_input_delay -clock [get_clocks {rx_pcs_clk}] $inputDelay [get_ports {serdesRxData[*] serdesRxHdr[*] serdesRxDataValid serdesRxHdrValid}]
-      |set_output_delay -clock [get_clocks {tx_pcs_clk}] $outputDelay [get_ports {serdesTxData[*] serdesTxHdr[*] serdesTxDataValid serdesTxHdrValid}]
+      |set_input_delay -clock [get_clocks {rx_pcs_clk}] $inputDelay [get_ports {io_serdesRxData[*] io_serdesRxHdr[*] io_serdesRxDataValid io_serdesRxHdrValid}]
+      |set_output_delay -clock [get_clocks {tx_pcs_clk}] $outputDelay [get_ports {io_serdesTxData[*] io_serdesTxHdr[*] io_serdesTxDataValid io_serdesTxHdrValid}]
       |
       |# --- False Paths ---
-      |# Resets are handled internally
-      |set_false_path -from [get_ports {txRst rxRst}]
-      |
-      |# Status signals are slow-changing and cross domains safely
-      |set_false_path -through [get_ports {rxStatus rxBlockLock rxHighBer rxErrorCount[*]}]
+      |set_false_path -from [get_ports {io_txRst io_rxRst}]
+      |set_false_path -through [get_ports {io_rxStatus io_rxBlockLock io_rxHighBer io_rxErrorCount[*]}]
       """.stripMargin.trim
 
     println(s"Writing PCS SDC file to $sdcFilePath")

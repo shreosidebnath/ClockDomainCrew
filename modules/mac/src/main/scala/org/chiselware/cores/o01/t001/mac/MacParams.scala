@@ -103,9 +103,9 @@ object SdcFile {
     val sdcFileData =
       s"""
       |# --- Clock Definitions ---
-      |create_clock -name tx_clk -period $period -waveform {0 $fallingEdge} [get_ports {txClk}]
-      |create_clock -name rx_clk -period $period -waveform {0 $fallingEdge} [get_ports {rxClk}]
-      |create_clock -name stat_clk -period $statPeriod -waveform {0 $statFallingEdge} [get_ports {statClk}]
+      |create_clock -name tx_clk -period $period -waveform {0 $fallingEdge} [get_ports {io_txClk}]
+      |create_clock -name rx_clk -period $period -waveform {0 $fallingEdge} [get_ports {io_rxClk}]
+      |create_clock -name stat_clk -period $statPeriod -waveform {0 $statFallingEdge} [get_ports {io_statClk}]
       |
       |# --- Asynchronous Clock Groups ---
       |# This prevents the tool from timing paths between unrelated clock domains
@@ -116,17 +116,17 @@ object SdcFile {
       |
       |# --- IO Delays (Calculated at ${inputDelayPct * 100}% of period) ---
       |# TX Path
-      |set_input_delay -clock [get_clocks {tx_clk}] $inputDelay [get_ports {sAxisTx_tdata[*] sAxisTx_tkeep[*] sAxisTx_tlast sAxisTx_tvalid}]
-      |set_output_delay -clock [get_clocks {tx_clk}] $outputDelay [get_ports {xgmiiTxd[*] xgmiiTxc[*] xgmiiTxValid}]
+      |set_input_delay -clock [get_clocks {tx_clk}] $inputDelay [get_ports {io_sAxisTx_tdata[*] io_sAxisTx_tkeep[*] io_sAxisTx_tlast io_sAxisTx_tvalid}]
+      |set_output_delay -clock [get_clocks {tx_clk}] $outputDelay [get_ports {io_xgmiiTxd[*] io_xgmiiTxc[*] io_xgmiiTxValid}]
       |
       |# RX Path
-      |set_input_delay -clock [get_clocks {rx_clk}] $inputDelay [get_ports {xgmiiRxd[*] xgmiiRxc[*] xgmiiRxValid}]
-      |set_output_delay -clock [get_clocks {rx_clk}] $outputDelay [get_ports {mAxisRx_tdata[*] mAxisRx_tkeep[*] mAxisRx_tlast mAxisRx_tvalid}]
+      |set_input_delay -clock [get_clocks {rx_clk}] $inputDelay [get_ports {io_xgmiiRxd[*] io_xgmiiRxc[*] io_xgmiiRxValid}]
+      |set_output_delay -clock [get_clocks {rx_clk}] $outputDelay [get_ports {io_mAxisRx_tdata[*] io_mAxisRx_tkeep[*] io_mAxisRx_tlast io_mAxisRx_tvalid}]
       |
       |# --- False Paths ---
-      |set_false_path -from [get_ports {txRst rxRst statRst}]
+      |set_false_path -from [get_ports {io_txRst io_rxRst io_statRst}]
       |# Status signals crossing to CPUs/Stats are usually quasi-static
-      |set_false_path -through [get_ports {statTxPktLen[*] statRxPktLen[*]}]
+      |set_false_path -through [get_ports {io_statTxPktLen[*] io_statRxPktLen[*]}]
       """.stripMargin.trim
 
     println(s"Writing MAC/PCS SDC file to $sdcFilePath")

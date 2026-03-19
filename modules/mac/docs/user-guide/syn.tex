@@ -21,7 +21,7 @@ own technology.
   \textbf{Gates}         \\ \hline \hline
   mac\_default\_no\_stats  & 
   64-bit              & 
-  18,740              \\ \hline
+  18,788              \\ \hline
 
   mac\_default\_stats     & 
   64-bit              & 
@@ -65,7 +65,7 @@ open-source Nangate 45nm library.
   50\% & 
   1.28ns & 
   1.28ns & 
-  \textit{See Note} \\ \hline
+  +3.04ns (MET) \\ \hline
 
   mac\_default\_stats    & 
   6.40ns & 
@@ -76,9 +76,6 @@ open-source Nangate 45nm library.
   \caption{MAC Static Timing Analysis Constraints}\label{table:timing}
 \end{longtable}
 
-\begin{quote}
-\textit{\textbf{Note on Timing extraction:} Comprehensive slack and duty cycle reports for ARM-based macOS environments require a Linux-based execution environment, as the OpenSTA tool is currently optimized for x86 architectures.}
-\end{quote}
 
 \subsection{Multicycle Paths}
 None. The design is architected to complete all framing, CRC generation, and lane-alignment logic within a single clock cycle at 156.25 MHz.

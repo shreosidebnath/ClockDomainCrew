@@ -117,7 +117,7 @@ object SdcFile {
     println(s"Writing PCS SDC file to $sdcFilePath")
     val sdcFileDir = new File(sdcFilePath)
     sdcFileDir.mkdirs()
-    val sdcFileName = new File(s"$$sdcFilePath/Pcs.sdc")
+    val sdcFileName = new File(s"$sdcFilePath/Pcs.sdc")
     val sdcFile = new PrintWriter(sdcFileName)
     try {
       sdcFile.write(sdcFileData)

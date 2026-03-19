@@ -132,7 +132,7 @@ object SdcFile {
     println(s"Writing MAC/PCS SDC file to $sdcFilePath")
     val sdcFileDir = new File(sdcFilePath)
     sdcFileDir.mkdirs()
-    val sdcFileName = new File(s"$$sdcFilePath/Mac.sdc")
+    val sdcFileName = new File(s"$sdcFilePath/Mac.sdc")
     val sdcFile = new PrintWriter(sdcFileName)
     sdcFile.write(sdcFileData)
     sdcFile.close()

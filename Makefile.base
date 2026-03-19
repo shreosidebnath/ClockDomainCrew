@@ -107,7 +107,7 @@ cov:
 # Run synthesis on generated Verilog; generate timing and area reports
 .PHONY: yosys
 yosys: 
-	make verilog
+	make -f Makefile.${SBT_PROJECT} verilog
 	cd ${CORE_DIR}/generated/synTestCases && source run.sh
 	echo "---------------------------------------------------------"
 	echo "                      SUMMARY                            "

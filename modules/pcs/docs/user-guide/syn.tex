@@ -20,19 +20,11 @@ own technology.
   \textbf{width}       &
   \textbf{Gates}         \\ \hline \hline
 
-  small\_1             &
-  1                    &
-  8                      \\ \hline
+  pcs\_default (Default)  & 
+  64-bit              & 
+  6,588               \\ \hline
 
-  meduium\_64          &
-  64                   &
-  597                    \\ \hline
-
-  large\_128           &
-  128                  &
-  1194                   \\ \hline
-
-  \caption{Synthesis results}\label{table:area}
+  \caption{PCS Synthesis Results}\label{table:area}
 \end{longtable}
 
 \subsection{SDC File}
@@ -64,29 +56,17 @@ open-source Nangate 45nm library.
   \textbf{Output Delay} &
   \textbf{Slack}          \\ \hline \hline
 
-  small\_1              &
-  5ns                   &
-  50\%                  &
-  20\%                  &
-  20\%                  &
-  3.88 (MET)              \\ \hline
+  pcs\_default          &
+  6.4ns                 &
+  50\% & 
+  1.28ns & 
+  1.28ns & 
+  unknown for now         \\ \hline
 
-  medium\_64            &
-  5ns                   &
-  50\%                  &
-  20\%                  &
-  20\%                  &
-  3.77 (MET)              \\ \hline
-
-  large\_128            &
-  5ns                   &
-  50\%                  &
-  20\%                  &
-  20\%                  &
-  3.63 (MET)              \\ \hline
 
   \caption{Static Timing Analysis results}\label{table:timing}
 \end{longtable}
 
+
 \subsection{Multicycle Paths}
-None.
+None. The design is architected to complete all encoding, scrambling, and residue checks within a single clock cycle at 156.25 MHz.

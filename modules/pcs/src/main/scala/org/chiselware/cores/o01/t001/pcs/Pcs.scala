@@ -167,10 +167,10 @@ object Pcs {
 object Main extends App {
   val MainClassName = "Pcs"
   val coreDir = s"modules/${MainClassName.toLowerCase()}"
-  PcsParams.SynConfigMap.foreach { case (configName, p) =>
+  PcsParams.SynConfigMap.foreach { case (configName, configParams) =>
     println(s"Generating Verilog for config: $configName")
     ChiselStage.emitSystemVerilog(
-      new Pcs(p),
+      new Pcs(configParams),
       firtoolOpts = Array(
         "--lowering-options=disallowLocalVariables,disallowPackedArrays",
         "--disable-all-randomization",
@@ -179,19 +179,22 @@ object Main extends App {
         s"-o=${coreDir}/generated/synTestCases/$configName"
       )
     )
-    SdcFile.create(s"${coreDir}/generated/synTestCases/$configName")
+    SdcFile.create(
+      p = configParams,
+      sdcFilePath = s"${coreDir}/generated/synTestCases/$configName"
+    )
     YosysTclFile.create(
-      MainClassName,
-      s"${coreDir}/generated/synTestCases/$configName"
+      mainClassName = MainClassName,
+      synTestDir = s"${coreDir}/generated/synTestCases/$configName"
     )
     StaTclFile.create(
-      MainClassName,
-      s"${coreDir}/generated/synTestCases/$configName"
+      mainClassName = MainClassName,
+      synTestDir = s"${coreDir}/generated/synTestCases/$configName"
     )
     RunScriptFile.create(
-      MainClassName,
-      PcsParams.SynConfigs,
-      s"${coreDir}/generated/synTestCases"
+      mainClassName = MainClassName,
+      configs = PcsParams.synConfigs,
+      runDir = s"${coreDir}/generated/synTestCases"
     )
   }
 }

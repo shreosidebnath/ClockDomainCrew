@@ -16,7 +16,7 @@ import org.chiselware.cores.o01.t001.pcs.Lfsr
 
 /** PCS Transmit Physical Interface logic
   *
-  * Performs scrambling of the 64-bit payload using the polynomial $G(x) = 1 + x^{39} + x^{58}$.
+  * Performs scrambling of the 64-bit payload using the polynomial G(x) = 1 + x^{39} + x^{58}.
   * This ensures DC balance and sufficient transition density on the high-speed serial link.
   *
   * @constructor create the TX interface logic

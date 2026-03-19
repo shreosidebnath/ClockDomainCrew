@@ -16,7 +16,7 @@ import org.chiselware.cores.o01.t001.pcs.Lfsr
 /** PCS Receive Physical Interface logic
   *
   * Handles the low-level processing of 66-bit blocks. This includes bit reversal,
-  * pipelining, self-synchronizing descrambling (polynomial $1 + x^{39} + x^{58}$),
+  * pipelining, self-synchronizing descrambling (polynomial 1 + x^{39} + x^{58}),
   * PRBS31 checking, and high-level link monitoring (Watchdog, BER, Frame Sync).
   *
   * @constructor create the RX interface logic

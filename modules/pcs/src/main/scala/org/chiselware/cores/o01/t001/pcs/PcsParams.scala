@@ -55,11 +55,11 @@ case class PcsParams(
 
 object PcsParams {
   val simConfigMap = LinkedHashMap[String, PcsParams](
-    "config" -> PcsParams(),
+    "pcs_default" -> PcsParams(),
   )
 
   val synConfigMap = LinkedHashMap[String, PcsParams](
-    "pcs_inst" -> PcsParams(),
+    "pcs_default" -> PcsParams(),
   )
 
   val synConfigs = synConfigMap.keys.mkString(" ")
@@ -72,29 +72,57 @@ object PcsParams {
 }
 
 object SdcFile {
-  def create(sdcFilePath: String): Unit = {
-    val sdcFileData = 
-      """|# 10GBASE-R PCS Constraints
-         |# Clocks: 156.25 MHz
-         |create_clock -name tx_pcs_clk -period 6.4 [get_ports {txClk}]
-         |create_clock -name rx_pcs_clk -period 6.4 [get_ports {rxClk}]
-         |
-         |# Treat TX and RX as independent domains
-         |set_clock_groups -asynchronous \
-         |    -group [get_clocks {tx_pcs_clk}] \
-         |    -group [get_clocks {rx_pcs_clk}]
-         |
-         |# Status signals are typically synchronized by higher level logic
-         |set_false_path -through [get_ports {rxStatus rxBlockLock rxHighBer}]
-         |
-         |# Global Resets
-         |set_false_path -from [get_ports {txRst rxRst}]
-         |""".stripMargin
+  def create(
+      p: PcsParams,
+      sdcFilePath: String
+    ): Unit = {
+    val period = 6.400 // ns (Standard for 156.25 MHz)
+    val dutyCycle = 0.50
+    val inputDelayPct = 0.20
+    val outputDelayPct = 0.20
+
+    val inputDelay = period * inputDelayPct   // 1.28ns
+    val outputDelay = period * outputDelayPct // 1.28ns
+    val fallingEdge = period * dutyCycle      // 3.2ns
+
+    val sdcFileData =
+      s"""
+      |# --- 10GBASE-R PCS Timing Constraints ---
+      |create_clock -name tx_pcs_clk -period $period -waveform {0 $fallingEdge} [get_ports {txClk}]
+      |create_clock -name rx_pcs_clk -period $period -waveform {0 $fallingEdge} [get_ports {rxClk}]
+      |
+      |# --- Asynchronous Clock Groups ---
+      |set_clock_groups -asynchronous \\
+      |    -group [get_clocks {tx_pcs_clk}] \\
+      |    -group [get_clocks {rx_pcs_clk}]
+      |
+      |# --- IO Delays (Calculated at ${inputDelayPct * 100}% of period) ---
+      |
+      |# XGMII Side (Interfacing with MAC)
+      |set_input_delay -clock [get_clocks {tx_pcs_clk}] $inputDelay [get_ports {xgmiiTxd[*] xgmiiTxc[*] xgmiiTxValid}]
+      |set_output_delay -clock [get_clocks {rx_pcs_clk}] $outputDelay [get_ports {xgmiiRxd[*] xgmiiRxc[*] xgmiiRxValid}]
+      |
+      |# SERDES Side (Interfacing with Transceiver/PMA)
+      |set_input_delay -clock [get_clocks {rx_pcs_clk}] $inputDelay [get_ports {serdesRxData[*] serdesRxHdr[*] serdesRxDataValid serdesRxHdrValid}]
+      |set_output_delay -clock [get_clocks {tx_pcs_clk}] $outputDelay [get_ports {serdesTxData[*] serdesTxHdr[*] serdesTxDataValid serdesTxHdrValid}]
+      |
+      |# --- False Paths ---
+      |# Resets are handled internally
+      |set_false_path -from [get_ports {txRst rxRst}]
+      |
+      |# Status signals are slow-changing and cross domains safely
+      |set_false_path -through [get_ports {rxStatus rxBlockLock rxHighBer rxErrorCount[*]}]
+      """.stripMargin.trim
+
+    println(s"Writing PCS SDC file to $sdcFilePath")
     val sdcFileDir = new File(sdcFilePath)
     sdcFileDir.mkdirs()
-    val sdcFileName = new File(s"$sdcFilePath/Pcs.sdc")
-    val sdcFileWriter = new PrintWriter(sdcFileName)
-    sdcFileWriter.write(sdcFileData)
-    sdcFileWriter.close()
+    val sdcFileName = new File(s"$$sdcFilePath/Pcs.sdc")
+    val sdcFile = new PrintWriter(sdcFileName)
+    try {
+      sdcFile.write(sdcFileData)
+    } finally {
+      sdcFile.close()
+    }
   }
 }

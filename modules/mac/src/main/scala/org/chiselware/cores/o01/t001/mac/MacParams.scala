@@ -65,12 +65,14 @@ case class MacParams(
 object MacParams {
   val simConfigMap: LinkedHashMap[String, MacParams] = 
     LinkedHashMap(
-      "config" -> MacParams()
+      // "config_default_stats" -> MacParams(statEn = true),
+      "config_default_no_stats" -> MacParams(statEn = false)
     )
 
   val synConfigMap: LinkedHashMap[String, MacParams] = 
     LinkedHashMap(
-      "mac_inst" -> MacParams()
+      // "mac_default_stats" -> MacParams(statEn = true),
+      "mac_default_no_stats" -> MacParams(statEn = false)
     )
 
   val synConfigs: String = synConfigMap.keys.mkString(" ")
@@ -83,32 +85,56 @@ object MacParams {
   * (RX, TX, and STAT clocks).
   */
 object SdcFile {
-  def create(sdcFilePath: String): Unit = {
-    val sdcFileData = """|# Clocks: 156.25 MHz for 10GbE
-         |create_clock -name tx_clk -period 6.4 [get_ports {txClk}]
-         |create_clock -name rx_clk -period 6.4 [get_ports {rxClk}]
-         |create_clock -name stat_clk -period 10.0 [get_ports {statClk}]
-         |
-         |# Define asynchronous relationships
-         |set_clock_groups -asynchronous \
-         |    -group [get_clocks {tx_clk}] \
-         |    -group [get_clocks {rx_clk}] \
-         |    -group [get_clocks {stat_clk}]
-         |
-         |# False paths for resets
-         |set_false_path -from [get_ports {txRst rxRst statRst}]
-         |""".stripMargin
-         
+  def create(
+      p: MacParams,
+      sdcFilePath: String
+    ): Unit = {
+    val period = 6.400      // ns (Standard for 156.25 MHz)
+    val statPeriod = 10.000 // ns
+    val dutyCycle = 0.50
+    val inputDelayPct = 0.20
+    val outputDelayPct = 0.20
+
+    val inputDelay = period * inputDelayPct   // 1.28ns
+    val outputDelay = period * outputDelayPct // 1.28ns
+    val fallingEdge = period * dutyCycle      // 3.2ns
+    val statFallingEdge = statPeriod * dutyCycle
+
+    val sdcFileData =
+      s"""
+      |# --- Clock Definitions ---
+      |create_clock -name tx_clk -period $period -waveform {0 $fallingEdge} [get_ports {txClk}]
+      |create_clock -name rx_clk -period $period -waveform {0 $fallingEdge} [get_ports {rxClk}]
+      |create_clock -name stat_clk -period $statPeriod -waveform {0 $statFallingEdge} [get_ports {statClk}]
+      |
+      |# --- Asynchronous Clock Groups ---
+      |# This prevents the tool from timing paths between unrelated clock domains
+      |set_clock_groups -asynchronous \\
+      |    -group [get_clocks {tx_clk}] \\
+      |    -group [get_clocks {rx_clk}] \\
+      |    -group [get_clocks {stat_clk}]
+      |
+      |# --- IO Delays (Calculated at ${inputDelayPct * 100}% of period) ---
+      |# TX Path
+      |set_input_delay -clock [get_clocks {tx_clk}] $inputDelay [get_ports {sAxisTx_tdata[*] sAxisTx_tkeep[*] sAxisTx_tlast sAxisTx_tvalid}]
+      |set_output_delay -clock [get_clocks {tx_clk}] $outputDelay [get_ports {xgmiiTxd[*] xgmiiTxc[*] xgmiiTxValid}]
+      |
+      |# RX Path
+      |set_input_delay -clock [get_clocks {rx_clk}] $inputDelay [get_ports {xgmiiRxd[*] xgmiiRxc[*] xgmiiRxValid}]
+      |set_output_delay -clock [get_clocks {rx_clk}] $outputDelay [get_ports {mAxisRx_tdata[*] mAxisRx_tkeep[*] mAxisRx_tlast mAxisRx_tvalid}]
+      |
+      |# --- False Paths ---
+      |set_false_path -from [get_ports {txRst rxRst statRst}]
+      |# Status signals crossing to CPUs/Stats are usually quasi-static
+      |set_false_path -through [get_ports {statTxPktLen[*] statRxPktLen[*]}]
+      """.stripMargin.trim
+
+    println(s"Writing MAC/PCS SDC file to $sdcFilePath")
     val sdcFileDir = new File(sdcFilePath)
     sdcFileDir.mkdirs()
-    
-    val sdcFileName = new File(sdcFilePath, "Mac.sdc")
-    val sdcFileWriter = new PrintWriter(sdcFileName)
-    
-    try {
-      sdcFileWriter.write(sdcFileData)
-    } finally {
-      sdcFileWriter.close()
-    }
+    val sdcFileName = new File(s"$$sdcFilePath/Mac.sdc")
+    val sdcFile = new PrintWriter(sdcFileName)
+    sdcFile.write(sdcFileData)
+    sdcFile.close()
   }
 }

@@ -23,7 +23,7 @@ import chisel3._
   * @param hdrW sync header width (2)
   * @param gbxIfEn enable gearbox handshaking
   * @param bitReverse reverse bit order for specific SERDES architectures
-  * @param scramblerDisable bypass the $x^{58} + x^{39} + 1$ scrambler
+  * @param scramblerDisable bypass the x^58 + x^39 + 1$ scrambler
   * @param prbs31En enable internal PRBS31 pattern generation
   * @param serdesPipeline number of output pipeline stages
   * @author ClockDomainCrew

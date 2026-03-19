@@ -1,0 +1,92 @@
+% chktex-file 44
+\section{Synthesis}
+
+\subsection{Area}
+
+The \textbf{Mac} has been tested in a number of configurations and the
+following results should be representative of what a user should see in their
+own technology.
+
+\renewcommand*{\arraystretch}{1.4}
+\begin{longtable}[H]{
+    | p{0.20\textwidth}
+    | p{0.15\textwidth}
+    | p{0.15\textwidth}
+    | p{0.15\textwidth}
+    | p{0.15\textwidth} |
+  }
+  \hline
+  \textbf{Config Name} &
+  \textbf{width}       &
+  \textbf{Gates}         \\ \hline \hline
+
+  small\_1             &
+  1                    &
+  8                      \\ \hline
+
+  meduium\_64          &
+  64                   &
+  597                    \\ \hline
+
+  large\_128           &
+  128                  &
+  1194                   \\ \hline
+
+  \caption{Synthesis results}\label{table:area}
+\end{longtable}
+
+\subsection{SDC File}
+An \texttt{.sdc} file is generated to provide synthesis and static timing
+analysis tools guidance for synthesis.
+
+The \texttt{Mac.sdc} file can be found in the test case directory as follows: \\
+\texttt{./modules/mac/generated/synTestCases/<test case name>/Mac.sdc}
+
+\subsection{Timing}
+
+The following timing was extracted using the generated~.sdc files with the
+open-source Nangate 45nm library.
+
+\renewcommand*{\arraystretch}{1.4}
+\begin{longtable}[H]{
+    | p{0.20\textwidth}
+    | p{0.08\textwidth}
+    | p{0.12\textwidth}
+    | p{0.13\textwidth}
+    | p{0.15\textwidth}
+    | p{0.15\textwidth} |
+  }
+  \hline
+  \textbf{Config Name}  &
+  \textbf{Period}       &
+  \textbf{Duty Cycle}   &
+  \textbf{Input Delay}  &
+  \textbf{Output Delay} &
+  \textbf{Slack}          \\ \hline \hline
+
+  small\_1              &
+  5ns                   &
+  50\%                  &
+  20\%                  &
+  20\%                  &
+  3.88 (MET)              \\ \hline
+
+  medium\_64            &
+  5ns                   &
+  50\%                  &
+  20\%                  &
+  20\%                  &
+  3.77 (MET)              \\ \hline
+
+  large\_128            &
+  5ns                   &
+  50\%                  &
+  20\%                  &
+  20\%                  &
+  3.63 (MET)              \\ \hline
+
+  \caption{Static Timing Analysis results}\label{table:timing}
+\end{longtable}
+
+\subsection{Multicycle Paths}
+None.

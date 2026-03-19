@@ -1,0 +1,52 @@
+\section{Theory of Operation}
+
+\subsection{Overview}
+The \textbf{Pcs} core implements the Physical Coding Sublayer (PCS) for 10GBASE-R Ethernet as defined in IEEE 802.3 Clause 49. It serves as the bridge between the Media Access Control (MAC) layer’s XGMII interface and the Physical Medium Attachment (PMA) / SERDES interface.
+
+The core performs 64b/66b line coding, which includes data encapsulation, scrambling for DC balance, and block synchronization. The architecture is fully duplex, featuring independent Transmit (TX) and Receive (RX) paths.
+
+\subsection{Architecture}
+The \textbf{Pcs} module follows a hierarchical design to isolate high-speed bit-level processing from protocol-level block mapping.
+\begin{itemize}
+    \item \textbf{Transmit Path:} Consists of the \textit{XgmiiEncoder} and the \textit{PcsTxInterface}.
+    \item \textbf{Receive Path:} Consists of the \textit{PcsRxInterface} and the \textit{XgmiiDecoder}.
+\end{itemize}
+
+
+
+\subsection{Transmit Path Logic}
+The TX datapath converts 64-bit XGMII data and 8-bit control characters into a scrambled 66-bit bitstream.
+
+\subsubsection{64b/66b Encoding}
+The \textit{XgmiiEncoder} compresses XGMII characters into one of 15 valid 64b/66b block types. Each block is prepended with a 2-bit synchronization header:
+\begin{itemize}
+    \item \textbf{\texttt{b10}:} Data Block (Contains only data payload).
+    \item \textbf{\texttt{b01}:} Control Block (Contains start/terminate characters, ordered sets, or idles).
+\end{itemize}
+If the encoder receives an illegal XGMII sequence, it asserts \textit{txBadBlock} and substitutes the data with an Error block (\texttt{0xFE}).
+
+\subsubsection{Scrambling}
+To ensure sufficient transition density and DC balance for high-speed serial clock recovery, the payload is processed by a self-synchronizing scrambler. It utilizes the polynomial $G(x) = 1 + x^{39} + x^{58}$. Similar to the MAC's CRC implementation, the \textbf{Pcs} core calculates the scrambler matrix at elaboration time to perform 64-bit parallel scrambling in a single clock cycle.
+
+\subsubsection{Gearbox Handshaking}
+Because the 64b/66b encoding process increases the data rate by a factor of $66/64$, the core implements gearbox handshaking. The \textit{txGbxReqStall} signal provides backpressure to the MAC, ensuring that the TX path maintains the correct timing for the extra header bits without overflowing internal buffers.
+
+\subsection{Receive Path Logic}
+The Receive path recovers the 64b/66b block boundaries from the raw SERDES input and reverses the encoding process.
+
+\subsubsection{Block Synchronization and Bitslip}
+Upon power-up or link loss, the \textit{PcsRxFrameSync} module enters a search state. It monitors the 2-bit sync headers for valid patterns (\texttt{01} or \texttt{10}). If invalid headers are detected, the core asserts \textit{serdesRxBitslip}, instructing the SERDES to shift the bit alignment. \textit{rxBlockLock} is asserted once 64 consecutive valid headers are identified.
+
+\subsubsection{Descrambling and Decoding}
+Once block lock is achieved, the \textit{PcsRxInterface} utilizes a self-synchronizing descrambler to recover the original payload. The \textit{XgmiiDecoder} then expands the 64b/66b blocks back into standard XGMII data and control characters for the MAC.
+
+\subsection{Link Monitoring and Diagnostics}
+
+\subsubsection{Bit Error Rate (BER) Monitor}
+The \textit{PcsRxBerMon} module continuously validates sync headers within a moving 125$\mu$s window. If more than 16 errors are detected in this window, \textit{rxHighBer} is asserted to notify the system of a degraded physical link.
+
+\subsubsection{Watchdog Timer}
+The \textit{PcsRxWatchdog} acts as a protocol-level supervisor. It monitors for sustained "Bad Block" or "Sequence Error" counts. If the decoder reports excessive errors despite having block lock, the watchdog can trigger a \textit{serdesRxResetReq} to force a full link re-alignment.
+
+\subsubsection{PRBS31 Support}
+For hardware validation, the core includes a Pseudo-Random Binary Sequence (PRBS31) generator and checker. When \textit{cfgTxPrbs31Enable} is high, the TX path transmits a $2^{31}-1$ pattern. The RX path can independently check this pattern and report bit errors via the 7-bit \textit{rxErrorCount} register.

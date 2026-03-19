@@ -1,0 +1,28 @@
+% chktex-file 44
+\section{Errata and Known Issues}
+
+This section tracks the current limitations and known deviations from the IEEE 802.3 10GBASE-R specification for the \textbf{Pcs} core.
+
+\subsection{Errata}
+There are currently no known functional bugs (errata) that deviate from the intended design of the 64b/66b PCS architecture.
+
+\subsection{Known Issues}
+
+The following items are known limitations or architectural constraints in the current release of the \textbf{Pcs} core:
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Fixed Sync Header Width (hdrW):} 
+    While \textit{hdrW} is presented as a parameter in the \textit{PcsParams} class, there is \textbf{no functional degree of freedom} for this value. The 10GBASE-R standard and the internal protocol state machines (Encoder, Decoder, Frame Sync, and BER Monitor) are hard-coded for a 2-bit header. Attempting to elaborate the core with \textit{hdrW} $\neq$ 2 will result in a fatal Chisel elaboration-time error.
+    
+    \item \textbf{Self-Synchronizing Scrambler Latency:} 
+    The descrambler in the \textit{PcsRxInterface} is a self-synchronizing additive scrambler using the $1 + x^{39} + x^{58}$ polynomial. Upon achieving \textit{rxBlockLock}, the output XGMII data will contain transient corruption for the first 58 bits (approximately one 64-bit clock cycle) until the internal LFSR state matches the transmitter.
+    
+    \item \textbf{PRBS31 Alignment Restriction:} 
+    The hardware bitslip (\textit{serdesRxBitslip}) and reset (\textit{serdesRxResetReq}) logic is explicitly suppressed when \textit{cfgRxPrbs31Enable} is active. Link alignment must be established in operational mode before transitioning the core to PRBS31 test mode.
+    
+    \item \textbf{Gearbox Sensitivity:} 
+    The core does not implement an internal elastic buffer for rate matching between the 64-bit XGMII and 66-bit encoded blocks. The upstream MAC must strictly respect the \textit{txGbxReqStall} signal to prevent data loss or frame corruption.
+    
+    \item \textbf{Experimental 32-bit Support:} 
+    Although the \textit{dataW} parameter allows a 32-bit configuration, the 10GBASE-R protocol constants and internal LFSR matrices are optimized for 64-bit operation. 32-bit mode is considered experimental and may require additional cycle-alignment logic in the top-level integration.
+\end{itemize}

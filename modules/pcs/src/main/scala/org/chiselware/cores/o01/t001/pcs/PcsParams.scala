@@ -50,6 +50,7 @@ case class PcsParams(
   // Validation checks for bus widths
   require(dataW == 32 || dataW == 64, "Error: Interface width must be 32 or 64")
   require(ctrlW * 8 == dataW, "Error: Interface requires byte (8-bit) granularity")
+  require(hdrW == 2, "Error: Interface requires 2-bit sync header")
 }
 
 object PcsParams {

@@ -1,0 +1,69 @@
+% chktex-file 44
+
+\section{Parameter Descriptions}
+
+The hardware parameters for the \textbf{Pcs} core are described in Table~\ref{table:params}. These parameters control the 64b/66b encoding, scrambling, and synchronization state machines required for 10GBASE-R operation.
+
+\renewcommand*{\arraystretch}{1.4}
+\begin{longtable}[H]{
+    | p{0.22\textwidth}
+    | p{0.10\textwidth}
+    | p{0.08\textwidth}
+    | p{0.08\textwidth}
+    | p{0.42\textwidth} |
+  }
+  \hline
+  \textbf{Name} & \textbf{Type} & \textbf{Min} & \textbf{Max} & \textbf{Description} \\ \hline \hline
+  \endfirsthead
+  \hline
+  \textbf{Name} & \textbf{Type} & \textbf{Min} & \textbf{Max} & \textbf{Description} \\ \hline \hline
+  \endhead
+
+  % --- Bus Arch ---
+  dataW         & Int     & 32      & 64      & Internal data bus width (32 or 64 bits) \\ \hline
+  ctrlW         & Int     & 4       & 8       & XGMII control bus width (dataW / 8) \\ \hline
+  hdrW          & Int     & 2       & 2       & 64b/66b sync header width \\ \hline
+
+  % --- Interface Enables ---
+  txGbxIfEn     & Boolean & false   & true    & Enable gearbox handshaking for TX path \\ \hline
+  rxGbxIfEn     & Boolean & false   & true    & Enable gearbox handshaking for RX path \\ \hline
+  bitReverse    & Boolean & false   & true    & Reverse bit order for SERDES compatibility \\ \hline
+
+  % --- Diagnostic/Test ---
+  scramblerDisable & Boolean & false & true  & Disable $x^{58} + x^{39} + 1$ scrambling logic \\ \hline
+  prbs31En      & Boolean & false   & true    & Enable hardware PRBS31 pattern logic \\ \hline
+
+  % --- Pipelining ---
+  txSerdesPipeline & Int  & 0       & --      & Pipeline stages for TX SERDES output \\ \hline
+  rxSerdesPipeline & Int  & 0       & --      & Pipeline stages for RX SERDES input \\ \hline
+
+  % --- Link Alignment (Bitslip) ---
+  bitslipHighCycles & Int & 0       & --      & Cycles to hold \textit{serdesRxBitslip} high \\ \hline
+  bitslipLowCycles  & Int & 0       & --      & Cooldown cycles between bitslip pulses \\ \hline
+
+  % --- BER Monitoring ---
+  count125Us    & Double  & --      & --      & Cycles representing a 125$\mu$s window for Bit Error Rate monitoring \\ \hline
+
+  \caption{PCS Parameter Descriptions}\label{table:params}
+\end{longtable}
+
+\subsection{Example Instantiation}
+
+The \textbf{Pcs} core is typically instantiated between the MAC and the high-speed Transceivers (SERDES). An example configuration using a 64-bit data path is shown below:
+
+\begin{lstlisting}[language=Scala]
+  // Define PCS configuration
+  val myPcsParams = PcsParams(
+    dataW = 64,
+    ctrlW = 8,
+    bitReverse = true,
+    prbs31En = false
+  )
+
+  // Instantiate the PCS core
+  val ethernetPcs = Module(new Pcs(myPcsParams))
+  
+  // Connect clocks (TX and RX are usually asynchronous)
+  ethernetPcs.io.txClk := macClock
+  ethernetPcs.io.rxClk := serdesRxClock
+\end{lstlisting}

@@ -1,0 +1,23 @@
+\section{Simulation}
+
+\subsection{Tests}
+The included test bench tests the default configuration of the Pcs. More configurations can be added as desired.
+
+\subsection{Code coverage}
+
+The tests exceed the chiselWare minimum standard of 90\% Statement coverage
+and 95\% Branch coverage.
+
+\subsection{Running simulation}
+
+Simulations can be run directly from the command prompt as follows:
+
+\begin{verbatim}
+  $ sbt "project core" test
+\end{verbatim}
+
+or from make as follows:
+
+\begin{verbatim}
+  $ make test
+\end{verbatim}

@@ -1,0 +1,47 @@
+\section{Theory of Operation}
+
+\subsection{Overview}
+The \textbf{Mac} core is a high-performance 10GbE Media Access Controller implementation. It provides a full-duplex data path between a standard AXI-Stream user interface and the 64-bit XGMII physical layer interface. The core is designed as a \texttt{RawModule} to support three independent asynchronous clock domains: \textit{txClk}, \textit{rxClk}, and \textit{statClk}.
+
+\subsection{Architecture}
+The top-level core integrates three primary functional blocks:
+\begin{itemize}
+    \item \textbf{Transmit Path (Axis2Xgmii64):} Encapsulates AXI-Stream packets into Ethernet frames with preamble, SFD, padding, and CRC-32.
+    \item \textbf{Receive Path (Xgmii2Axis64):} Decapsulates XGMII data, validates frame integrity via CRC residue checking, and extracts timestamps.
+    \item \textbf{Statistics Aggregator (MacStats):} A dedicated submodule that tracks over 30 distinct Ethernet metrics across the clock domains.
+\end{itemize}
+
+The user-side AXI-Stream interfaces are connected via \textit{AxisTie} modules, ensuring robust signal bridging and default tie-offs for optional sideband signals like \textit{tid} and \textit{tdest}.
+
+\subsection{Transmit Path Logic}
+The transmit path utilizes a 7-state finite state machine (\texttt{Idle}, \texttt{Payload}, \texttt{Pad}, \texttt{Fcs1}, \texttt{Fcs2}, \texttt{Err}, \texttt{Ifg}) to manage frame construction.
+
+\subsubsection{Parallel CRC Generation}
+Unlike serial implementations, the \textbf{Mac} core utilizes a bank of 8 parallel \textbf{LFSR} instances. During the elaboration phase, Chisel calculates the LFSR transition matrix to generate XOR-based hardware logic capable of processing up to 64 bits of data per cycle. This allows the core to calculate the Frame Check Sequence (FCS) for any valid \textit{tkeep} combination in a single clock cycle.
+
+\subsubsection{Lane Alignment and Swapping}
+Ethernet 10G requirements dictate that the Start control character (\texttt{0xFB}) must be aligned to specific lanes. The TX path supports two alignment modes:
+\begin{itemize}
+    \item \textbf{Lane 0 Alignment:} The packet starts on the first byte of the XGMII bus.
+    \item \textbf{Lane 4 Alignment:} The packet starts on the fifth byte. 
+\end{itemize}
+The \textit{txStartPacket} status signal uses two bits to indicate the active alignment (\texttt{b01} for Lane 0, \texttt{b10} for Lane 4). When starting on Lane 4, the internal logic performs a 32-bit lane swap to maintain protocol compliance.
+
+\subsubsection{Deficit Idle Count (DIC)}
+To maintain the IEEE 802.3 mandated 12-byte average Inter-Frame Gap (IFG) while maximizing 10G throughput, the core implements a \textbf{Deficit Idle Count} register. This logic tracks "borrowed" idle bytes from the previous transmission, allowing the FSM to start the next packet after only 8 or 4 idle bytes if the historical average remains above 12.
+
+\subsection{Receive Path Logic}
+The receive path operates in the \textit{rxClk} domain and performs frame detection by monitoring for the \texttt{XgmiiStart} character on Lane 0 or Lane 4.
+
+\subsubsection{Cross-Cycle Realignment}
+If a frame is detected on Lane 4, the RX path enters a "Swapped" state. It utilizes a 32-bit register (\textit{swapRxdReg}) to buffer the lower half of the XGMII bus, realigning the payload across clock cycles so that the AXI-Stream interface always sees a Lane 0-aligned packet start.
+
+\subsubsection{CRC Residue Verification}
+Because an Ethernet frame can terminate on any of the 8 XGMII lanes, the receiver validates the FCS by comparing the final LFSR state against a vector of 8 unique CRC residues. Each residue corresponds to a specific \textit{XgmiiTerm} position within the 64-bit word.
+
+\subsection{Precision Time Protocol (PTP)}
+When \textit{ptpTsEn} is active, the core captures the value of the \textit{ptpTs} input at the exact cycle the Start-of-Frame Delimiter (SFD) crosses the XGMII boundary. 
+\begin{itemize}
+    \item \textbf{ToD Format Support:} In Time-of-Day mode, the captured 96-bit timestamp is adjusted combinatorially to account for lane-swapping delays, ensuring nanosecond-level accuracy regardless of the starting lane.
+    \item \textbf{Sideband Reporting:} The TX timestamp is returned via the \textit{mAxisTxCpl} completion bus, while the RX timestamp is prepended to the \textit{tuser} field of the \textit{mAxisRx} interface.
+\end{itemize}

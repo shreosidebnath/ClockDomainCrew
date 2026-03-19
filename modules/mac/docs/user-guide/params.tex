@@ -1,0 +1,70 @@
+% chktex-file 44
+
+\section{Parameter Descriptions}
+
+The hardware parameters for the \textbf{Mac} core are described in Table~\ref{table:params}. These parameters control the architectural features, data-path widths, and monitoring capabilities of the controller.
+
+\renewcommand*{\arraystretch}{1.4}
+\begin{longtable}[H]{
+    | p{0.22\textwidth}
+    | p{0.10\textwidth}
+    | p{0.08\textwidth}
+    | p{0.08\textwidth}
+    | p{0.42\textwidth} |
+  }
+  \hline
+  \textbf{Name} & \textbf{Type} & \textbf{Min} & \textbf{Max} & \textbf{Description} \\ \hline \hline
+  \endfirsthead
+  \hline
+  \textbf{Name} & \textbf{Type} & \textbf{Min} & \textbf{Max} & \textbf{Description} \\ \hline \hline
+  \endhead
+
+  % --- Hardware Arch ---
+  dataW         & Int     & 64      & 64      & XGMII data bus width (Fixed for 10G) \\ \hline
+  ctrlW         & Int     & 8       & 8       & XGMII control bus width \\ \hline
+  txGbxIfEn     & Boolean & false   & true    & Enable Gearbox interface for TX path \\ \hline
+  rxGbxIfEn     & Boolean & false   & true    & Enable Gearbox interface for RX path \\ \hline
+  gbxCnt        & Int     & 1       & --      & Width of gearbox synchronization bus \\ \hline
+  
+  % --- Protocol ---
+  paddingEn     & Boolean & false   & true    & Enable auto-padding of short frames \\ \hline
+  dicEn         & Boolean & false   & true    & Enable Deficit Idle Count (DIC) for IFG \\ \hline
+  minFrameLen   & Int     & 64      & --      & Minimum Ethernet frame size in bytes \\ \hline
+  
+  % --- PTP ---
+  ptpTsEn       & Boolean & false   & true    & Enable Precision Time Protocol (PTP) \\ \hline
+  ptpTsFmtTod   & Boolean & false   & true    & Timestamp Format (True: ToD, False: Binary) \\ \hline
+  ptpTsW        & Int     & 1       & 128     & Bit-width of the PTP timestamp bus \\ \hline
+  
+  % --- Stats ---
+  statEn        & Boolean & false   & true    & Enable internal Statistics Aggregator \\ \hline
+  statTxLevel   & Int     & 0       & 2       & Transmit statistics granularity level \\ \hline
+  statRxLevel   & Int     & 0       & 2       & Receive statistics granularity level \\ \hline
+  statIdBase    & Int     & 0       & --      & Base index for statistics reporting ID \\ \hline
+  statUpdatePeriod & Int  & 1       & --      & Period (cycles) between stats updates \\ \hline
+  statStrEn     & Boolean & false   & true    & Enable human-readable metadata strings \\ \hline
+  statPrefixStr & String  & --      & --      & Prefix for identifying the MAC instance \\ \hline
+
+  \caption{Mac Parameter Descriptions}\label{table:params}
+\end{longtable}
+
+\subsection{Example Instantiation}
+
+The \textbf{Mac} core is typically instantiated in Chisel as a `RawModule` to allow for multiple asynchronous clock domains. An example configuration with PTP enabled is shown below:
+
+\begin{lstlisting}[language=Scala]
+  // Define a custom configuration
+  val myMacParams = MacParams(
+    ptpTsEn      = true,
+    ptpTsW       = 96,
+    statPrefixStr = "WAN_PORT_0"
+  )
+
+  // Instantiate the MAC core
+  val ethernetMac = Module(new Mac(myMacParams))
+  
+  // Connect clocks
+  ethernetMac.io.txClk   := coreClock
+  ethernetMac.io.rxClk   := phyClock
+  ethernetMac.io.statClk := systemClock
+\end{lstlisting}

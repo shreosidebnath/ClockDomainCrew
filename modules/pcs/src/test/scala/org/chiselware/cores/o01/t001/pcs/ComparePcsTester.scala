@@ -1353,6 +1353,7 @@ import chiseltest._
 import chiseltest.simulator.VerilatorFlags
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import firrtl2.options.TargetDirAnnotation
 
 class ComparePcsTester extends AnyFlatSpec with ChiselScalatestTester with Matchers {
   // --------------------------------------------------------------------------
@@ -1382,7 +1383,7 @@ class ComparePcsTester extends AnyFlatSpec with ChiselScalatestTester with Match
       Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")
     ),
     WriteVcdAnnotation,
-    TargetDirAnnotation("modules/pcs/generated")
+    TargetDirAnnotation("modules/pcs/generated/PcsTests")
   )
 
   private def withDut(tn: Int, testName: String)(body: DualWrapperPcs => Unit): Unit = {

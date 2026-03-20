@@ -100,7 +100,7 @@ cov:
 		clean \
 		coverage \
 		test \
-		"runMain org.chiselware.cores.o01.t001.mac.Main" \
+		"runMain org.chiselware.cores.o01.t001.${SBT_PROJECT}.Main" \
 		coverageReport \
 		coverageOff | tee ${CORE_DIR}/generated/test.rpt
 	rm -rf *.anno.json

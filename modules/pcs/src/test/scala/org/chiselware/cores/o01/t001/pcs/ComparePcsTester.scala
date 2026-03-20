@@ -1381,7 +1381,8 @@ class ComparePcsTester extends AnyFlatSpec with ChiselScalatestTester with Match
     VerilatorFlags(
       Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")
     ),
-    WriteVcdAnnotation
+    WriteVcdAnnotation,
+    TargetDirAnnotation("modules/pcs/generated")
   )
 
   private def withDut(tn: Int, testName: String)(body: DualWrapperPcs => Unit): Unit = {

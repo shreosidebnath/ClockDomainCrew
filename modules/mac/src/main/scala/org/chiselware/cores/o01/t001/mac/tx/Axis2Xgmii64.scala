@@ -765,7 +765,7 @@ class Axis2Xgmii64(
       mAxisTxCplTsReg(15, 0)
     )
     mAxisTxCplTsBorrowReg :=
-      (Cat(0.U(1.W), mAxisTxCplTsReg(45, 16)).asSInt - 1000000000.S)(31)
+      (Cat(0.U(1.W), mAxisTxCplTsReg(45, 16)).asSInt - 1000000000.S)(30)
   }
 
   when(gbxIfEn.B && io.txGbxReqStall) {

@@ -95,14 +95,16 @@ test:
 cov:
 	@echo Running tests with coverage enabled
 	mkdir -p ${CORE_DIR}/generated
-	$(SBT) clean \
-	coverageOn \
-	"project ${SBT_PROJECT}" \
-	test \
-	run  \
-	coverageReport | tee ${CORE_DIR}/generated/test.rpt
+	mkdir -p ${CORE_DIR}/generated/scalaCoverage
+	$(SBT) "project ${SBT_PROJECT}" \
+		clean \
+		coverage \
+		test \
+		"runMain org.chiselware.cores.o01.t001.mac.Main" \
+		coverageReport \
+		coverageOff | tee ${CORE_DIR}/generated/test.rpt
 	rm -rf *.anno.json
-	firefox --new-window ${CORE_DIR}/generated/scalaCoverage/scoverage-report/index.html 2>/dev/null &
+	google-chrome --new-window ${CORE_DIR}/generated/scalaCoverage/scoverage-report/index.html 2>/dev/null &
 
 # Run synthesis on generated Verilog; generate timing and area reports
 .PHONY: yosys

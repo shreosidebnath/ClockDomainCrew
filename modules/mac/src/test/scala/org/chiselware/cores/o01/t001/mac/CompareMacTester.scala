@@ -9,12 +9,14 @@ import org.scalatest.matchers.should.Matchers
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 
+import firrtl2.options.TargetDirAnnotation
+
 class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Matchers {
 
   // --------------------------------------------------------------------------
   // Progress printing helpers
   // --------------------------------------------------------------------------
-  private val TotalTests = 16 // update this if you add/remove tests
+  private val TotalTests = 17 // update this if you add/remove tests
 
   private def pct(n: Int): Int = (n * 100) / TotalTests
 
@@ -878,7 +880,8 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
           VerilatorFlags(
             Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")
           ),
-          WriteVcdAnnotation
+          WriteVcdAnnotation,
+          TargetDirAnnotation("modules/mac/generated/MacTests")
         )
       ) { dut =>
 
@@ -930,7 +933,8 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
           VerilatorFlags(
             Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")
           ),
-          WriteVcdAnnotation
+          WriteVcdAnnotation,
+          TargetDirAnnotation("modules/mac/generated/MacTests")
         )
       ) { dut =>
 
@@ -986,7 +990,8 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
           VerilatorFlags(
             Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")
           ),
-          WriteVcdAnnotation
+          WriteVcdAnnotation,
+          TargetDirAnnotation("modules/mac/generated/MacTests")
         )
       ) { dut =>
 
@@ -1041,7 +1046,8 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
           VerilatorFlags(
             Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")
           ),
-          WriteVcdAnnotation
+          WriteVcdAnnotation,
+          TargetDirAnnotation("modules/mac/generated/MacTests")
         )
       ) { dut =>
 
@@ -1103,7 +1109,8 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
           VerilatorFlags(
             Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")
           ),
-          WriteVcdAnnotation
+          WriteVcdAnnotation,
+          TargetDirAnnotation("modules/mac/generated/MacTests")
         )
       ) { dut =>
 
@@ -1163,7 +1170,8 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
           VerilatorFlags(
             Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")
           ),
-          WriteVcdAnnotation
+          WriteVcdAnnotation,
+          TargetDirAnnotation("modules/mac/generated/MacTests")
         )
       ) { dut =>
 
@@ -1217,7 +1225,8 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
           VerilatorFlags(
             Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")
           ),
-          WriteVcdAnnotation
+          WriteVcdAnnotation,
+          TargetDirAnnotation("modules/mac/generated/MacTests")
         )
       ) { dut =>
 
@@ -1299,7 +1308,8 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
           VerilatorFlags(
             Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")
           ),
-          WriteVcdAnnotation
+          WriteVcdAnnotation,
+          TargetDirAnnotation("modules/mac/generated/MacTests")
         )
       ) { dut =>
 
@@ -1368,7 +1378,8 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
           VerilatorFlags(
             Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")
           ),
-          WriteVcdAnnotation
+          WriteVcdAnnotation,
+          TargetDirAnnotation("modules/mac/generated/MacTests")
         )
       ) { dut =>
 
@@ -1438,7 +1449,8 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
           VerilatorFlags(
             Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")
           ),
-          WriteVcdAnnotation
+          WriteVcdAnnotation,
+          TargetDirAnnotation("modules/mac/generated/MacTests")
         )
       ) { dut =>
 
@@ -1512,7 +1524,8 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
           VerilatorFlags(
             Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")
           ),
-          WriteVcdAnnotation
+          WriteVcdAnnotation,
+          TargetDirAnnotation("modules/mac/generated/MacTests")
         )
       ) { dut =>
 
@@ -1624,7 +1637,8 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
         VerilatorFlags(
           Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")
         ),
-        WriteVcdAnnotation
+        WriteVcdAnnotation,
+        TargetDirAnnotation("modules/mac/generated/MacTests")
       )
     ) { dut =>
 
@@ -1696,7 +1710,8 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
         VerilatorFlags(
           Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")
         ),
-        WriteVcdAnnotation
+        WriteVcdAnnotation,
+        TargetDirAnnotation("modules/mac/generated/MacTests")
       )
     ) { dut =>
 
@@ -1801,7 +1816,8 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
         VerilatorFlags(
           Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")
         ),
-        WriteVcdAnnotation
+        WriteVcdAnnotation,
+        TargetDirAnnotation("modules/mac/generated/MacTests")
       )
     ) { dut =>
 
@@ -1874,7 +1890,8 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
         VerilatorFlags(
           Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")
         ),
-        WriteVcdAnnotation
+        WriteVcdAnnotation,
+        TargetDirAnnotation("modules/mac/generated/MacTests")
       )
     ) { dut =>
 
@@ -1979,7 +1996,8 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
           VerilatorFlags(
             Seq("--compiler", "clang", "-LDFLAGS", "-Wno-unused-command-line-argument")
           ),
-          WriteVcdAnnotation
+          WriteVcdAnnotation,
+          TargetDirAnnotation("modules/mac/generated/MacTests")
         )
       ) { dut =>
 
@@ -2034,5 +2052,15 @@ class CompareMacTester extends AnyFlatSpec with ChiselScalatestTester with Match
 
     progEnd(tn + 1, tname)
     progInfo(tn + 1, s"TX tests completed, MAC testing complete!")
+  }
+
+  it should "AxisInterfaceParams: auto-calculate keepW" in {
+    val tn = 16
+    val tname = "AxisInterfaceParams: auto-calculate keepW"
+    progStart(tn, tname)
+
+    AxisInterfaceParams(dataW = 64).keepW shouldBe 8
+
+    progEnd(tn + 1, tname)
   }
 }

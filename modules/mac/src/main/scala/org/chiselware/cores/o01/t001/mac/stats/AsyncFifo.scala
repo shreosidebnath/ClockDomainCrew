@@ -48,7 +48,7 @@ class AsyncFifo(val p: AsyncFifoParams) extends RawModule {
   val payloadWidth = p.dataW + p.keepW + p.keepW + 1 + p.idW + p.destW + p.userW
 
   // Use SyncReadMem so Vivado infers Block RAM for the 16K depth
-  val mem = withClockAndReset(io.sClk, io.sRst) { SyncReadMem(p.depth, UInt(payloadWidth.W)) }
+  val mem = SyncReadMem(p.depth, UInt(payloadWidth.W))
 
   // --- Write Domain ---
   withClockAndReset(io.sClk, io.sRst) {
@@ -81,7 +81,7 @@ class AsyncFifo(val p: AsyncFifoParams) extends RawModule {
 
     when(readReady && !empty) {
       // SyncReadMem requires the read enable signal
-      dataOutReg := mem.read(rdPtr(aw - 1, 0), readReady && !empty)
+      dataOutReg := mem.read(rdPtr(aw - 1, 0), readReady && !empty, io.mClk)
       val nextRdPtr = rdPtr + 1.U
       rdPtr := nextRdPtr
       rdPtrGray := (nextRdPtr ^ (nextRdPtr >> 1))

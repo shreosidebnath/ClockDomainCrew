@@ -95,9 +95,7 @@ class DualWrapperMac extends Module {
     minFrameLen = 64,
     ptpTsEn = false,
     ptpTsFmtTod = true,
-    ptpTsW = 96,
-    pfcEn = false,
-    pauseEn = false
+    ptpTsW = 96
   )
 
   private val chiselDut = Module(new MacTb(chiselParams))
@@ -108,8 +106,10 @@ class DualWrapperMac extends Module {
   // =========================
   chiselDut.io.rxClk := clock
   chiselDut.io.txClk := clock
+  chiselDut.io.statClk := clock
   chiselDut.io.rxRst := reset.asBool
   chiselDut.io.txRst := reset.asBool
+  chiselDut.io.statRst := reset.asBool
 
   // AXIS TX input
   chiselDut.io.sAxisTx.tdata := io.txTdata
@@ -126,6 +126,12 @@ class DualWrapperMac extends Module {
 
   // TX completion sink always ready
   chiselDut.io.mAxisTxCpl.tready := true.B
+
+  // Stats sink always ready
+  chiselDut.io.mAxisStat.tready := true.B
+
+  // No RX FIFO drop indication in this wrapper
+  chiselDut.io.statRxFifoDrop := false.B
 
   // XGMII RX input
   chiselDut.io.xgmiiRxd := io.xgmiiRxd

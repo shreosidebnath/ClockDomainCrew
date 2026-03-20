@@ -105,7 +105,13 @@ class StatsCollect(val p: StatsCollectParams) extends Module {
   }
 
   val shiftIn = updateReg || updateShiftReg(0)
-  val shiftNext = WireDefault(Cat(shiftIn, updateShiftReg(p.cnt - 1, 1)))
+  val shiftNext = Wire(UInt(p.cnt.W))
+
+  if (p.cnt > 1) {
+    shiftNext := Cat(shiftIn, updateShiftReg(p.cnt - 1, 1))
+  } else {
+    shiftNext := shiftIn
+  }
 
   // FSM Control Logic
   switch(stateReg) {
@@ -121,7 +127,11 @@ class StatsCollect(val p: StatsCollectParams) extends Module {
       when(zeroReg) {
         memWrData := chReg
       }.elsewhen(!tvalidReg && shiftIn) {
-        shiftNext := Cat(false.B, updateShiftReg(p.cnt - 1, 1)) // clear MSB
+        if (p.cnt > 1) {
+          shiftNext := Cat(false.B, updateShiftReg(p.cnt - 1, 1)) // clear MSB
+        } else {
+          shiftNext := false.B
+        }
         memWrData := 0.U
         nextTdata := memRdDataReg + chReg
         nextTid := countReg + p.idBase.U

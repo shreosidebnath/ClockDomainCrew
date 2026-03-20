@@ -522,10 +522,8 @@ class Xgmii2Axis64(
     xgmiiStartD0Reg := xgmiiStartSwapReg
 
     if (ptpTsEn && ptpTsFmtTod) {
-      ptpTsAdjReg(15, 0) := ptpTsReg(15, 0)
-
       val tsSub = Cat(0.U(1.W), ptpTsReg(45, 16)).asSInt - 1000000000.S(32.W)
-      ptpTsBorrowReg := tsSub(31)
+      ptpTsBorrowReg := tsSub(30)
 
       val ptpAdjMid = tsSub(29, 0).asUInt
       val ptpAdjHigh = ptpTsReg(95, 48) + 1.U

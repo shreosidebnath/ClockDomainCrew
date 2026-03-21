@@ -97,13 +97,12 @@ test:
 cov:
 	@echo Running tests with coverage enabled
 	mkdir -p ${CORE_DIR}/generated
-	$(SBT) clean \
-	coverageOn \
-	"project core" \
-	test \
-	coverageReport \
-	coverageOff \
-	run | tee ${CORE_DIR}/generated/test.rpt
+	$(SBT) "project core" \
+		clean \
+		coverage \
+		test \
+		run \
+		coverageReport | tee ${CORE_DIR}/generated/test.rpt
 	rm -rf *.anno.json
 	firefox --new-window ${CORE_DIR}/generated/scalaCoverage/scoverage-report/index.html 2>/dev/null &
 

@@ -1,6 +1,8 @@
-# ClockDomainCrew – 10G Ethernet MAC + PCS
+# ClockDomainCrew – 10G Ethernet MAC
 
-This repository contains a hardware implementation of a 10 Gigabit Ethernet Media Access Control (MAC) and Physical Coding Sublayer (PCS) written in Chisel.
+This repository contains a hardware implementation of a 10 Gigabit Ethernet Media Access Control (MAC) written in Chisel.
+
+The Physical Coding Sublayer (PCS) is provided in [this repo](https://github.com/eddie-an/ClockDomainCrew-PCS)
 
 The project was developed as a capstone design project and implements the digital logic required to transmit and receive Ethernet frames using a 10GBASE-R style architecture.
 
@@ -92,13 +94,10 @@ The MAC exchanges data with application logic while the PCS prepares the data fo
 ```
 ClockDomainCrew/
 ├── build.sbt
-├── Makefile.base          # Primary build + verification engine
-├── Makefile.pcs           # Injects PCS variables into Makefile.base
-├── Makefile.mac           # Injects MAC variables into Makefile.base
+├── Makefile               # Primary build + verification engine
 ├── docs/                  # Project-level reports and documentation
 ├── modules/
-│   ├── mac/               # MAC layer (standalone)
-│   └── pcs/               # PCS layer (standalone)
+│   ├── mac/               # MAC layer
 ├── Scapy-Tests/           # Loopback tests using Scapy
 └── project/               # sbt plugins and build configuration
 ```
@@ -110,13 +109,6 @@ Contains the implementation of the Ethernet Media Access Control layer, includin
 - XGMII transmit and receive logic
 - frame processing
 
-### modules/pcs
-
-Contains the Physical Coding Sublayer, including:
-- 64b/66b encoding and decoding
-- scrambling and descrambling
-- block synchronization
-- error detection
 
 ## Reference Design 
 
@@ -126,30 +118,26 @@ The implementation uses concepts and structure inspired by the open-source Ether
 This project was used as a golden reference for architecture and module organization.
 
 ## Running the Project
-The primary way to interact with the project is through the provided Makefiles. The build system is split to support the MAC and PCS cores independently.
-
-_(Note: You can substitute `Makefile.mac` with `Makefile.pcs` in any of the Make commands below to target the other module.)_
+The primary way to interact with the project is through the provided Makefiles.
 
 ### Building (via sbt)
 ```bash
-# Compile all modules
+# Compile module
 sbt compile
-
-# Compile specific module
-sbt "project mac" compile
-sbt "project pcs" compile
+# or alternatively
+sbt "project core" compile
 ```
 
 ### Testing
 
 Run the following command to execute the test suite for the MAC core:
 ```bash
-make -f Makefile.mac test
+make test
 ```
 
 This is equivalent to running the following under the hood:
 ```bash
-sbt "project mac" test
+sbt "project core" test
 ```
 
 and writes output to:
@@ -161,12 +149,12 @@ modules/mac/generated/test.rpt
 
 Generate SystemVerilog and synthesis collateral for the MAC core:
 ```bash
-make -f Makefile.mac verilog
+make verilog
 ```
 
 This is equivalent to running the following under the hood:
 ```bash
-sbt "project mac" run
+sbt "project core" run
 ```
 
 Entrypoint:
@@ -179,7 +167,7 @@ org.chiselware.cores.o01.t001.mac.Main
 Run everything end-to-end (cleans the directory, runs tests with coverage, generates Verilog, synthesizes with Yosys, builds documentation, and checks for errors):
 
 ```bash
-make -f Makefile.mac all
+make all
 ```
 
 
@@ -198,11 +186,9 @@ test
 
 ## Documentation
 
-Detailed documentation for each module can be found in the user guides:
+Detailed documentation for each module can be found in the user guide:
 
 modules/mac/docs/user-guide
-
-modules/pcs/docs/user-guide
 
 These guides describe the internal architecture, interfaces, and configuration parameters of each subsystem.
 

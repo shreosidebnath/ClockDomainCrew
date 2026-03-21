@@ -7,7 +7,7 @@ Compile / doc / scalacOptions ++= Seq("-groups", "-implicits")
 
 Test / parallelExecution := false
 
-val chiselVersion = "5.3.0" // old version 3.6.0
+val chiselVersion = "5.3.0"
 val chiselTestVer = "5.0.2"
 val scalafmtVersion = "2.5.0"
 val scalaTestVer = "3.2.18"
@@ -32,33 +32,20 @@ lazy val commonSettings = Seq(
 )
 
 lazy val root = (project in file("."))
-  .aggregate(mac, pcs)
+  .aggregate(core)
   .settings(
     name := "chiselware",
     publish / skip := true // root is an aggregator only
   )
 
-lazy val mac = project
-  .in(file("modules/mac"))
-  .settings(
-    name := "chiselware-core-mac",
-    coverageDataDir := target.value / "../generated/scalaCoverage",
-    coverageFailOnMinimum := true,
-    coverageMinimumStmtTotal := 90,
-    coverageMinimumBranchTotal := 45,
-    publish / skip := true,
-    Compile / mainClass := Some("org.chiselware.cores.o01.t001.mac.Main")
-  )
-  .settings(commonSettings: _*)
-
-lazy val pcs = project
+lazy val core = project
   .in(file("modules/pcs"))
   .settings(
     name := "chiselware-core-pcs",
     coverageDataDir := target.value / "../generated/scalaCoverage",
     coverageFailOnMinimum := true,
     coverageMinimumStmtTotal := 90,
-    coverageMinimumBranchTotal := 45,
+    coverageMinimumBranchTotal := 95,
     publish / skip := true,
     Compile / mainClass := Some("org.chiselware.cores.o01.t001.pcs.Main")
   )

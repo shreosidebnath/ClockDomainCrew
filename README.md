@@ -4,41 +4,16 @@ A high-performance, parameterized 10 Gigabit Ethernet Media Access Control (MAC)
 ## Project Overview
 This repository contains the MAC (Media Access Control) layer. It implements the digital logic required to bridge packet-based application logic (AXI-Stream) with the 64-bit XGMII interface used in 10GBASE-R style architectures.
 
-Key Features
-- Full-Duplex Operation: Independent 64-bit Transmit (TX) and Receive (RX) datapaths.
-- Standard Compatibility: Strict adherence to 10GbE framing requirements.
-- Hardware Optimizations: Parallel LFSR for single-cycle CRC-32 (FCS) generation/verification and Deficit Idle Count (DIC) for maximum throughput.
-- PTP Support: Optional IEEE 1588 Precision Time Protocol timestamping with nanosecond accuracy.
+### Key Features
+- **Full-Duplex Operation:** Independent 64-bit Transmit (TX) and Receive (RX) datapaths.
+- **Standard Compatibility:** Strict adherence to 10GbE framing requirements.
+- **Hardware Optimizations:** Parallel LFSR for single-cycle CRC-32 (FCS) generation/verification and Deficit Idle Count (DIC) for maximum throughput.
+- **PTP Support:** Optional IEEE 1588 Precision Time Protocol timestamping with nanosecond accuracy.
 
 ## System Architecture
 The MAC acts as the primary orchestrator between the user application and the physical link. For a complete Ethernet solution, this module is designed to interface with our [PCS Core](https://github.com/eddie-an/ClockDomainCrew-PCS)
 
-```
-+----------------------+
-|   Application Logic  |
-+----------+-----------+
-           │
-           ▼
-+----------------------+
-|         MAC          |
-|    (XGMII Interface) |
-+----------+-----------+
-           │
-           ▼
-+----------------------+
-|         PCS          |
-|    TX / RX Encoding  |
-+----------+-----------+
-           │
-           ▼
-+----------------------+
-|        SERDES        |
-|    Serializer / PHY  |
-+----------+-----------+
-           │
-           ▼
-        Ethernet Link
-```
+![Architecture Diagram](modules/mac/docs/user-guide/images/Architecture_Diagram.png)
 
 ## Documentation
 Technical specifications, state machine diagrams, and timing results are maintained in the LaTeX-generated User Guide.
@@ -48,7 +23,7 @@ Technical specifications, state machine diagrams, and timing results are maintai
 ## Getting Started
 ### Dependencies
 - Hardware Construction: `sbt`, `Chisel3`, `CIRCT/FIRRTL`
-- Simulation: `Verilator`, `Icarus Verilog`, or `Synopsys VCS`
+- Simulation: `Verilator`
 - Synthesis & Timing: `Yosys (v0.9+)` and `OpenSTA (v2.4.0+)`
 
 ### Usage

@@ -303,3 +303,57 @@ To integrate the \textbf{Mac} core into a larger system:
     \item Configure the independent \textit{txClk}, \textit{rxClk}, and \textit{statClk} domains alongside their respective reset signals.
     \item Enable optional features such as PTP timestamping if required by the application logic.
 \end{itemize}
+
+Figure~\ref{fig:mac_pcs_combined} illustrates how the \textbf{Mac} core fits within a complete 10GBASE-R architecture, showing the flow of data from the application layer down to the physical medium and back up.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    block/.style={rectangle, draw=space-blue, fill=fog-grey, thick, minimum width=4cm, minimum height=1cm, align=center, rounded corners=2pt},
+    arrow/.style={-{Stealth[scale=1.2]}, thick, space-blue},
+    interface/.style={text=space-blue, font=\bfseries}
+]
+
+% Center Nodes (The Boundaries)
+\node (app) [interface] at (1, 0) {Application Logic};
+\node (xgmii) [interface] at (-6, -4.5) {XGMII Interface};
+\node (serdes) [interface] at (1, -9) {SERDES (Physical PHY)};
+
+% Left Column (TX Path - Flowing Down)
+\node (axiTx) at (-2.2, -1.2) {AXI-Stream TX};
+\node (macTx) [block] at (-2.2, -2.5) {\textbf{MAC TX} \\ (Axis2Xgmii64)};
+\node (xgmiiTx) at (-2.2, -4.5) {64-bit Data + 8-bit Ctrl};
+\node (pcsTx) [block] at (-2.2, -6.5) {\textbf{PCS TX} \\ (Encoder / Scrambler)};
+\node (phyTx) at (-2.2, -7.8) {64b/66b TX};
+
+% Right Column (RX Path - Flowing Up)
+\node (axiRx) at (4.2, -1.2) {AXI-Stream RX};
+\node (macRx) [block] at (4.2, -2.5) {\textbf{MAC RX} \\ (Xgmii2Axis64)};
+\node (xgmiiRx) at (4.2, -4.5) {64-bit Data + 8-bit Ctrl};
+\node (pcsRx) [block] at (4.2, -6.5) {\textbf{PCS RX} \\ (Sync / Descrambler)};
+\node (phyRx) at (4.2, -7.8) {64b/66b RX};
+
+% --- Arrows for TX Path (Flowing Down) ---
+\draw [arrow] (app.west) -| (axiTx.north);
+\draw [arrow] (axiTx.south) -- (macTx.north);
+\draw [arrow] (macTx.south) -- (xgmiiTx.north);
+\draw [arrow] (xgmiiTx.south) -- (pcsTx.north);
+\draw [arrow] (pcsTx.south) -- (phyTx.north);
+\draw [arrow] (phyTx.south) |- (serdes.west);
+
+% --- Arrows for RX Path (Flowing Up) ---
+\draw [arrow] (serdes.east) -| (phyRx.south);
+\draw [arrow] (phyRx.north) -- (pcsRx.south);
+\draw [arrow] (pcsRx.north) -- (xgmiiRx.south);
+\draw [arrow] (xgmiiRx.north) -- (macRx.south);
+\draw [arrow] (macRx.north) -- (axiRx.south);
+\draw [arrow] (axiRx.north) |- (app.east);
+
+% --- Optional Domain Separators ---
+% These subtle dashed lines visually separate the MAC layer from the PCS layer
+\draw [dashed, space-blue!40, thick] (-8, -3.75) -- (8, -3.75);
+\draw [dashed, space-blue!40, thick] (-8, -5.25) -- (8, -5.25);
+
+\end{tikzpicture}
+\caption{Combined MAC and PCS 10GBASE-R Architecture}\label{fig:mac_pcs_combined}
+\end{figure}

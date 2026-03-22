@@ -1,10 +1,68 @@
+% chktex-file 44
 \section{Theory of Operation}
 
 \subsection{Overview}
-The \textbf{Mac} core is a high-performance 10GbE Media Access Controller implementation. It provides a full-duplex data path between a standard AXI-Stream user interface and the 64-bit XGMII physical layer interface. The core is designed as a \texttt{RawModule} to support three independent asynchronous clock domains: \textit{txClk}, \textit{rxClk}, and \textit{statClk}.
+The \textbf{Mac} core is a high-performance 10GbE Media Access Controller implementation. 
+It provides a full-duplex data path between a standard AXI-Stream user interface and the 64-bit XGMII physical layer interface for transmitting and receiving ethernet frames. 
+The core is designed as a \texttt{RawModule} to support three independent asynchronous clock domains: \textit{txClk}, \textit{rxClk}, and \textit{statClk}.
+
+The MAC performs the following functions:
+\begin{itemize}
+    \item Ethernet frame generation
+    \item Ethernet frame reception
+    \item Frame Check Sequence (FCS) generation and verification
+    \item Frame padding and minimum frame length enforcement
+    \item Inter-frame gap enforcement
+    \item Packet statistics reporting
+    \item Optional Precision Time Protocol (PTP) timestamp support
+\end{itemize}
+
+The design contains two primary datapaths:
+\begin{itemize}
+    \item \textbf{Transmit Path (TX):} Converts AXI-Stream packets into Ethernet frames transmitted on XGMII.
+    \item \textbf{Receive Path (RX):} Converts Ethernet frames received from XGMII into AXI-Stream packets.
+\end{itemize}
 
 \subsection{Architecture}
 The top-level core integrates three primary functional blocks:
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    block/.style={rectangle, draw=space-blue, fill=fog-grey, thick, minimum width=4cm, minimum height=1cm, align=center, rounded corners=2pt},
+    arrow/.style={-{Stealth[scale=1.2]}, thick, space-blue}
+]
+
+% Top and Bottom Nodes (Center)
+\node (app) [text=space-blue, font=\bfseries] at (0, 0) {Application Logic};
+\node (xgmii) [text=space-blue, font=\bfseries] at (0, -4.5) {XGMII Interface};
+
+% TX Column (Left)
+\node (axiTx) at (-2.8, -1.5) {AXI-Stream TX};
+\node (macTx) [block] at (-2.8, -3) {\textbf{Axis2Xgmii64 TX}};
+
+% RX Column (Right)
+\node (axiRx) at (2.8, -1.5) {AXI-Stream RX};
+\node (macRx) [block] at (2.8, -3) {\textbf{Xgmii2Axis64 RX}};
+
+% --- Arrows for TX Path (Flowing Down) ---
+% Goes horizontally out of the left side of App, then drops down to AXI TX
+\draw [arrow] (app.west) -| (axiTx.north);
+\draw [arrow] (axiTx.south) -- (macTx.north);
+% Drops down from MAC TX, then goes horizontally into the left side of XGMII
+\draw [arrow] (macTx.south) |- (xgmii.west);
+
+% --- Arrows for RX Path (Flowing Up) ---
+% Goes horizontally out of the right side of XGMII, then straight up to MAC RX
+\draw [arrow] (xgmii.east) -| (macRx.south);
+\draw [arrow] (macRx.north) -- (axiRx.south);
+% Goes straight up from AXI RX, then horizontally into the right side of App
+\draw [arrow] (axiRx.north) |- (app.east);
+
+\end{tikzpicture}
+\caption{MAC Top-Level Architecture}
+\end{figure}
+
 \begin{itemize}
     \item \textbf{Transmit Path (Axis2Xgmii64):} Encapsulates AXI-Stream packets into Ethernet frames with preamble, SFD, padding, and CRC-32.
     \item \textbf{Receive Path (Xgmii2Axis64):} Decapsulates XGMII data, validates frame integrity via CRC residue checking, and extracts timestamps.
@@ -14,10 +72,87 @@ The top-level core integrates three primary functional blocks:
 The user-side AXI-Stream interfaces are connected via \textit{AxisTie} modules, ensuring robust signal bridging and default tie-offs for optional sideband signals like \textit{tid} and \textit{tdest}.
 
 \subsection{Transmit Path Logic}
-The transmit path utilizes a 7-state finite state machine (\texttt{Idle}, \texttt{Payload}, \texttt{Pad}, \texttt{Fcs1}, \texttt{Fcs2}, \texttt{Err}, \texttt{Ifg}) to manage frame construction.
+The transmit datapath converts AXI-Stream packets into Ethernet frames suitable for transmission over XGMII. Main responsibilities include:
+
+\begin{itemize}
+    \item Frame construction
+    \item Frame padding
+    \item CRC generation
+    \item Inter-frame gap enforcement
+\end{itemize}
+
+\textbf{Transmit Pipeline:}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=0.8cm,
+    block/.style={rectangle, draw=crockadile-green, fill=fog-grey, thick, minimum width=4cm, minimum height=0.8cm, align=center},
+    arrow/.style={-{Stealth[scale=1.2]}, thick, crockadile-green}
+]
+
+\node (input) [text=crockadile-green, font=\bfseries] {AXI-Stream Input};
+\node (builder) [block, below=0.6cm of input] {Frame Builder};
+\node (pad) [block, below=of builder] {Padding Unit};
+\node (crc) [block, below=of pad] {CRC Generator};
+\node (ifg) [block, below=of crc] {IFG Controller};
+\node (output) [text=crockadile-green, font=\bfseries, below=0.6cm of ifg] {XGMII Output};
+
+\draw [arrow] (input) -- (builder);
+\draw [arrow] (builder) -- (pad);
+\draw [arrow] (pad) -- (crc);
+\draw [arrow] (crc) -- (ifg);
+\draw [arrow] (ifg) -- (output);
+
+\end{tikzpicture}
+\caption{Transmit Datapath Pipeline}
+\end{figure}
+
+\subsubsection{Ethernet Frame Format}
+The standard Ethernet frame format constructed by the TX path is as follows:
+
+\begin{table}[H]
+\centering
+\renewcommand*{\arraystretch}{1.4}
+\begin{tabular}{| c | c | c | c |}
+\hline
+\textbf{Preamble \& SFD} & \textbf{MAC Header} & \textbf{Payload} & \textbf{FCS} \\ \hline \hline
+8 Bytes & 14 Bytes & Variable & 4 Bytes \\ \hline
+\end{tabular}
+\caption{Standard Ethernet Frame Format}\label{table:eth_frame}
+\end{table}
+
+\textbf{Preamble and SFD:} On the XGMII bus, the preamble consists of a Start control character (\texttt{0xFB}), followed by six bytes of standard preamble (\texttt{0x55}), and finishes with a single Start Frame Delimiter (SFD) byte (\texttt{0xD5}).
+
+\subsubsection{Transmit State Machine}
+The transmit module operates using a 7-state finite state machine to manage frame construction:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{State} & \textbf{Description} \\ \hline \hline
+\texttt{Idle} & Wait for packet arrival \\ \hline
+\texttt{Payload} & Transmit packet payload \\ \hline
+\texttt{Pad} & Insert padding if required \\ \hline
+\texttt{Fcs1} & Transmit first CRC segment \\ \hline
+\texttt{Fcs2} & Transmit remaining CRC \\ \hline
+\texttt{Err} & Transmit error frame \\ \hline
+\texttt{Ifg} & Enforce inter-frame gap \\ \hline
+\end{tabular}
+\caption{Transmit Finite State Machine}\label{table:tx_fsm}
+\end{table}
+
+\subsubsection{Frame Padding}
+Ethernet frames must be at least 64 bytes long to ensure collision detection mechanisms function correctly on physical mediums. If the packet payload is smaller than this minimum frame size, the MAC automatically appends padding bytes before calculating and transmitting the CRC. 
 
 \subsubsection{Parallel CRC Generation}
-Unlike serial implementations, the \textbf{Mac} core utilizes a bank of 8 parallel \textbf{LFSR} instances. During the elaboration phase, Chisel calculates the LFSR transition matrix to generate XOR-based hardware logic capable of processing up to 64 bits of data per cycle. This allows the core to calculate the Frame Check Sequence (FCS) for any valid \textit{tkeep} combination in a single clock cycle.
+Unlike serial implementations, the \textbf{Mac} core utilizes a bank of 8 parallel \textbf{LFSR} instances. During the elaboration phase, Chisel calculates the LFSR transition matrix to generate XOR-based hardware logic capable of processing up to 64 bits of data per cycle using the standard polynomial \texttt{0x04C11DB7}. This allows the core to calculate the Frame Check Sequence (FCS) for any valid \textit{tkeep} combination in a single clock cycle.
+
+\subsubsection{Inter-Frame Gap (IFG)}
+The Ethernet standard requires a minimum delay between consecutive frames to allow network devices time to process the incoming packet. The transmit module enforces this by inserting idle control characters on the XGMII interface. The default inter-frame gap is \textbf{12 bytes}.
+
+\subsubsection{Deficit Idle Count (DIC)}
+To maintain the IEEE 802.3 mandated 12-byte average Inter-Frame Gap (IFG) while maximizing 10G throughput, the core implements a \textbf{Deficit Idle Count} register. This logic tracks "borrowed" idle bytes from the previous transmission, allowing the FSM to start the next packet after only 8 or 4 idle bytes if the historical average remains above 12.
 
 \subsubsection{Lane Alignment and Swapping}
 Ethernet 10G requirements dictate that the Start control character (\texttt{0xFB}) must be aligned to specific lanes. The TX path supports two alignment modes:
@@ -27,21 +162,144 @@ Ethernet 10G requirements dictate that the Start control character (\texttt{0xFB
 \end{itemize}
 The \textit{txStartPacket} status signal uses two bits to indicate the active alignment (\texttt{b01} for Lane 0, \texttt{b10} for Lane 4). When starting on Lane 4, the internal logic performs a 32-bit lane swap to maintain protocol compliance.
 
-\subsubsection{Deficit Idle Count (DIC)}
-To maintain the IEEE 802.3 mandated 12-byte average Inter-Frame Gap (IFG) while maximizing 10G throughput, the core implements a \textbf{Deficit Idle Count} register. This logic tracks "borrowed" idle bytes from the previous transmission, allowing the FSM to start the next packet after only 8 or 4 idle bytes if the historical average remains above 12.
 
 \subsection{Receive Path Logic}
-The receive path operates in the \textit{rxClk} domain and performs frame detection by monitoring for the \texttt{XgmiiStart} character on Lane 0 or Lane 4.
+The receive datapath processes Ethernet frames received from the XGMII interface, operating in the \textit{rxClk} domain, and converts them into AXI-Stream packets.
+
+Main functions:
+\begin{itemize}
+    \item Frame detection
+    \item Preamble validation
+    \item Payload extraction
+    \item CRC verification
+    \item Packet classification
+\end{itemize}
+
+\textbf{Receive Pipeline:}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=0.8cm,
+    block/.style={rectangle, draw=orange, fill=fog-grey, thick, minimum width=4cm, minimum height=0.8cm, align=center},
+    arrow/.style={-{Stealth[scale=1.2]}, thick, orange}
+]
+
+\node (input) [text=orange, font=\bfseries] {XGMII Input};
+\node (detect) [block, below=0.6cm of input] {Frame Detection};
+\node (preamble) [block, below=of detect] {Preamble Validation};
+\node (parser) [block, below=of preamble] {Frame Parser};
+\node (crc) [block, below=of parser] {CRC Checker};
+\node (output) [text=orange, font=\bfseries, below=0.6cm of crc] {AXI-Stream Output};
+
+\draw [arrow] (input) -- (detect);
+\draw [arrow] (detect) -- (preamble);
+\draw [arrow] (preamble) -- (parser);
+\draw [arrow] (parser) -- (crc);
+\draw [arrow] (crc) -- (output);
+
+\end{tikzpicture}
+\caption{Receive Datapath Pipeline}
+\end{figure}
+
+\subsubsection{Receive State Machine}
+The receive module orchestrates the decapsulation process using a concise 3-state finite state machine:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{State} & \textbf{Description} \\ \hline \hline
+\texttt{Idle} & Actively searching the XGMII bus for Start control characters. \\ \hline
+\texttt{Payload} & Streaming active frame data to the AXI-Stream \textit{mAxisRx} interface. \\ \hline
+\texttt{Last} & Finalizing the packet termination specifically for Lane 4 aligned (swapped) frames. \\ \hline
+\end{tabular}
+\caption{Receive Finite State Machine}\label{table:rx_fsm}
+\end{table}
+
+\subsubsection{Frame Detection and Preamble Validation}
+The receive module detects the start of frames using XGMII control characters:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Symbol} & \textbf{Value} & \textbf{Description} \\ \hline \hline
+Idle & \texttt{0x07} & Idle character \\ \hline
+Start & \texttt{0xFB} & Start of frame \\ \hline
+Terminate & \texttt{0xFD} & End of frame \\ \hline
+Error & \texttt{0xFE} & Error indication \\ \hline
+\end{tabular}
+\caption{XGMII Control Characters}\label{table:xgmii_ctrl}
+\end{table}
+
+Once a Start character (\texttt{0xFB}) is detected on Lane 0 or Lane 4, the receiver verifies the Ethernet preamble sequence (\texttt{0x55} ... \texttt{0xD5}) before accepting frame data. Invalid preamble sequences trigger a preamble error flag.
 
 \subsubsection{Cross-Cycle Realignment}
 If a frame is detected on Lane 4, the RX path enters a "Swapped" state. It utilizes a 32-bit register (\textit{swapRxdReg}) to buffer the lower half of the XGMII bus, realigning the payload across clock cycles so that the AXI-Stream interface always sees a Lane 0-aligned packet start.
 
 \subsubsection{CRC Residue Verification}
-Because an Ethernet frame can terminate on any of the 8 XGMII lanes, the receiver validates the FCS by comparing the final LFSR state against a vector of 8 unique CRC residues. Each residue corresponds to a specific \textit{XgmiiTerm} position within the 64-bit word.
+The receive datapath computes the CRC of incoming frames using the same \texttt{0x04C11DB7} polynomial used during transmission. Because an Ethernet frame can terminate on any of the 8 XGMII lanes, the receiver validates the FCS by comparing the final LFSR state against a vector of 8 unique CRC residues. Each residue corresponds to a specific \textit{XgmiiTerm} position within the 64-bit word. If the calculated CRC does not match the received FCS, the frame is marked as invalid.
+
+\subsubsection{Packet Classification}
+The MAC inspects destination MAC addresses to classify packets dynamically:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Packet Type} & \textbf{Detection Method} \\ \hline \hline
+Unicast & LSB of destination address = 0 \\ \hline
+Multicast & LSB of destination address = 1 \\ \hline
+Broadcast & Destination address = \texttt{FF:FF:FF:FF:FF:FF} \\ \hline
+VLAN & EtherType = \texttt{0x8100} \\ \hline
+\end{tabular}
+\caption{Packet Classification Methods}\label{table:pkt_class}
+\end{table}
+
+\subsection{Packet Statistics}
+The MAC generates runtime statistics for monitoring and debugging. These signals cross from the high-speed data domains into the slower \textit{statClk} domain for software access.
+
+\textbf{Transmit Statistics:}
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Signal} & \textbf{Description} \\ \hline \hline
+\texttt{statTxPktLen} & Length of transmitted packet \\ \hline
+\texttt{statTxPktGood} & Valid transmitted packet \\ \hline
+\texttt{statTxPktBad} & Packet transmission error \\ \hline
+\end{tabular}
+\caption{Key Transmit Statistics}\label{table:tx_stats}
+\end{table}
+
+\textbf{Receive Statistics:}
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Signal} & \textbf{Description} \\ \hline \hline
+\texttt{statRxPktLen} & Length of received packet \\ \hline
+\texttt{statRxPktGood} & Valid received packet \\ \hline
+\texttt{statRxPktBad} & Packet error \\ \hline
+\texttt{statRxErrBadFcs} & CRC error \\ \hline
+\texttt{statRxErrOversize} & Oversized frame \\ \hline
+\texttt{statRxErrFraming} & Framing error \\ \hline
+\end{tabular}
+\caption{Key Receive Statistics}\label{table:rx_stats}
+\end{table}
 
 \subsection{Precision Time Protocol (PTP)}
 When \textit{ptpTsEn} is active, the core captures the value of the \textit{ptpTs} input at the exact cycle the Start-of-Frame Delimiter (SFD) crosses the XGMII boundary. 
 \begin{itemize}
     \item \textbf{ToD Format Support:} In Time-of-Day mode, the captured 96-bit timestamp is adjusted combinatorially to account for lane-swapping delays, ensuring nanosecond-level accuracy regardless of the starting lane.
     \item \textbf{Sideband Reporting:} The TX timestamp is returned via the \textit{mAxisTxCpl} completion bus, while the RX timestamp is prepended to the \textit{tuser} field of the \textit{mAxisRx} interface.
+\end{itemize}
+
+\subsection{Integration}
+To integrate the \textbf{Mac} core into a larger system:
+\begin{itemize}
+    \item Connect application logic (or FIFOs) to the AXI-Stream TX and RX interfaces.
+    \item Connect the MAC's XGMII interface directly to the PCS module.
+    \item Configure the independent \textit{txClk}, \textit{rxClk}, and \textit{statClk} domains alongside their respective reset signals.
+    \item Enable optional features such as PTP timestamping if required by the application logic.
 \end{itemize}

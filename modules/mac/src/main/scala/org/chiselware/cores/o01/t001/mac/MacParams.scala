@@ -66,13 +66,17 @@ object MacParams {
   val simConfigMap: LinkedHashMap[String, MacParams] = 
     LinkedHashMap(
       // "config_default_stats" -> MacParams(statEn = true),
-      "config_default_no_stats" -> MacParams(statEn = false)
+      "config_default_no_stats" -> MacParams(statEn = false),
+      "config_ptp_timestamp_enabled" -> MacParams(statEn = false, ptpTsEn = true),
+      "config_gearbox_disabled" -> MacParams(statEn = false, txGbxIfEn = false, rxGbxIfEn = false)
     )
 
   val synConfigMap: LinkedHashMap[String, MacParams] = 
     LinkedHashMap(
       // "mac_default_stats" -> MacParams(statEn = true),
-      "mac_default_no_stats" -> MacParams(statEn = false)
+      "mac_default_no_stats" -> MacParams(statEn = false),
+      "mac_ptp_timestamp_enabled" -> MacParams(statEn = false, ptpTsEn = true),
+      "mac_gearbox_disabled" -> MacParams(statEn = false, txGbxIfEn = false, rxGbxIfEn = false)
     )
 
   val synConfigs: String = synConfigMap.keys.mkString(" ")

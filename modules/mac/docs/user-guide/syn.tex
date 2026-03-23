@@ -19,17 +19,10 @@ own technology.
   \textbf{Config Name} &
   \textbf{width}       &
   \textbf{Gates}         \\ \hline \hline
-  mac\_default\_no\_stats  & 
+  mac\_default\_no\_stats\textsuperscript{1}  & 
   64-bit              & 
   18,788              \\ \hline
-
-  mac\_default\_stats     & 
-  64-bit              & 
-  \textit{TBD}\textsuperscript{1} \\ \hline
-  \caption{MAC Synthesis Results}\label{table:area}
 \end{longtable}
-
-\small{\textsuperscript{1} Pending final synthesis run with Statistics Aggregator enabled.}
 
 \subsection{SDC File}
 An \texttt{.sdc} file is generated to provide synthesis and static timing
@@ -60,22 +53,16 @@ open-source Nangate 45nm library.
   \textbf{Output Delay} &
   \textbf{Slack}          \\ \hline \hline
 
-  mac\_default\_no\_stats & 
+  mac\_default\_no\_stats\textsuperscript{1} & 
   6.40ns & 
   50\% & 
   1.28ns & 
   1.28ns & 
   +3.04ns (MET) \\ \hline
-
-  mac\_default\_stats    & 
-  6.40ns & 
-  50\% & 
-  1.28ns & 
-  1.28ns & 
-  \textit{See Note} \\ \hline
   \caption{MAC Static Timing Analysis Constraints}\label{table:timing}
 \end{longtable}
 
+\small{\textsuperscript{1} The default configuration is defined in the case class of \texttt{MacParams.scala}.}
 
 \subsection{Multicycle Paths}
 None. The design is architected to complete all framing, CRC generation, and lane-alignment logic within a single clock cycle at 156.25 MHz.

@@ -45,7 +45,7 @@ lazy val mac = project
     coverageDataDir := target.value / "../generated/scalaCoverage",
     coverageFailOnMinimum := true,
     coverageMinimumStmtTotal := 90,
-    coverageMinimumBranchTotal := 45,
+    coverageMinimumBranchTotal := 95,
     publish / skip := true,
     Compile / mainClass := Some("org.chiselware.cores.o01.t001.mac.Main")
   )
@@ -58,7 +58,7 @@ lazy val pcs = project
     coverageDataDir := target.value / "../generated/scalaCoverage",
     coverageFailOnMinimum := true,
     coverageMinimumStmtTotal := 90,
-    coverageMinimumBranchTotal := 45,
+    coverageMinimumBranchTotal := 95,
     publish / skip := true,
     Compile / mainClass := Some("org.chiselware.cores.o01.t001.pcs.Main")
   )

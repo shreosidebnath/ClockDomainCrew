@@ -9,7 +9,7 @@ own technology.
 
 \renewcommand*{\arraystretch}{1.4}
 \begin{longtable}[H]{
-    | p{0.20\textwidth}
+    | p{0.32\textwidth}
     | p{0.15\textwidth}
     | p{0.15\textwidth}
     | p{0.15\textwidth}
@@ -22,6 +22,14 @@ own technology.
   mac\_default\_no\_stats\textsuperscript{1}  & 
   64-bit              & 
   18,788              \\ \hline
+
+  mac\_ptp\_timestamp\_enabled  & 
+  64-bit              & 
+  24,949              \\ \hline
+
+  mac\_gearbox\_disabled  & 
+  64-bit              & 
+  17,781              \\ \hline
 \end{longtable}
 
 \subsection{SDC File}
@@ -38,7 +46,7 @@ open-source Nangate 45nm library.
 
 \renewcommand*{\arraystretch}{1.4}
 \begin{longtable}[H]{
-    | p{0.20\textwidth}
+    | p{0.32\textwidth}
     | p{0.08\textwidth}
     | p{0.12\textwidth}
     | p{0.13\textwidth}
@@ -59,6 +67,20 @@ open-source Nangate 45nm library.
   1.28ns & 
   1.28ns & 
   +3.04ns (MET) \\ \hline
+
+  mac\_ptp\_timestamp\_enabled & 
+  6.40ns & 
+  50\% & 
+  1.28ns & 
+  1.28ns & 
+  +0.26ns (MET) \\ \hline
+
+  mac\_gearbox\_disabled & 
+  6.40ns & 
+  50\% & 
+  1.28ns & 
+  1.28ns & 
+  +4.28ns (MET) \\ \hline
   \caption{MAC Static Timing Analysis Constraints}\label{table:timing}
 \end{longtable}
 

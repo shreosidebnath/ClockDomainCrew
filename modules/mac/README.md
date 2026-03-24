@@ -1,172 +1,147 @@
-# MAC
+# ClockDomainCrew – 10G Ethernet MAC
+A high-performance, parameterized 10 Gigabit Ethernet Media Access Control (MAC) core implemented in Chisel. Developed as a Capstone design project at the University of Calgary (2026).
 
-A parameterized Ethernet Media Access Control (MAC) core.
+## Project Overview
+This repository contains the MAC (Media Access Control) layer. It implements the digital logic required to bridge packet-based application logic (AXI-Stream) with the 64-bit XGMII interface used in 10GBASE-R style architectures.
 
-## Description
+### Key Features
+- **Full-Duplex Operation:** Independent 64-bit Transmit (TX) and Receive (RX) datapaths.
+- **Standard Compatibility:** Strict adherence to 10GbE framing requirements.
+- **Hardware Optimizations:** Parallel LFSR for single-cycle CRC-32 (FCS) generation/verification and Deficit Idle Count (DIC) for maximum throughput.
+- **PTP Support:** Optional IEEE 1588 Precision Time Protocol timestamping with nanosecond accuracy.
 
-The MAC core implements the Ethernet Media Access Control layer responsible for transmitting and receiving Ethernet frames between application logic and the physical interface.
-The MAC connects a packet-based AXI-Stream interface to a 64-bit XGMII interface, enabling integration with high-speed Ethernet Physical Coding Sublayer (PCS) modules.
+## System Architecture
+The MAC acts as the primary orchestrator between the user application and the physical link. For a complete Ethernet solution, this module is designed to interface with our [PCS Core](https://github.com/eddie-an/ClockDomainCrew-PCS)
 
+![Architecture Diagram](modules/mac/docs/user-guide/images/Architecture_Diagram.png)
 
-The design includes independent transmit and receive datapaths that perform the following functions:
-- Ethernet frame generation
-- Ethernet frame reception
-- Frame Check Sequence (FCS) generation and verification
-- Frame padding for minimum frame size enforcement
-- Inter-frame gap (IFG) insertion
-- Packet classification
-- Packet statistics reporting
-- Optional PTP timestamp support
-
-The MAC is implemented in Chisel and generates synthesizable SystemVerilog RTL.
-
+## Documentation
+Technical specifications, state machine diagrams, and timing results are maintained in the LaTeX-generated User Guide.
+- User Guide Path: `modules/mac/docs/user-guide/`
+- To Build: Ensure pdflatex is installed and run `make docs`. This should generate a `Mac.pdf` file.
 
 ## Getting Started
+### Dependencies
+- Hardware Construction: `sbt`, `Chisel3`, `CIRCT/FIRRTL`
+- Simulation: `Verilator`
+- Synthesis & Timing: `Yosys (v0.9+)` and `OpenSTA (v2.4.0+)`
 
-It is recommended that the user reads the MAC User Guide which can be found in:
+### Usage
+The project utilizes a top-level `Makefile` to wrap the Chisel/sbt workflow.
 
-modules/mac/docs/user-guide
+The following table lists all the `Makefile` commands to run various actions.
 
-The user guide contains detailed documentation on:
+| Action | Command | Output Location/File |
+|---|---|---|
+Compile | `sbt compile` | `target/`
+Generate Verilog | `make verilog` | `modules/mac/generated/`
+Run Synthesis | `make yosys` | `modules/mac/generated/synTestCases/`
+Run Tests | `make test` | `modules/mac/generated/test.rpt`
+Run Test Coverage | `make cov` | `modules/mac/generated/scalaCoverage/`
+Build PDF Guide | `make docs` | `modules/mac/docs/user-guide/Mac.pdf`
+Full Regression | `make all` | `modules/mac/generated/error.rpt`
 
-- MAC architecture
-- AXI Stream interfaces
-- XGMII interface
-- Transmit datapath
-- Receive datapath
-- configuration parameters
-- statistics and monitoring signals
+### Prerequisites for Tests
 
-## Dependencies
+#### Verilator (Required)
 
-The MAC core relies on the following tools for simulation, testing, and synthesis flows:
+This project requires **Verilator v5.044 or v5.045**, built using **Clang/clang++**.
 
-## Required Tools
+Some environments may run into Verilator PCH / build issues when Verilator is compiled with `g++` (e.g., missing file paths during compilation). Building Verilator with **Clang** resolves this reliably. Newer Verilator versions also improve support for the SystemVerilog golden model, but this project is validated against **v5.044** and **v5.045**.
 
-- sbt – Scala build tool used to compile Chisel code
-- Chisel3 – Hardware construction language used to generate RT
+##### Build Verilator with Clang
 
-## Optional Tools (for testing and synthesis)
+Clone Verilator, check out the appropriate release, then build/install:
 
-- Yosys (version 0.9 or later)
-Open-source synthesis framework used to generate gate-level netlists.
-- OpenSTA (version 2.4.0 or later)
-Static timing analysis tool used to verify timing constraints.
-- Verilator
-Open-source compiled simulator for Verilog/SystemVerilog.
-- iVerilog
-Open-source event-driven Verilog simulator.
-- VCS
-Commercial simulation tool from Synopsys.
+```bash
+export CC=clang
+export CXX=clang++
 
-These tools are only required for running regression tests and synthesis flows.
+autoconf
+./configure
+make          # this may take a while
+sudo make install
+```
 
+##### If you previously installed Verilator via Ubuntu packages, ensure the /usr/local/bin install takes precedence, this command will only update per terminal instance:
 
-## Installation
+```bash
+export PATH=/usr/local/bin:$PATH
+```
 
-There are no special installation requirements 
+#### Java (Required)
 
-The MAC core can be cloned and used directly as part of the project repository.
+##### Java JDK 17 is required to run and integrate with the blackbox implementation of the golden model.
 
-Example
+##### You can switch your system to other installed Java versions by running
+```bash
+sudo update-alternatives --config java
+```
 
-git clone  <https://github.com/shreosidebnath/ClockDomainCrew>
+Select the java-17 option.
+If java-17 is not listed, install JDK 17 first, then re-run the command above.
 
-cd ClockDomainCrew
+## Repository Structure
 
-The MAC core resides in:
-module/mac
+```
+ClockDomainCrew/
+├── build.sbt                   # Build tools
+├── Makefile                    # Chisel workflow file
+├── docs/                       # Project-level reports
+├── modules/
+│   └── mac/                    # MAC module
+│       ├── docs/
+│       │   └── user-guide/     # Technical Specification Document
+│       ├── generated/          # Generated files
+│       ├── src/
+│       │   ├── main/           # Source code
+│       │   └── test/           # Testbench
+│       └── target/             # Scala output target
+├── Scapy-Tests/                # Loopback tests using Scapy 
+└── project/                    # sbt plugins and build configuration
+```
 
-## Generating Verilog RTL
+## License 
+![License: CERN-OHL-S-2.0](https://img.shields.io/badge/license-CERN--OHL--S--2.0-blue)
 
-The MAC is written in Chisel and generates synthesizable SystemVerilog RTL
+This project is licensed under the **CERN Open Hardware Licence v2 – Strongly Reciprocal (CERN-OHL-S-2.0)**.
 
-To generate RTL
+Under this license you are free to:
+- Use the hardware design and documentation
+- Modify the source and create derivative works
+- Manufacture and distribute products based on the design
+- Share the design publicly
 
-$ sbt
+However, the following conditions apply:
+- Any modifications or derivative works must also be released under **CERN-OHL-S-2.0**
+- Copyright and license notices must be retained
+- When distributing products based on this design, the **complete corresponding source** must be made available
 
-sbt:ClockDomainCrew>
+This design is provided **“as is” without warranty**. The authors are not liable for any damages resulting from its use.
 
-sbt:ClockDomainCrew> project core
+See the `LICENSE.md` file or the official license text for full details:
+https://ohwr.org/cern_ohl_s_v2.txt
 
-sbt:ClockDomainCrew-core-mac> run
+### Upstream Work
 
-Generated RTL files will appear in:
+This project is based in part on the taxi repository:
 
-modules/mac/generated
+https://github.com/fpganinja/taxi
 
-The generated output inculdes:
-- SystemVerilog RTL
-- configuration-specific build artifacts
-- synthesis test configurations
+Original work:
+Copyright (c) 2015–2025 FPGA Ninja, LLC  
+Author: Alex Forencich
 
-## Running a Simulation
+Modifications and additional development:
+Copyright (c) 2026 ClockDomainCrew  
+University of Calgary – Schulich School of Engineering
 
-Simulation can be performed using several supported simulators.
-
-Supported simulators include:
-- Verilator
-- iVerilog
-- VCS
-
-Simulation tests verify the correct operation of:
-- frame transmission
-- frame reception
-- CRC generation
-- padding logic
-- inter-frame gap enforcement
-
-Tests can be executed with:
-$ sbt
-
-sbt:ClockDomainCrew>
-
-sbt:ClockDomainCrew> project core
-
-sbt:ClockDomainCrew-core-mac> test
-
-## Synthesis
-
-The MAC core is a fully synthesizable hardware design.
-
-The design supports synthesis flows using both open-source and commercial tools.
-
-Generated synthesis artifacts include:
-- SystemVerilog RTL
-- constraint files (.sdc)
-- synthesis scripts
-Example synthesis directories:
-modules/mac/generated/synTestCases/
-
-These directories include:
-- synthesis scripts for Yosys
-- timing scripts for OpenSTA
-- example technology libraries
-
-The included flows allow users to run synthesis regressions out-of-the-box and can be adapted to commercial EDA tools.
+Project Sponsor:
+ChiselWare
 
 ## Authors
 
-ClockDomainCrew Capstone Team University of Calgary 2026
-
-## Version History
-
-1.0.0
-Initial release of the MAC core.
-
-Features include:
-- AXI Stream transmit interface
-- AXI Stream receive interface
-- XGMII interface support
-- CRC generation and verification
-- frame padding
-- inter-frame gap insertion
-- packet statistics
-- optional timestamp support
-
-## License
-
-This project is licensed under the CERN-OHL-S v2 license. 
-
-See LICENSE.md for license information.
-
+ClockDomainCrew
+University of Calgary
+2026
+Electrical Engineering Capstone Project

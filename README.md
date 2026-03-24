@@ -63,7 +63,7 @@ make          # this may take a while
 sudo make install
 ```
 
-##### If you previously installed Verilator via Ubuntu packages, ensure the /usr/local/bin install takes precedence:
+##### If you previously installed Verilator via Ubuntu packages, ensure the /usr/local/bin install takes precedence, this command will only update per terminal instance:
 
 ```bash
 export PATH=/usr/local/bin:$PATH
@@ -73,7 +73,7 @@ export PATH=/usr/local/bin:$PATH
 
 ##### Java JDK 17 is required to run and integrate with the blackbox implementation of the golden model.
 
-##### Switch your system Java to JDK 17
+##### You can switch your system to other installed Java versions by running
 ```bash
 sudo update-alternatives --config java
 ```

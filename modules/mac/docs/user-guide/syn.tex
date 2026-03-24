@@ -9,7 +9,7 @@ own technology.
 
 \renewcommand*{\arraystretch}{1.4}
 \begin{longtable}[H]{
-    | p{0.20\textwidth}
+    | p{0.32\textwidth}
     | p{0.15\textwidth}
     | p{0.15\textwidth}
     | p{0.15\textwidth}
@@ -19,17 +19,18 @@ own technology.
   \textbf{Config Name} &
   \textbf{width}       &
   \textbf{Gates}         \\ \hline \hline
-  mac\_default\_no\_stats  & 
+  mac\_default\_no\_stats\textsuperscript{1}  & 
   64-bit              & 
   18,788              \\ \hline
 
-  mac\_default\_stats     & 
+  mac\_ptp\_timestamp\_enabled  & 
   64-bit              & 
-  \textit{TBD}\textsuperscript{1} \\ \hline
-  \caption{MAC Synthesis Results}\label{table:area}
-\end{longtable}
+  24,949              \\ \hline
 
-\small{\textsuperscript{1} Pending final synthesis run with Statistics Aggregator enabled.}
+  mac\_gearbox\_disabled  & 
+  64-bit              & 
+  17,781              \\ \hline
+\end{longtable}
 
 \subsection{SDC File}
 An \texttt{.sdc} file is generated to provide synthesis and static timing
@@ -45,7 +46,7 @@ open-source Nangate 45nm library.
 
 \renewcommand*{\arraystretch}{1.4}
 \begin{longtable}[H]{
-    | p{0.20\textwidth}
+    | p{0.32\textwidth}
     | p{0.08\textwidth}
     | p{0.12\textwidth}
     | p{0.13\textwidth}
@@ -60,22 +61,30 @@ open-source Nangate 45nm library.
   \textbf{Output Delay} &
   \textbf{Slack}          \\ \hline \hline
 
-  mac\_default\_no\_stats & 
+  mac\_default\_no\_stats\textsuperscript{1} & 
   6.40ns & 
   50\% & 
   1.28ns & 
   1.28ns & 
   +3.04ns (MET) \\ \hline
 
-  mac\_default\_stats    & 
+  mac\_ptp\_timestamp\_enabled & 
   6.40ns & 
   50\% & 
   1.28ns & 
   1.28ns & 
-  \textit{See Note} \\ \hline
+  +0.26ns (MET) \\ \hline
+
+  mac\_gearbox\_disabled & 
+  6.40ns & 
+  50\% & 
+  1.28ns & 
+  1.28ns & 
+  +4.28ns (MET) \\ \hline
   \caption{MAC Static Timing Analysis Constraints}\label{table:timing}
 \end{longtable}
 
+\small{\textsuperscript{1} The default configuration is defined in the case class of \texttt{MacParams.scala}.}
 
 \subsection{Multicycle Paths}
 None. The design is architected to complete all framing, CRC generation, and lane-alignment logic within a single clock cycle at 156.25 MHz.

@@ -1,3 +1,10 @@
+### Note: this branch is old and the documentations are not up to date with the main branch. 
+
+This branch is a legacy branch that shows the old structure of the repo containing both the MAC and the PCS. The MAC and the PCS are now in different repositories. 
+
+For the MAC, go to the main branch of this repo.
+For the PCS, visit: https://github.com/eddie-an/ClockDomainCrew-PCS/
+
 # ClockDomainCrew – 10G Ethernet MAC + PCS
 
 This repository contains a hardware implementation of a 10 Gigabit Ethernet Media Access Control (MAC) and Physical Coding Sublayer (PCS) written in Chisel.
